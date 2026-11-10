@@ -1,0 +1,53 @@
+# Bitácora de Uso de IA
+
+**Proyecto:** Portal de Donaciones para Mexico Dreamin  
+**Programa:** SF Vibe Lab (UADY - Salesforce, Mérida)  
+**Ruta:** `docs/bitacora_ia.md`  
+
+---
+
+## Registro de Interacciones
+
+### Entrada 01: Generación y Refinamiento del Product Backlog (Historias de Usuario)
+
+* **Fecha:** 28 de octubre de 2026
+* **Autor:** [Nombre del integrante del equipo]
+* **Herramienta:** Google Gemini (Gemini 3 Flash)
+* **Historia(s) Relacionada(s):** Todas (US-01 a US-14, cubriendo RF-D1a a RF-D5, RF-C1, RF-F1, RF-F2, RF-S1 a RF-S4, RF-V1, RF-V2, RF-V3a, RF-V3b)
+* **Hito:** Entrega 1 / Entrega 2
+
+#### 1. Qué se pidió (Prompt / Resumen)
+> *"Lee este proyecto y redacta las historias de usuario necesarias."*  
+> (Adjuntando el PDF de lineamientos del proyecto: `Proyecto: Donaciones para Mexico Dreamin — Lineamientos`).  
+> 
+> *Prompt complementario de contexto y validación:*  
+> *"Prepara el archivo en Markdown para github asegurando el cumplimiento de la rúbrica C4: Todos los RF cubiertos, ninguna historia describe el 'how', cada historia tiene al menos un criterio propio además de los mínimos (incluidos casos negativos) y las preguntas al cliente registradas."*
+
+#### 2. Qué se obtuvo
+Un archivo completo en Markdown (`docs/backlog.md`) estructurado con:
+* Resumen de avance métrico para Entrega 1 y Entrega 2.
+* Tabla resumen del backlog con columnas: `ID`, `RF Cubierto`, `Hito`, `Título`, `Estado` y `Evidencia`.
+* 14 Historias de Usuario desglosadas en formato estándar (*Como... Quiero... Para...*):
+  * 10 historias para el Hito de Entrega 1 (cubriendo modalidades anónima, con crédito, con factura, flujos de staff y seguridad de Guest User).
+  * 4 historias para el Hito de Entrega 2 (monto libre, confirmación desatendida vía webhook, validación de firma/idempotencia y bitácora de rechazos).
+* Criterios de Aceptación en formato *Dado / Cuando / Entonces* (Gherkin) para cada historia, integrando los criterios mínimos de la guía más criterios propios con casos negativos y validaciones de borde.
+* Tabla de registro de preguntas clave y acuerdos con el cliente.
+
+#### 3. Qué se verificó y cómo
+Se contrastó el documento generado contra la guía oficial y la rúbrica del proyecto (Criterio C4 y Sección 4):
+1. **Verificación de Cobertura de RF:** Se validó que no faltara ningún requerimiento funcional listado en la guía (se cubrieron desde RF-D1a hasta RF-V3b en su totalidad).
+2. **Ausencia del "How":** Se revisó la redacción de las 14 historias para comprobar que estuvieran orientadas al rol de negocio (*donante*, *tesorería*, *coordinación*, *visitante*) y al valor obtenido, sin prescribir clases Apex, componentes LWC o URLs en la narrativa.
+3. **Criterios Propios y Casos Negativos:** Se comprobó que cada historia incluyera al menos un escenario negativo o validación defensiva (ej. rechazo de campañas vencidas en US-01, incompatibilidad de factura con anonimato en US-02, abandono de checkout en US-03, RFC inválido en US-06, duplicados y firmas apócrifas en US-13).
+4. **Acuerdos del Cliente:** Se corroboró que las preguntas abiertas sobre anonimato con factura y caducidad de donaciones pendientes estuvieran reflejadas con acuerdos claros.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Hallazgo / Desvío:** En la primera versión de respuesta se incluyeron bloques explicativos y notas técnicas que mencionaban tecnologías de implementación (*Apex REST, Flow, Experience Cloud*).
+* **Corrección:** Se solicitó generar formalmente el archivo Markdown estructurado para GitHub (`docs/backlog.md`), eliminando cualquier contaminación técnica en la descripción de las historias para cumplir al 100% con la restricción de *"no describe el 'how'"*.
+* **Ajuste de Codificación (Script de exportación):** Al exportar los issues mediante PowerShell a GitHub, la terminal generó caracteres corruptos por la codificación ANSI de Windows. Se corrigió forzando la consola a UTF-8 (`[Console]::OutputEncoding = [System.Text.Encoding]::UTF8`).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 6 a 8 horas de trabajo de equipo para estructurar, desglosar los 14 requerimientos funcionales, escribir 40+ escenarios Gherkin y formatear el Markdown.
+* **Tiempo real con IA:** Aproximadamente 45 minutos (generación, revisión rigurosa contra la rúbrica C4 y ajustes de exportación).
+* **Ahorro de tiempo estimado:** ~85% de aceleración en la fase inicial de definición del backlog.
+
+---
