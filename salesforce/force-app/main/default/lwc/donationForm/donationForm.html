@@ -8,8 +8,21 @@
             <div class="form-divider"></div>
             <lightning-input name="donorName" label="Nombre completo" disabled={isAnonymous} required={nameRequired} onchange={handleChange}></lightning-input>
             <lightning-input name="donorEmail" label="Correo para tu comprobante" type="email" onchange={handleChange} required></lightning-input>
-            <div class="options"><lightning-input name="isAnonymous" label="Quiero donar de forma anónima" type="checkbox" checked={isAnonymous} onchange={handleChange}></lightning-input><lightning-input name="wantsRecognition" label="Autorizo mostrar mi nombre y monto en el muro" type="checkbox" checked={wantsRecognition} disabled={isAnonymous} onchange={handleChange}></lightning-input><lightning-input name="needsInvoice" label="Necesito factura" type="checkbox" checked={needsInvoice} disabled={isAnonymous} onchange={handleChange}></lightning-input></div>
-            <template if:true={needsInvoice}><div class="invoice-fields"><p>Datos de facturación</p><lightning-input name="legalName" label="Razón social" onchange={handleChange} required></lightning-input><lightning-input name="rfc" label="RFC" maxlength="13" onchange={handleChange} required></lightning-input></div></template>
+            <div class="options">
+                <lightning-input name="isAnonymous" label="Quiero donar de forma anónima" type="checkbox" checked={isAnonymous} onchange={handleChange}></lightning-input>
+                <lightning-input name="wantsRecognition" label="Autorizo mostrar mi nombre y monto en el muro" type="checkbox" checked={wantsRecognition} disabled={isAnonymous} onchange={handleChange}></lightning-input>
+                <lightning-input name="needsInvoice" label="Necesito factura" type="checkbox" checked={needsInvoice} onchange={handleChange}></lightning-input>
+            </div>
+            <template if:true={needsInvoice}>
+                <div class="invoice-fields">
+                    <p>Datos de facturación (CFDI 4.0)</p>
+                    <lightning-input name="legalName" label="Razón social o nombre" onchange={handleChange} required></lightning-input>
+                    <lightning-input name="rfc" label="RFC" maxlength="13" onchange={handleChange} required></lightning-input>
+                    <lightning-input name="postalCode" label="Código postal" maxlength="5" onchange={handleChange} required></lightning-input>
+                    <lightning-combobox name="taxRegime" label="Régimen fiscal" value={taxRegime} options={taxRegimeOptions} onchange={handleComboChange} required></lightning-combobox>
+                    <lightning-combobox name="cfdiUse" label="Uso del CFDI" value={cfdiUse} options={cfdiUseOptions} onchange={handleComboChange} required></lightning-combobox>
+                </div>
+            </template>
             <template if:true={error}><p class="form-error">{error}</p></template>
             <template if:true={isLoading}><lightning-spinner alternative-text="Creando pago seguro" size="small"></lightning-spinner></template>
             <button class="checkout-button" type="button" onclick={submit} disabled={isLoading}>Continuar al pago seguro <span aria-hidden="true">→</span></button>

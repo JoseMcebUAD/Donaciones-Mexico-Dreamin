@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tax_Regime__c</fullName>
+    <label>Régimen Fiscal</label>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>601</fullName><default>false</default><label>601 - General de Ley Personas Morales</label></value>
+            <value><fullName>603</fullName><default>false</default><label>603 - Personas Morales con Fines no Lucrativos</label></value>
+            <value><fullName>605</fullName><default>false</default><label>605 - Sueldos y Salarios e Ingresos Asimilados</label></value>
+            <value><fullName>606</fullName><default>false</default><label>606 - Arrendamiento</label></value>
+            <value><fullName>608</fullName><default>false</default><label>608 - Demás Ingresos</label></value>
+            <value><fullName>612</fullName><default>false</default><label>612 - Personas Físicas con Actividades Empresariales y Profesionales</label></value>
+            <value><fullName>616</fullName><default>false</default><label>616 - Sin obligaciones fiscales</label></value>
+            <value><fullName>621</fullName><default>false</default><label>621 - Incorporación Fiscal</label></value>
+            <value><fullName>625</fullName><default>false</default><label>625 - Plataformas Tecnológicas</label></value>
+            <value><fullName>626</fullName><default>false</default><label>626 - Régimen Simplificado de Confianza (RESICO)</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
