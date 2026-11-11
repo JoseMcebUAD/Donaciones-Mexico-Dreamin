@@ -1,13 +1,17 @@
 <template>
-    <lightning-card title="Thank you" icon-name="utility:success">
+    <lightning-card title="¡Gracias por tu apoyo!" icon-name="utility:success">
         <div class="slds-p-around_medium">
-            <p>Thank you for supporting the campaign.</p>
+            <p>Gracias por apoyar la causa. Tu generosidad hace la diferencia.</p>
             <template if:true={hasCheckoutReference}>
-                <p>Your checkout returned successfully. Payment confirmation is processed separately; this page does not confirm that a payment has been received.</p>
+                <p>Tu pago se recibió correctamente en la pasarela. La confirmación interna se procesa por separado; esta página no certifica que el pago haya sido conciliado aún.</p>
             </template>
             <template if:false={hasCheckoutReference}>
-                <p>You can return to the campaign catalog to choose a campaign or start a new donation.</p>
+                <p>Puedes regresar al catálogo de campañas para elegir una causa o iniciar una nueva donación.</p>
             </template>
+            <div class="slds-box slds-m-top_medium slds-theme_shade">
+                <p class="slds-text-heading_small">¿Tienes dudas o no recibiste tu comprobante?</p>
+                <p>Escríbenos a <a href="mailto:soporte@mexicodreamin.com">soporte@mexicodreamin.com</a> indicando tu nombre y el número de referencia de tu donación.</p>
+            </div>
         </div>
     </lightning-card>
 </template>
