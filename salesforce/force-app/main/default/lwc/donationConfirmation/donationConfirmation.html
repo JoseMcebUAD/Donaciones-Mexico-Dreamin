@@ -1,0 +1,9 @@
+<template>
+    <lightning-quick-action-panel header="Confirm donation payment">
+        <p class="slds-p-horizontal_small">Confirm this donation only after validating the payment in Stripe. This action cannot be repeated.</p>
+        <div slot="footer">
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button class="slds-m-left_small" variant="brand" label="Confirm as paid" onclick={handleConfirm} disabled={isWorking}></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>

@@ -1,0 +1,16 @@
+.sf/
+.sfdx/
+*.key
+*.crt
+*.pem
+*.jks
+**/node_modules/
+**/coverage/
+**/.lwc-cache/
+**/.conversion-check/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db

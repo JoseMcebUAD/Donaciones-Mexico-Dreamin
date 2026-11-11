@@ -1,0 +1,13 @@
+<template>
+    <lightning-card title="Thank you" icon-name="utility:success">
+        <div class="slds-p-around_medium">
+            <p>Thank you for supporting the campaign.</p>
+            <template if:true={hasCheckoutReference}>
+                <p>Your checkout returned successfully. Payment confirmation is processed separately; this page does not confirm that a payment has been received.</p>
+            </template>
+            <template if:false={hasCheckoutReference}>
+                <p>You can return to the campaign catalog to choose a campaign or start a new donation.</p>
+            </template>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,26 @@
+<template>
+    <lightning-card title="Mexico Dreamin Campaigns" icon-name="standard:campaign">
+        <div class="slds-p-around_medium">
+            <template if:true={isLoading}><lightning-spinner alternative-text="Loading campaigns" size="small"></lightning-spinner></template>
+            <template if:true={error}><p class="slds-text-color_error">{error}</p></template>
+            <template if:true={hasCampaigns}>
+                <div class="slds-grid slds-wrap">
+                    <template for:each={campaigns} for:item="campaign">
+                        <article class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-around_small" key={campaign.id}>
+                            <lightning-card title={campaign.name}>
+                                <div class="slds-p-around_medium">
+                                    <p>Raised: <lightning-formatted-number value={campaign.raisedAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></p>
+                                    <p>Goal: <lightning-formatted-number value={campaign.goalAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></p>
+                                    <lightning-progress-bar value={campaign.progressPercent}></lightning-progress-bar>
+                                    <lightning-button class="slds-m-top_small" label="Donate" data-id={campaign.id} onclick={selectCampaign}></lightning-button>
+                                </div>
+                            </lightning-card>
+                        </article>
+                    </template>
+                </div>
+            </template>
+            <template if:false={isLoading}><template if:false={hasCampaigns}><template if:false={error}><p>There are no active campaigns at this time.</p></template></template></template>
+        </div>
+        <template if:true={selectedCampaign}><c-donation-form campaign={selectedCampaign}></c-donation-form></template>
+    </lightning-card>
+</template>

@@ -1,0 +1,25 @@
+<template>
+    <lightning-card title="Donate to selected campaign">
+        <div class="slds-p-around_medium">
+            <p class="slds-text-heading_small">{campaign.name}</p>
+            <div class="slds-button-group slds-m-vertical_small">
+                <lightning-button label="$250" data-amount="250" onclick={selectAmount}></lightning-button>
+                <lightning-button label="$500" data-amount="500" onclick={selectAmount}></lightning-button>
+                <lightning-button label="$1000" data-amount="1000" onclick={selectAmount}></lightning-button>
+            </div>
+            <lightning-input name="amount" label="Amount (MXN)" type="number" min="1" value={amount} onchange={handleChange} required></lightning-input>
+            <lightning-input name="donorName" label="Name" disabled={isAnonymous} required={nameRequired} onchange={handleChange}></lightning-input>
+            <lightning-input name="donorEmail" label="Email for receipt" type="email" onchange={handleChange} required></lightning-input>
+            <lightning-input name="isAnonymous" label="Donate anonymously" type="checkbox" checked={isAnonymous} onchange={handleChange}></lightning-input>
+            <lightning-input name="wantsRecognition" label="Show my name and amount publicly" type="checkbox" checked={wantsRecognition} disabled={isAnonymous} onchange={handleChange}></lightning-input>
+            <lightning-input name="needsInvoice" label="Request invoice" type="checkbox" checked={needsInvoice} disabled={isAnonymous} onchange={handleChange}></lightning-input>
+            <template if:true={needsInvoice}>
+                <lightning-input name="legalName" label="Legal name" onchange={handleChange} required></lightning-input>
+                <lightning-input name="rfc" label="RFC" maxlength="13" onchange={handleChange} required></lightning-input>
+            </template>
+            <template if:true={error}><p class="slds-text-color_error slds-m-top_small">{error}</p></template>
+            <template if:true={isLoading}><lightning-spinner alternative-text="Creating secure checkout" size="small"></lightning-spinner></template>
+            <lightning-button class="slds-m-top_medium" variant="brand" label="Continue to secure payment" onclick={submit} disabled={isLoading}></lightning-button>
+        </div>
+    </lightning-card>
+</template>
