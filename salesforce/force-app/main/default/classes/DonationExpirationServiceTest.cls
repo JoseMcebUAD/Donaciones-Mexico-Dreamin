@@ -27,6 +27,8 @@ private class DonationExpirationServiceTest {
 
     @isTest
     static void testExpiresPendingDonations() {
+        Donation__c pendingDonation = [SELECT Id FROM Donation__c WHERE Donor_Email__c = 'test@example.com'];
+        Test.setCreatedDate(pendingDonation.Id, DateTime.now().addHours(-25));
         Test.startTest();
         Database.executeBatch(new DonationExpirationService(), 200);
         Test.stopTest();

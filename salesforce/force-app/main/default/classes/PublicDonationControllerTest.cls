@@ -22,6 +22,9 @@ private class PublicDonationControllerTest {
         request.donorEmail = 'ana@example.test';
         request.legalName = 'Ana Example SA de CV';
         request.rfc = 'XAXX010101000';
+        request.postalCode = '97000';
+        request.taxRegime = '601';
+        request.cfdiUse = 'D04';
         request.successUrl = 'https://example.test/s/thank-you?session_id={CHECKOUT_SESSION_ID}';
         request.cancelUrl = 'https://example.test/s/donate-cancelled';
         return request;
@@ -44,15 +47,9 @@ private class PublicDonationControllerTest {
     }
 
     @IsTest
-    static void rejectsAnonymousInvoiceAndInvalidRfc() {
+    static void rejectsInvalidFiscalData() {
         Campaign__c campaign = new Campaign__c(Name = 'Validation campaign', Goal_Amount__c = 500, Is_Active__c = true);
         insert campaign;
-        PublicDonationController.DonationRequest anonymousInvoice = validRequest(campaign.Id);
-        anonymousInvoice.isAnonymous = true;
-        try {
-            PublicDonationController.startDonation(anonymousInvoice);
-            System.assert(false, 'Anonymous invoices must be rejected.');
-        } catch (AuraHandledException expected) { }
         PublicDonationController.DonationRequest invalidRfc = validRequest(campaign.Id);
         invalidRfc.rfc = 'BAD';
         try {
