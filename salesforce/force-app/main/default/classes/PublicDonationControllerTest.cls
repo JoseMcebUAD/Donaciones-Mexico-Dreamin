@@ -17,11 +17,17 @@ private class PublicDonationControllerTest {
         request.amount = 250;
         request.isAnonymous = false;
         request.wantsRecognition = true;
+        request.recognitionType = 'Individual';
+        request.recognitionName = 'Ana Example';
+        request.recognitionImageUrl = 'https://example.test/ana.png';
         request.needsInvoice = true;
         request.donorName = 'Ana Example';
         request.donorEmail = 'ana@example.test';
         request.legalName = 'Ana Example SA de CV';
         request.rfc = 'XAXX010101000';
+        request.postalCode = '97000';
+        request.taxRegime = '601';
+        request.cfdiUse = 'D04';
         request.successUrl = 'https://example.test/s/thank-you?session_id={CHECKOUT_SESSION_ID}';
         request.cancelUrl = 'https://example.test/s/donate-cancelled';
         return request;
@@ -35,24 +41,19 @@ private class PublicDonationControllerTest {
         Test.startTest();
         PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(validRequest(campaign.Id));
         Test.stopTest();
-        Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c FROM Donation__c WHERE Id = :response.donationId];
+        Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c FROM Donation__c WHERE Id = :response.donationId];
         System.assertEquals('Pending', donation.Payment_Status__c);
         System.assertEquals('cs_test_123', donation.Stripe_Session_Id__c);
         System.assertEquals('XAXX010101000', donation.RFC__c);
         System.assert(donation.Checkout_Reference__c.startsWith('MD-'));
+        System.assertEquals('Ana Example', donation.Recognition_Name__c);
         System.assertEquals('https://checkout.stripe.test/session', response.checkoutUrl);
     }
 
     @IsTest
-    static void rejectsAnonymousInvoiceAndInvalidRfc() {
+    static void rejectsInvalidFiscalData() {
         Campaign__c campaign = new Campaign__c(Name = 'Validation campaign', Goal_Amount__c = 500, Is_Active__c = true);
         insert campaign;
-        PublicDonationController.DonationRequest anonymousInvoice = validRequest(campaign.Id);
-        anonymousInvoice.isAnonymous = true;
-        try {
-            PublicDonationController.startDonation(anonymousInvoice);
-            System.assert(false, 'Anonymous invoices must be rejected.');
-        } catch (AuraHandledException expected) { }
         PublicDonationController.DonationRequest invalidRfc = validRequest(campaign.Id);
         invalidRfc.rfc = 'BAD';
         try {

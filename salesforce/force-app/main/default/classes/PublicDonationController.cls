@@ -4,6 +4,9 @@ public without sharing class PublicDonationController {
         @AuraEnabled public Decimal amount;
         @AuraEnabled public Boolean isAnonymous;
         @AuraEnabled public Boolean wantsRecognition;
+        @AuraEnabled public String recognitionType;
+        @AuraEnabled public String recognitionName;
+        @AuraEnabled public String recognitionImageUrl;
         @AuraEnabled public Boolean needsInvoice;
         @AuraEnabled public String donorName;
         @AuraEnabled public String donorEmail;
@@ -48,6 +51,7 @@ public without sharing class PublicDonationController {
         StripeCheckoutService.CheckoutResult checkout = StripeCheckoutService.createSession(
             request.amount,
             checkoutReference,
+            request.donorEmail,
             request.successUrl,
             request.cancelUrl
         );
@@ -57,6 +61,11 @@ public without sharing class PublicDonationController {
             Payment_Status__c = 'Pending',
             Is_Anonymous__c = request.isAnonymous,
             Wants_Recognition__c = request.isAnonymous ? false : request.wantsRecognition,
+            Recognition_Type__c = request.wantsRecognition ? request.recognitionType : null,
+            Recognition_Name__c = request.wantsRecognition ? request.recognitionName.trim() : null,
+            Recognition_Image_URL__c = request.wantsRecognition && !String.isBlank(request.recognitionImageUrl)
+                ? request.recognitionImageUrl.trim()
+                : null,
             Needs_Invoice__c = request.needsInvoice,
             Donor_Name__c = request.isAnonymous ? null : request.donorName,
             Donor_Email__c = request.donorEmail,
@@ -84,6 +93,21 @@ public without sharing class PublicDonationController {
         }
         if (!request.isAnonymous && String.isBlank(request.donorName)) {
             throw new AuraHandledException('Provide your name or select anonymous donation.');
+        }
+        if (request.wantsRecognition) {
+            if (request.isAnonymous) {
+                throw new AuraHandledException('Anonymous donations cannot be displayed on the recognition wall.');
+            }
+            if (String.isBlank(request.recognitionName)) {
+                throw new AuraHandledException('Provide the name to display on the recognition wall.');
+            }
+            if (request.recognitionType != 'Individual' && request.recognitionType != 'Organization') {
+                throw new AuraHandledException('Select whether the public recognition is for an individual or an organization.');
+            }
+            if (!String.isBlank(request.recognitionImageUrl) &&
+                !Pattern.matches('https://[^\\s]+', request.recognitionImageUrl.trim())) {
+                throw new AuraHandledException('The public logo or photo URL must use HTTPS.');
+            }
         }
         if (request.needsInvoice && (
             String.isBlank(request.legalName) || String.isBlank(request.rfc) ||

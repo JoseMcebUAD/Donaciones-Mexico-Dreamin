@@ -13,6 +13,15 @@
                 <lightning-input name="wantsRecognition" label="Autorizo mostrar mi nombre y monto en el muro" type="checkbox" checked={wantsRecognition} disabled={isAnonymous} onchange={handleChange}></lightning-input>
                 <lightning-input name="needsInvoice" label="Necesito factura" type="checkbox" checked={needsInvoice} onchange={handleChange}></lightning-input>
             </div>
+            <template if:true={wantsRecognition}>
+                <div class="recognition-fields">
+                    <p>Wall of Fame</p>
+                    <lightning-radio-group name="recognitionType" label="¿Cómo deseas aparecer?" options={recognitionTypeOptions} value={recognitionType} type="button" onchange={handleRecognitionTypeChange} required></lightning-radio-group>
+                    <lightning-input name="recognitionName" label={recognitionNameLabel} maxlength="100" onchange={handleChange} required></lightning-input>
+                    <lightning-input name="recognitionImageUrl" label="URL pública de tu logo o foto (opcional)" type="url" maxlength="255" placeholder="https://ejemplo.com/logo.png" onchange={handleChange}></lightning-input>
+                    <p class="recognition-help">Usa sólo una URL HTTPS pública. No subas documentos personales ni imágenes que no tengas derecho a publicar.</p>
+                </div>
+            </template>
             <template if:true={needsInvoice}>
                 <div class="invoice-fields">
                     <p>Datos de facturación (CFDI 4.0)</p>

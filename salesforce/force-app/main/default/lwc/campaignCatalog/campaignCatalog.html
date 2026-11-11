@@ -39,6 +39,13 @@
             </div>
         </template>
         <template if:false={isLoading}><template if:false={hasCampaigns}><template if:false={error}><p class="feedback">No hay campañas activas por el momento. Vuelve pronto.</p></template></template></template>
-        <template if:true={selectedCampaign}><div class="donation-anchor"><c-donation-form campaign={selectedCampaign}></c-donation-form></div></template>
+        <template if:true={selectedCampaign}>
+            <div class="donation-anchor">
+                <c-donation-form campaign={selectedCampaign}></c-donation-form>
+                <div class="recognition-anchor">
+                    <c-donor-wall campaign-id={selectedCampaign.id}></c-donor-wall>
+                </div>
+            </div>
+        </template>
     </section>
 </template>
