@@ -17,6 +17,9 @@ private class PublicDonationControllerTest {
         request.amount = 250;
         request.isAnonymous = false;
         request.wantsRecognition = true;
+        request.recognitionType = 'Individual';
+        request.recognitionName = 'Ana Example';
+        request.recognitionImageUrl = 'https://example.test/ana.png';
         request.needsInvoice = true;
         request.donorName = 'Ana Example';
         request.donorEmail = 'ana@example.test';
@@ -38,11 +41,12 @@ private class PublicDonationControllerTest {
         Test.startTest();
         PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(validRequest(campaign.Id));
         Test.stopTest();
-        Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c FROM Donation__c WHERE Id = :response.donationId];
+        Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c FROM Donation__c WHERE Id = :response.donationId];
         System.assertEquals('Pending', donation.Payment_Status__c);
         System.assertEquals('cs_test_123', donation.Stripe_Session_Id__c);
         System.assertEquals('XAXX010101000', donation.RFC__c);
         System.assert(donation.Checkout_Reference__c.startsWith('MD-'));
+        System.assertEquals('Ana Example', donation.Recognition_Name__c);
         System.assertEquals('https://checkout.stripe.test/session', response.checkoutUrl);
     }
 

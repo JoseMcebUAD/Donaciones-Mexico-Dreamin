@@ -9,6 +9,14 @@ public without sharing class PublicCampaignController {
         @AuraEnabled public String blockedReason;
     }
 
+    public class RecognizedDonorView {
+        @AuraEnabled public Id id;
+        @AuraEnabled public String displayName;
+        @AuraEnabled public String recognitionType;
+        @AuraEnabled public String imageUrl;
+        @AuraEnabled public Decimal amount;
+    }
+
     @AuraEnabled(cacheable=true)
     public static List<CampaignView> getActiveCampaigns() {
         List<CampaignView> result = new List<CampaignView>();
@@ -57,10 +65,11 @@ public without sharing class PublicCampaignController {
     }
 
     @AuraEnabled(cacheable=true)
-    public static List<Donation__c> getRecognizedDonors(Id campaignId) {
-        if (campaignId == null) return new List<Donation__c>();
-        return [
-            SELECT Donor_Name__c, Amount__c
+    public static List<RecognizedDonorView> getRecognizedDonors(Id campaignId) {
+        List<RecognizedDonorView> result = new List<RecognizedDonorView>();
+        if (campaignId == null) return result;
+        for (Donation__c donation : [
+            SELECT Id, Donor_Name__c, Recognition_Name__c, Recognition_Type__c, Recognition_Image_URL__c, Amount__c
             FROM Donation__c
             WHERE Campaign__c = :campaignId
               AND Payment_Status__c = 'Paid'
@@ -68,7 +77,20 @@ public without sharing class PublicCampaignController {
               AND Is_Anonymous__c = false
             ORDER BY CreatedDate DESC
             LIMIT 50
-        ];
+        ]) {
+            RecognizedDonorView item = new RecognizedDonorView();
+            item.id = donation.Id;
+            item.displayName = String.isBlank(donation.Recognition_Name__c)
+                ? donation.Donor_Name__c
+                : donation.Recognition_Name__c;
+            item.recognitionType = String.isBlank(donation.Recognition_Type__c)
+                ? 'Individual'
+                : donation.Recognition_Type__c;
+            item.imageUrl = donation.Recognition_Image_URL__c;
+            item.amount = donation.Amount__c;
+            result.add(item);
+        }
+        return result;
     }
 
     @AuraEnabled(cacheable=true)

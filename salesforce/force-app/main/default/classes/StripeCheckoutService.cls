@@ -7,6 +7,7 @@ public class StripeCheckoutService {
     public static CheckoutResult createSession(
         Decimal amount,
         String checkoutReference,
+        String customerEmail,
         String successUrl,
         String cancelUrl
     ) {
@@ -19,6 +20,7 @@ public class StripeCheckoutService {
             '&success_url=' + EncodingUtil.urlEncode(successUrl, 'UTF-8') +
             '&cancel_url=' + EncodingUtil.urlEncode(cancelUrl, 'UTF-8') +
             '&client_reference_id=' + EncodingUtil.urlEncode(checkoutReference, 'UTF-8') +
+            '&customer_email=' + EncodingUtil.urlEncode(customerEmail, 'UTF-8') +
             '&metadata[salesforce_reference]=' + EncodingUtil.urlEncode(checkoutReference, 'UTF-8') +
             '&line_items[0][price_data][currency]=mxn' +
             '&line_items[0][price_data][product_data][name]=' + EncodingUtil.urlEncode('Mexico Dreamin donation', 'UTF-8') +

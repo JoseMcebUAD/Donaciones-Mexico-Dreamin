@@ -1,10 +1,22 @@
 <template>
-    <lightning-card title="Recognition wall" icon-name="utility:heart">
-        <div class="slds-p-around_medium">
+    <lightning-card title="Wall of Fame" icon-name="utility:heart">
+        <div class="wall">
             <template if:true={hasDonors}>
-                <ul class="slds-list_dotted">
+                <ul class="donor-grid">
                     <template for:each={donors} for:item="donor">
-                        <li key={donor.Id}>{donor.Donor_Name__c} — <lightning-formatted-number value={donor.Amount__c} format-style="currency" currency-code="MXN"></lightning-formatted-number></li>
+                        <li key={donor.id} class="donor-card">
+                            <template if:true={donor.imageUrl}>
+                                <img src={donor.imageUrl} alt={donor.imageAlt} class="donor-image" />
+                            </template>
+                            <template if:false={donor.imageUrl}>
+                                <div class="donor-placeholder" aria-hidden="true">{donor.initial}</div>
+                            </template>
+                            <div>
+                                <p class="donor-type">{donor.recognitionTypeLabel}</p>
+                                <p class="donor-name">{donor.displayName}</p>
+                                <lightning-formatted-number value={donor.amount} format-style="currency" currency-code="MXN"></lightning-formatted-number>
+                            </div>
+                        </li>
                     </template>
                 </ul>
             </template>
@@ -12,7 +24,7 @@
                 <p class="slds-m-top_x-small slds-text-color_weak">{anonymousLabel}</p>
             </template>
             <template if:false={hasAnyDonors}>
-                <p>There are no public recognitions yet.</p>
+                <p>Aún no hay reconocimientos públicos.</p>
             </template>
             <template if:true={error}><p class="slds-text-color_error">{error}</p></template>
         </div>
