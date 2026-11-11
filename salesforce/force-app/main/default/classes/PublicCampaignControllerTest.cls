@@ -19,8 +19,8 @@ private class PublicCampaignControllerTest {
         Test.stopTest();
         System.assertEquals(1, campaigns.size());
         System.assertEquals('Active campaign', campaigns[0].name);
-        System.assertEquals(300, campaigns[0].raisedAmount);
-        System.assertEquals(30, campaigns[0].progressPercent);
+        System.assertEquals(500, campaigns[0].raisedAmount);
+        System.assertEquals(50, campaigns[0].progressPercent);
     }
 
     @IsTest

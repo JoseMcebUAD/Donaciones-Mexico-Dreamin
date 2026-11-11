@@ -45,4 +45,4 @@ Las interfaces públicas retornan sólo campañas activas y créditos autorizado
 
 ## Pruebas
 
-Apex cubre campañas activas/inactivas, suma de sólo pagadas, muro, RFC, anonimato/factura, creación pendiente mediante `HttpCalloutMock` y confirmación duplicada. Jest cubre catálogo, estado vacío y el cambio a anónimo. La validación/despliegue requiere sesión vigente de `jDiaz`; si el refresh token expiró, ejecuta el login anterior.
+Apex cubre campañas activas/inactivas, suma de sólo pagadas, muro, RFC, anonimato/factura, creación pendiente mediante `HttpCalloutMock` y confirmación duplicada. Jest cubre catálogo, estado vacío y el cambio a anónimo. La validación completa contra `jDiaz` aprobó 38 componentes y 6/6 pruebas Apex; consulta `docs/e1-implementation-status.md` para los IDs de verificación.

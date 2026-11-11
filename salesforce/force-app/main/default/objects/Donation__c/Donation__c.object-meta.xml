@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata"><label>Donation</label><pluralLabel>Donations</pluralLabel><nameField><displayFormat>DON-{00000}</displayFormat><label>Donation Number</label><type>AutoNumber</type></nameField><sharingModel>Private</sharingModel><enableReports>true</enableReports></CustomObject>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Donation</label>
+    <pluralLabel>Donations</pluralLabel>
+    <nameField>
+        <displayFormat>DON-{00000}</displayFormat>
+        <label>Donation Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <sharingModel>Private</sharingModel>
+    <enableReports>true</enableReports>
+</CustomObject>

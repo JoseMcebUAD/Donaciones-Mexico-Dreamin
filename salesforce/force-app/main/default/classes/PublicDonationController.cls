@@ -26,6 +26,13 @@ public without sharing class PublicDonationController {
             WHERE Id = :request.campaignId AND Is_Active__c = true
             LIMIT 1
         ];
+        String checkoutReference = 'MD-' + String.valueOf(Math.abs(Crypto.getRandomLong()));
+        StripeCheckoutService.CheckoutResult checkout = StripeCheckoutService.createSession(
+            request.amount,
+            checkoutReference,
+            request.successUrl,
+            request.cancelUrl
+        );
         Donation__c donation = new Donation__c(
             Campaign__c = campaign.Id,
             Amount__c = request.amount,
@@ -36,16 +43,11 @@ public without sharing class PublicDonationController {
             Donor_Name__c = request.isAnonymous ? null : request.donorName,
             Donor_Email__c = request.donorEmail,
             Legal_Name__c = request.legalName,
-            RFC__c = request.rfc == null ? null : request.rfc.trim().toUpperCase()
+            RFC__c = request.rfc == null ? null : request.rfc.trim().toUpperCase(),
+            Checkout_Reference__c = checkoutReference,
+            Stripe_Session_Id__c = checkout.id
         );
         insert donation;
-        StripeCheckoutService.CheckoutResult checkout = StripeCheckoutService.createSession(
-            donation,
-            request.successUrl,
-            request.cancelUrl
-        );
-        donation.Stripe_Session_Id__c = checkout.id;
-        update donation;
         CheckoutResponse result = new CheckoutResponse();
         result.donationId = donation.Id;
         result.checkoutUrl = checkout.url;

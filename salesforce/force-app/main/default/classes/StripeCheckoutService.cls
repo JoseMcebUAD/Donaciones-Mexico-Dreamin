@@ -4,7 +4,12 @@ public class StripeCheckoutService {
         public String url;
     }
 
-    public static CheckoutResult createSession(Donation__c donation, String successUrl, String cancelUrl) {
+    public static CheckoutResult createSession(
+        Decimal amount,
+        String checkoutReference,
+        String successUrl,
+        String cancelUrl
+    ) {
         HttpRequest request = new HttpRequest();
         request.setEndpoint('callout:Stripe_Test/v1/checkout/sessions');
         request.setMethod('POST');
@@ -13,11 +18,11 @@ public class StripeCheckoutService {
             'mode=payment' +
             '&success_url=' + EncodingUtil.urlEncode(successUrl, 'UTF-8') +
             '&cancel_url=' + EncodingUtil.urlEncode(cancelUrl, 'UTF-8') +
-            '&client_reference_id=' + EncodingUtil.urlEncode(donation.Id, 'UTF-8') +
-            '&metadata[donation_id]=' + EncodingUtil.urlEncode(donation.Id, 'UTF-8') +
+            '&client_reference_id=' + EncodingUtil.urlEncode(checkoutReference, 'UTF-8') +
+            '&metadata[salesforce_reference]=' + EncodingUtil.urlEncode(checkoutReference, 'UTF-8') +
             '&line_items[0][price_data][currency]=mxn' +
-            '&line_items[0][price_data][product_data][name]=' + EncodingUtil.urlEncode('Mexico Dreamin donation ' + donation.Name, 'UTF-8') +
-            '&line_items[0][price_data][unit_amount]=' + String.valueOf((Integer)(donation.Amount__c * 100)) +
+            '&line_items[0][price_data][product_data][name]=' + EncodingUtil.urlEncode('Mexico Dreamin donation', 'UTF-8') +
+            '&line_items[0][price_data][unit_amount]=' + String.valueOf((Integer)(amount * 100)) +
             '&line_items[0][quantity]=1'
         );
         HttpResponse response = new Http().send(request);

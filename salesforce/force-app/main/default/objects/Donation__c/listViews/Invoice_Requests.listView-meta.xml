@@ -7,6 +7,6 @@
     <columns>Payment_Status__c</columns>
     <columns>RFC__c</columns>
     <filterScope>Everything</filterScope>
-    <filters><field>Needs_Invoice__c</field><operation>equals</operation><value>true</value></filters>
+    <filters><field>Needs_Invoice__c</field><operation>equals</operation><value>1</value></filters>
     <label>Invoice Requests</label>
 </ListView>

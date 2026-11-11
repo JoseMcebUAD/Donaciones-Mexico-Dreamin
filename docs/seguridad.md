@@ -8,7 +8,8 @@
 4. Configura Stripe Test con la URL publicada del sitio. El formulario usa `/s/thank-you?session_id={CHECKOUT_SESSION_ID}` como retorno exitoso.
 5. Autoriza al Guest User sólo para las clases `PublicCampaignController` y `PublicDonationController` si el administrador aprueba la exposición. Nunca autorices `DonationManagementService`.
 6. Concede Guest User sólo lectura de `Campaign__c` y campos públicos. No concedas lectura, edición, borrado, View All ni Modify All de `Donation__c`: la creación controlada ocurre sólo en Apex.
-7. Asigna `Donation Coordination` a Coordinación y `Donation Treasury` a Tesorería; agrega **Confirm Payment** al layout de `Donation__c`.
+7. La sesión de Stripe usa una referencia única persistida en `Checkout_Reference__c`; se crea antes del registro para respetar la restricción de Salesforce que impide un callout síncrono después de DML.
+8. Asigna `Donation Coordination` a Coordinación y `Donation Treasury` a Tesorería; agrega **Confirm Payment** al layout de `Donation__c`.
 
 ## Prueba en incógnito
 
