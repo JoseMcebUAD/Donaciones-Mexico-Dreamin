@@ -8,7 +8,10 @@
                     </template>
                 </ul>
             </template>
-            <template if:false={hasDonors}>
+            <template if:true={hasAnonymousDonors}>
+                <p class="slds-m-top_x-small slds-text-color_weak">{anonymousLabel}</p>
+            </template>
+            <template if:false={hasAnyDonors}>
                 <p>There are no public recognitions yet.</p>
             </template>
             <template if:true={error}><p class="slds-text-color_error">{error}</p></template>
