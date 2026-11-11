@@ -13,6 +13,9 @@ export default class CampaignCatalog extends LightningElement {
         if (data) {
             this.campaigns = data;
             this.error = undefined;
+            if (data.length === 1 && !data[0].isDonationBlocked) {
+                this.selectedCampaign = data[0];
+            }
         } else if (error) {
             this.campaigns = [];
             this.error = 'Campaigns are temporarily unavailable. Please try again later.';
