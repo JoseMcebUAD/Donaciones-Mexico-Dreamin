@@ -6,6 +6,8 @@
     <fieldPermissions><editable>true</editable><field>Campaign__c.Is_Active__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>Campaign__c.Allow_Additional_Donations__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>Campaign__c.Expiration_Date__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Campaign__c.Anonymous_Donor_Count__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Campaign__c.Raised_Amount__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Donor_Email__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Checkout_Reference__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Donor_Name__c</field><readable>true</readable></fieldPermissions>
@@ -22,6 +24,11 @@
     <fieldPermissions><editable>false</editable><field>Donation__c.Recognition_Name__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Recognition_Type__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Recognition_Image_URL__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Amount__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Image_URL__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Is_Public__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Recognition_Type__c</field><readable>true</readable></fieldPermissions>
     <objectPermissions><allowCreate>true</allowCreate><allowDelete>false</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Campaign__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
     <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Donation__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Donor_Recognition__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 </PermissionSet>

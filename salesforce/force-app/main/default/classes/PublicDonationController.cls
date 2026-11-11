@@ -28,7 +28,7 @@ public without sharing class PublicDonationController {
     public static CheckoutResponse startDonation(DonationRequest request) {
         validate(request);
         Campaign__c campaign = [
-            SELECT Id, Goal_Amount__c, Allow_Additional_Donations__c, Expiration_Date__c
+            SELECT Id, Goal_Amount__c, Raised_Amount__c, Allow_Additional_Donations__c, Expiration_Date__c
             FROM Campaign__c
             WHERE Id = :request.campaignId AND Is_Active__c = true
             LIMIT 1
@@ -37,12 +37,7 @@ public without sharing class PublicDonationController {
             throw new AuraHandledException('Esta campaña ha cerrado y no admite nuevas donaciones.');
         }
         if (!campaign.Allow_Additional_Donations__c && campaign.Goal_Amount__c > 0) {
-            AggregateResult ar = [
-                SELECT SUM(Amount__c) raised
-                FROM Donation__c
-                WHERE Campaign__c = :campaign.Id AND Payment_Status__c = 'Paid'
-            ];
-            Decimal raised = ar.get('raised') != null ? (Decimal) ar.get('raised') : 0;
+            Decimal raised = campaign.Raised_Amount__c == null ? 0 : campaign.Raised_Amount__c;
             if (raised >= campaign.Goal_Amount__c) {
                 throw new AuraHandledException('Esta campaña alcanzó su meta y no admite nuevas donaciones.');
             }
