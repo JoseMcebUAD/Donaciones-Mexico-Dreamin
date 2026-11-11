@@ -28,6 +28,9 @@
                         </div>
                         <lightning-progress-bar class="campaign-progress" value={campaign.progressPercent}></lightning-progress-bar>
                         <div class="progress-caption"><span>{campaign.progressPercent}% de la meta</span><span>MXN</span></div>
+                        <div class="campaign-wall">
+                            <c-donor-wall campaign-id={campaign.id}></c-donor-wall>
+                        </div>
                         <template if:true={campaign.isDonationBlocked}>
                             <p class="feedback blocked">{campaign.blockedReason}</p>
                         </template>
@@ -42,9 +45,6 @@
         <template if:true={selectedCampaign}>
             <div class="donation-anchor">
                 <c-donation-form campaign={selectedCampaign}></c-donation-form>
-                <div class="recognition-anchor">
-                    <c-donor-wall campaign-id={selectedCampaign.id}></c-donor-wall>
-                </div>
             </div>
         </template>
     </section>
