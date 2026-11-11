@@ -61,3 +61,46 @@ Se contrastó el documento generado contra la guía oficial y la rúbrica del pr
 * **Ahorro de tiempo estimado:** ~85% de aceleración en la fase inicial de definición del backlog.
 
 ---
+
+### Entrada 02: Auditoría del sistema y alineación con backlog refinado (v2)
+
+* **Fecha:** 10 de noviembre de 2026
+* **Autor:** José Ceballos
+* **Herramienta:** Claude Code (claude-sonnet-4-6) vía Claude Agent SDK
+* **Historia(s) Relacionada(s):** US-01 a US-10 (E1); comparación de issues #2–#11 (v1) vs #20–#29 (v2)
+* **Hito:** Entrega 1
+
+#### 1. Qué se pidió
+> *"Hazme una auditoría del sistema en la carpeta /salesforce y compara los issues existentes del proyecto del 1–15 y del 20–33 para comparar cuáles están hechas con las nuevas, y prepara tareas y un plan de acción para que el sistema sea lo más parecido a las nuevas historias de usuario."*
+
+#### 2. Qué se obtuvo
+- Mapa estructural completo del proyecto (7 clases Apex, 5 LWC, 2 objetos, 15 campos en `Donation__c`).
+- Comparación directa de 24 issues GitHub (v1 vs v2) identificando los cambios de la sesión de Q&A (#17).
+- Gap analysis con 16 brechas por capa: datos, lógica Apex, UI LWC y configuración.
+- Plan de 11 tareas aprobado por el equipo e implementado en la misma sesión.
+
+#### 3. Cambios implementados
+| Tarea | Descripción |
+| --- | --- |
+| T-01 | Campos CFDI 4.0: `Postal_Code__c`, `Tax_Regime__c`, `CFDI_Use__c` en `Donation__c` |
+| T-02 | Desacople anonimato/factura: desactivar `Anonymous_Cannot_Invoice`, actualizar `donationForm` |
+| T-03 | Contador de donantes anónimos en `donorWall` y `PublicCampaignController` |
+| T-04 | Campos `Expiration_Date__c` y `Allow_Additional_Donations__c` en `Campaign__c` + lógica de bloqueo en Apex |
+| T-05 | Auto-redirect en `campaignCatalog` cuando hay una sola campaña activa |
+| T-06 | Email de soporte en `donationThankYou`; desglose fiscal CFDI 4.0 en recibo de `DonationManagementService` |
+| T-07 | Nuevo `DonationExpirationService` (Schedulable + Batchable) para cancelar donaciones pendientes viejas |
+| T-08 | `docs/backlog.md` actualizado con estados Cumplida/En Progreso y evidencias de commit |
+| T-09 | `README.md` con tabla de progreso E1/E2 y enlace al backlog |
+
+#### 4. Hallazgos relevantes
+- **Cambio más significativo entre v1 y v2:** La independencia entre anonimato público y datos fiscales (US-D2/US-F1). La v1 los hace mutuamente excluyentes; la v2 los desacopla. La validation rule `Anonymous_Cannot_Invoice` fue desactivada.
+- **Cambio de datos más grande:** US-F1 escala de 2 campos (RFC, Razón Social) a 5 campos CFDI 4.0, requiriendo 3 campos nuevos en `Donation__c`.
+- **Cambio de lógica de campaña:** US-S1 agrega control de expiración y de meta al 100% con flag de override; `Campaign__c` recibió 2 campos nuevos.
+- Se excluyeron del plan las historias de E2 relacionadas con integración de pagos (webhooks) por instrucción explícita del equipo.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 10–14 horas para auditoría manual + implementación de todos los cambios.
+* **Tiempo real con IA:** Aproximadamente 45 minutos (auditoría, plan e implementación completa).
+* **Ahorro estimado:** ~95% en la fase de auditoría y alineación de backlog.
+
+---

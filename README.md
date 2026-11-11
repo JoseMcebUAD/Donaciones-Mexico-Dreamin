@@ -1,5 +1,17 @@
 # Portal de Donaciones Mexico Dreamin
 
+## Estado del proyecto
+
+| Entrega | Historias comprometidas | Cumplidas | % Avance |
+| :--- | :---: | :---: | :---: |
+| E1 | 10 | 1 | 10% |
+| E2 | 4 | 0 | 0% |
+
+> Fórmula: (historias cumplidas / total comprometidas) × 100.
+> El tablero completo con criterios de aceptación y evidencias de cada historia está en [`docs/backlog.md`](docs/backlog.md).
+
+---
+
 Entrega 1 del portal público de donaciones para Mexico Dreamin. Permite consultar campañas activas, iniciar un donativo con Stripe Test Checkout y reconocer donantes pagados con consentimiento. La operación interna se realiza desde Salesforce.
 
 ## Alcance de Entrega 1

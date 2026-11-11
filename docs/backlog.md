@@ -11,8 +11,8 @@
 | Métrica | Entrega 1 (E1) | Entrega 2 (E2) |
 | :--- | :---: | :---: |
 | **Historias comprometidas** | 10 | 14 (10 de E1 + 4 de E2) |
-| **Historias cumplidas** | 0 | 0 |
-| **% de Avance** | **0%** | **0%** |
+| **Historias cumplidas** | 1 | 1 |
+| **% de Avance** | **10%** | **7%** |
 
 > *Fórmula de cálculo:*  
 > - **Avance E1:** `(Historias cumplidas E1 / Total historias E1) * 100`  
@@ -24,16 +24,16 @@
 
 | ID | RF Cubierto | Hito | Título / Rol | Estado | Evidencia |
 | :--- | :--- | :---: | :--- | :---: | :--- |
-| **US-01** | RF-D1a, RF-V1 | E1 | Ver campañas y metas (Donante/Visitante) | Pendiente | - |
-| **US-02** | RF-D2, RF-D3 | E1 | Donar de forma anónima (Donante anónimo) | Pendiente | - |
-| **US-03** | RF-D3, RF-V1 | E1 | Registro previo al pago (Donante/Sistema) | Pendiente | - |
-| **US-04** | RF-D4 | E1 | Redirección a agradecimiento (Donante) | Pendiente | - |
-| **US-05** | RF-C1 | E1 | Reconocimiento público de aportación (Donante con crédito) | Pendiente | - |
-| **US-06** | RF-F1 | E1 | Captura y validación de RFC/datos (Donante con factura) | Pendiente | - |
-| **US-07** | RF-S1 | E1 | Gestión de campañas y metas (Staff Coordinación) | Pendiente | - |
-| **US-08** | RF-S2, RF-F2 | E1 | Monitoreo y filtro de solicitudes (Staff Tesorería) | Pendiente | - |
-| **US-09** | RF-S3 | E1 | Confirmación manual y comprobante (Staff Tesorería) | Pendiente | - |
-| **US-10** | RF-V2, M2 | E1 | Prueba de seguridad Guest User (Staff Coordinación) | Pendiente | `docs/seguridad.md` |
+| **US-01** | RF-D1a, RF-V1 | E1 | Ver campañas y metas (Donante/Visitante) | En Progreso | `e826296` — falta CA4 auto-redirect (implementado en esta entrega) y CA5 expiración |
+| **US-02** | RF-D2, RF-D3 | E1 | Donar de forma anónima (Donante anónimo) | En Progreso | `e826296` — falta CA1 contador anónimo (implementado) y CA3 desacople factura (implementado) |
+| **US-03** | RF-D3, RF-V1 | E1 | Registro previo al pago (Donante/Sistema) | En Progreso | `e826296` — falta CA3 expiración a Cancelled (implementado con DonationExpirationService) |
+| **US-04** | RF-D4 | E1 | Redirección a agradecimiento (Donante) | En Progreso | `5c9e9b1` — falta CA4 email de soporte (implementado en esta entrega) |
+| **US-05** | RF-C1 | E1 | Reconocimiento público de aportación (Donante con crédito) | En Progreso | `e826296` — falta control independiente de visibilidad para donantes con factura (implementado) |
+| **US-06** | RF-F1 | E1 | Captura y validación de RFC/datos (Donante con factura) | En Progreso | `e826296` — faltan campos CFDI 4.0: CP, Régimen, Uso CFDI (implementados en esta entrega) |
+| **US-07** | RF-S1 | E1 | Gestión de campañas y metas (Staff Coordinación) | En Progreso | `e826296` — falta CA3 control al 100% y fecha expiración (implementado en esta entrega) |
+| **US-08** | RF-S2, RF-F2 | E1 | Monitoreo y filtro de solicitudes (Staff Tesorería) | En Progreso | `e826296` — falta CP y Régimen en vista filtrada (campos agregados en esta entrega) |
+| **US-09** | RF-S3 | E1 | Confirmación manual y comprobante (Staff Tesorería) | En Progreso | `e826296` — falta desglose fiscal en recibo (implementado en esta entrega) |
+| **US-10** | RF-V2, M2 | E1 | Prueba de seguridad Guest User (Staff Coordinación) | Cumplida | `9fbf202`, `e749372`, `docs/seguridad.md` |
 | **US-11** | RF-D1b | E2 | Donación con importe libre (Donante) | Pendiente | - |
 | **US-12** | RF-D5, RF-V3a | E2 | Confirmación automática vía webhook (Donante/Sistema) | Pendiente | - |
 | **US-13** | RF-V3b | E2 | Verificación de firma e idempotencia (Staff Tesorería) | Pendiente | - |
