@@ -19,7 +19,7 @@ describe('c-campaign-catalog', () => {
             { id: 'a001', name: 'Education fund', goalAmount: 1000, raisedAmount: 250, progressPercent: 25 }
         ]);
         await Promise.resolve();
-        expect(element.shadowRoot.querySelector('lightning-card').title).toBe('Mexico Dreamin Campaigns');
+        expect(element.shadowRoot.textContent).toContain('Tu apoyo transforma oportunidades.');
         expect(element.shadowRoot.textContent).toContain('Education fund');
     });
 
