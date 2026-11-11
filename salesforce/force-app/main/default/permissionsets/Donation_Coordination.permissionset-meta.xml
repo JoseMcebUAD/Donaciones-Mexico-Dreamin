@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Donation Coordination</label>
+    <description>Least-privilege access to manage campaigns and review donation records.</description>
+    <classAccesses><apexClass>DonationManagementService</apexClass><enabled>true</enabled></classAccesses>
+    <fieldPermissions><editable>true</editable><field>Campaign__c.Is_Active__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Donor_Email__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Checkout_Reference__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Donor_Name__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Is_Anonymous__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Legal_Name__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Payment_Status__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Needs_Invoice__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.RFC__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Stripe_Session_Id__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Wants_Recognition__c</field><readable>true</readable></fieldPermissions>
+    <objectPermissions><allowCreate>true</allowCreate><allowDelete>false</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Campaign__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Donation__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+</PermissionSet>

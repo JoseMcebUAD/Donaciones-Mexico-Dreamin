@@ -1,0 +1,19 @@
+<template>
+    <section class="donation-panel">
+        <div class="panel-intro"><p class="eyebrow">APOYA ESTA CAUSA</p><h2>Haz crecer <span>{campaign.name}</span></h2><p>Tu información se usa únicamente para gestionar este donativo y su comprobante.</p></div>
+        <div class="form-area">
+            <p class="field-label">Elige un monto sugerido</p>
+            <div class="suggested-amounts"><button type="button" data-amount="250" onclick={selectAmount}>$250</button><button type="button" data-amount="500" onclick={selectAmount}>$500</button><button type="button" data-amount="1000" onclick={selectAmount}>$1,000</button></div>
+            <lightning-input name="amount" label="Otro monto (MXN)" type="number" min="1" value={amount} onchange={handleChange} required></lightning-input>
+            <div class="form-divider"></div>
+            <lightning-input name="donorName" label="Nombre completo" disabled={isAnonymous} required={nameRequired} onchange={handleChange}></lightning-input>
+            <lightning-input name="donorEmail" label="Correo para tu comprobante" type="email" onchange={handleChange} required></lightning-input>
+            <div class="options"><lightning-input name="isAnonymous" label="Quiero donar de forma anónima" type="checkbox" checked={isAnonymous} onchange={handleChange}></lightning-input><lightning-input name="wantsRecognition" label="Autorizo mostrar mi nombre y monto en el muro" type="checkbox" checked={wantsRecognition} disabled={isAnonymous} onchange={handleChange}></lightning-input><lightning-input name="needsInvoice" label="Necesito factura" type="checkbox" checked={needsInvoice} disabled={isAnonymous} onchange={handleChange}></lightning-input></div>
+            <template if:true={needsInvoice}><div class="invoice-fields"><p>Datos de facturación</p><lightning-input name="legalName" label="Razón social" onchange={handleChange} required></lightning-input><lightning-input name="rfc" label="RFC" maxlength="13" onchange={handleChange} required></lightning-input></div></template>
+            <template if:true={error}><p class="form-error">{error}</p></template>
+            <template if:true={isLoading}><lightning-spinner alternative-text="Creando pago seguro" size="small"></lightning-spinner></template>
+            <button class="checkout-button" type="button" onclick={submit} disabled={isLoading}>Continuar al pago seguro <span aria-hidden="true">→</span></button>
+            <p class="secure-note"><lightning-icon icon-name="utility:lock" size="xx-small"></lightning-icon> Serás redirigido a Stripe para completar el pago.</p>
+        </div>
+    </section>
+</template>

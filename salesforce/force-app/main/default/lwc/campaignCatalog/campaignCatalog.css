@@ -1,0 +1,23 @@
+:host { display: block; color: #17233d; font-family: "Salesforce Sans", Arial, sans-serif; }
+.portal-shell { max-width: 1180px; margin: 0 auto; padding: 1.25rem; }
+.hero { background: radial-gradient(circle at 85% 10%, #ffcf83 0, rgba(255,207,131,.1) 24%, transparent 45%), linear-gradient(125deg, #14213d 0%, #223f6d 58%, #185c63 100%); border-radius: 24px; color: #fff; padding: clamp(2rem, 6vw, 4.75rem); box-shadow: 0 18px 45px rgba(16, 34, 61, .2); }
+.eyebrow,.section-kicker { color: #e6af58; font-size: .72rem; font-weight: 700; letter-spacing: .13em; margin: 0 0 .7rem; }
+.hero h1 { color: #fff; font-family: Georgia, serif; font-size: clamp(2.15rem, 5vw, 4.25rem); letter-spacing: -.04em; line-height: 1.04; margin: 0; max-width: 750px; }
+.hero-copy { color: #e7edf8; font-size: 1.1rem; line-height: 1.6; margin: 1.25rem 0 1.6rem; max-width: 620px; }
+.hero-highlights { display: flex; flex-wrap: wrap; gap: .8rem 1.2rem; font-size: .9rem; font-weight: 600; }
+.hero-highlights span { align-items: center; display: inline-flex; gap: .35rem; }
+.hero-highlights lightning-icon { --slds-c-icon-color-foreground-default: #e6af58; }
+.section-heading { align-items: end; display: flex; gap: 2rem; justify-content: space-between; margin: 3.5rem 0 1.4rem; }
+.section-heading h2 { color: #17233d; font-family: Georgia, serif; font-size: clamp(1.65rem, 3vw, 2.45rem); margin: 0; }
+.section-heading > p { color: #56647a; line-height: 1.5; margin: 0; max-width: 360px; }
+.campaign-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); }
+.campaign-card { background: #fff; border: 1px solid #e4e8f0; border-radius: 18px; box-shadow: 0 8px 24px rgba(30, 48, 80, .07); display: flex; flex-direction: column; min-height: 290px; padding: 1.5rem; transition: transform .2s ease, box-shadow .2s ease; }
+.campaign-card:hover { box-shadow: 0 14px 30px rgba(30, 48, 80, .14); transform: translateY(-3px); }
+.card-topline { color: #3e7c65; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.status-dot { background: #4fb286; border-radius: 50%; display: inline-block; height: .5rem; margin-right: .35rem; width: .5rem; }
+.campaign-card h3 { color: #17233d; font-family: Georgia, serif; font-size: 1.55rem; line-height: 1.18; margin: 1rem 0 1.35rem; }
+.amounts { display: flex; gap: 1.25rem; margin-bottom: 1rem; }.amounts div { flex: 1; }.amounts span { color: #6c778b; display: block; font-size: .78rem; margin-bottom: .25rem; }.amounts strong { color: #17233d; font-size: 1rem; }
+.campaign-progress { --slds-c-progress-bar-color-background-fill: #2a9d8f; margin-top: .2rem; }.progress-caption { color: #637089; display: flex; font-size: .78rem; justify-content: space-between; margin: .5rem 0 1.2rem; }
+.donate-button { background: #e7a943; border: 0; border-radius: 10px; color: #17233d; cursor: pointer; font-size: .96rem; font-weight: 700; margin-top: auto; padding: .8rem 1rem; text-align: left; transition: background .2s ease, transform .2s ease; }.donate-button:hover,.donate-button:focus { background: #f5bf62; transform: translateY(-1px); }.donate-button span { float: right; font-size: 1.2rem; line-height: .8rem; }
+.feedback { background: #f4f6fa; border-radius: 12px; color: #526177; padding: 1rem; }.error { background: #fff0ef; color: #b42318; }.loading { min-height: 100px; position: relative; }.donation-anchor { margin-top: 2rem; }
+@media (max-width: 680px) { .portal-shell { padding: .75rem; }.section-heading { align-items: flex-start; flex-direction: column; gap: .7rem; margin-top: 2.4rem; }.hero { border-radius: 16px; } }

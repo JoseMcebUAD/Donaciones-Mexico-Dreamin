@@ -1,0 +1,39 @@
+<template>
+    <section class="portal-shell">
+        <header class="hero">
+            <p class="eyebrow">MEXICO DREAMIN · DONACIONES</p>
+            <h1>Tu apoyo transforma oportunidades.</h1>
+            <p class="hero-copy">Elige una causa, conoce su avance y apoya de forma segura con la cantidad que decidas aportar.</p>
+            <div class="hero-highlights">
+                <span><lightning-icon icon-name="utility:lock" size="xx-small"></lightning-icon> Pago seguro</span>
+                <span><lightning-icon icon-name="utility:heart" size="xx-small"></lightning-icon> Impacto local</span>
+                <span><lightning-icon icon-name="utility:people" size="xx-small"></lightning-icon> Comunidad</span>
+            </div>
+        </header>
+        <div class="section-heading">
+            <div><p class="section-kicker">CAUSAS ACTIVAS</p><h2>Encuentra una causa para impulsar</h2></div>
+            <p>Tu donativo se registra con transparencia y sólo suma al avance tras su confirmación.</p>
+        </div>
+        <template if:true={isLoading}><div class="loading"><lightning-spinner alternative-text="Cargando campañas" size="small"></lightning-spinner></div></template>
+        <template if:true={error}><p class="feedback error">{error}</p></template>
+        <template if:true={hasCampaigns}>
+            <div class="campaign-grid">
+                <template for:each={campaigns} for:item="campaign">
+                    <article class="campaign-card" key={campaign.id}>
+                        <div class="card-topline"><span class="status-dot"></span> Campaña activa</div>
+                        <h3>{campaign.name}</h3>
+                        <div class="amounts">
+                            <div><span>Recaudado</span><strong><lightning-formatted-number value={campaign.raisedAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
+                            <div><span>Meta</span><strong><lightning-formatted-number value={campaign.goalAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
+                        </div>
+                        <lightning-progress-bar class="campaign-progress" value={campaign.progressPercent}></lightning-progress-bar>
+                        <div class="progress-caption"><span>{campaign.progressPercent}% de la meta</span><span>MXN</span></div>
+                        <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
+                    </article>
+                </template>
+            </div>
+        </template>
+        <template if:false={isLoading}><template if:false={hasCampaigns}><template if:false={error}><p class="feedback">No hay campañas activas por el momento. Vuelve pronto.</p></template></template></template>
+        <template if:true={selectedCampaign}><div class="donation-anchor"><c-donation-form campaign={selectedCampaign}></c-donation-form></div></template>
+    </section>
+</template>

@@ -6,6 +6,16 @@
 
 ---
 
+## Implementación de Entrega 1 con Codex
+
+**Fecha:** 10 de noviembre de 2026
+**Herramienta:** Codex
+**Alcance:** US-01 a US-10
+
+Se usó IA para revisar el backlog, convertir los requisitos en metadata Salesforce DX, proponer controles de mínimo privilegio y generar pruebas. Se revisó especialmente que el avance de campaña sólo agregue donaciones `Paid`, que la combinación anónimo + factura se rechace y que el retorno de Stripe no marque un pago como confirmado.
+
+La IA detectó dos riesgos antes del despliegue: el token de `jDiaz` había expirado y la integración no debía contener una clave Stripe en el repositorio. La corrección fue documentar la reautenticación con `sf org login web --alias jDiaz` y utilizar la Named Credential `Stripe_Test` configurada manualmente en la org. Las pruebas locales y la revisión de secretos deben ejecutarse antes de abrir o aprobar el PR.
+
 ## Registro de Interacciones
 
 ### Entrada 01: Generación y Refinamiento del Product Backlog (Historias de Usuario)
