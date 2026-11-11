@@ -26,6 +26,16 @@ export default class DonationForm extends LightningElement {
         this.amount = Number(event.target.dataset.amount);
     }
 
+    getSuccessUrl() {
+        const currentUrl = new URL(window.location.href);
+        const siteMarker = '/s/';
+        const markerIndex = currentUrl.pathname.indexOf(siteMarker);
+        const sitePath = markerIndex >= 0
+            ? currentUrl.pathname.substring(0, markerIndex + siteMarker.length)
+            : '/s/';
+        return `${currentUrl.origin}${sitePath}thank-you?session_id={CHECKOUT_SESSION_ID}`;
+    }
+
     async submit() {
         const fields = [...this.template.querySelectorAll('lightning-input')];
         if (!fields.every((field) => field.checkValidity())) {
@@ -45,7 +55,7 @@ export default class DonationForm extends LightningElement {
                 donorEmail: this.template.querySelector('[name="donorEmail"]').value,
                 legalName: this.template.querySelector('[name="legalName"]')?.value,
                 rfc: this.template.querySelector('[name="rfc"]')?.value,
-                successUrl: `${window.location.origin}/s/thank-you?session_id={CHECKOUT_SESSION_ID}`,
+                successUrl: this.getSuccessUrl(),
                 cancelUrl: window.location.href
             });
             window.location.assign(response.checkoutUrl);
