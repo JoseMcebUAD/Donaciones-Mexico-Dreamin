@@ -2,6 +2,6 @@
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Invoice_Data_Required</fullName>
     <active>true</active>
-    <errorConditionFormula>AND(Needs_Invoice__c, OR(ISBLANK(Legal_Name__c), NOT(REGEX(UPPER(RFC__c), &quot;[A-Z&amp;]{3,4}[0-9]{6}[A-Z0-9]{3}&quot;)), ISBLANK(Postal_Code__c), ISBLANK(Tax_Regime__c), ISBLANK(CFDI_Use__c)))</errorConditionFormula>
+    <errorConditionFormula>AND(Needs_Invoice__c, OR(ISBLANK(Legal_Name__c), NOT(REGEX(UPPER(RFC__c), &quot;[A-Z&amp;]{3,4}[0-9]{6}[A-Z0-9]{3}&quot;)), ISBLANK(Postal_Code__c), ISBLANK(TEXT(Tax_Regime__c)), ISBLANK(TEXT(CFDI_Use__c))))</errorConditionFormula>
     <errorMessage>Invoice requests require a legal name, valid RFC, postal code, tax regime, and CFDI use.</errorMessage>
 </ValidationRule>
