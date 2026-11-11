@@ -8,7 +8,7 @@
 
 ### (2) Video demo
 
-> **TODO: pegar enlace al video demo (5 min)**
+> **(https://youtu.be/_o0NqD-dlAc)**
 
 ### (3) Tablero de backlog
 
