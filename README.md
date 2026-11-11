@@ -14,12 +14,35 @@
 
 [Tablero del proyecto](https://github.com/users/JoseMcebUAD/projects/8) | [Backlog completo](docs/backlog.md)
 
-| Entrega | Historias comprometidas | Cumplidas | % Avance |
-| :--- | :---: | :---: | :---: |
-| E1 | 10 | 1 | 10% |
-| E2 | 4 | 0 | 0% |
+<!-- BACKLOG-START -->
+[Tablero E1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues?q=is%3Aissue+label%3AE1) | [Tablero E2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues?q=is%3Aissue+label%3AE2)
 
-> Fórmula: (historias cumplidas / total comprometidas) × 100.
+| Entrega | Total | Cumplidas | Avance |
+|---------|-------|-----------|--------|
+| E1 | 10 | 10 | 100% (10/10) |
+| E2 | 4 | 0 | 0% (0/4) |
+| **Total** | **14** | **10** | **71%** |
+
+> Calculo: issues cerradas en GitHub / total de issues x 100.
+
+| ID | Historia | Entrega | Estado |
+|----|----------|---------|--------|
+| [US-D1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/20) | Visualizacion publica de campanas y progreso financiero | E1 | Implementada |
+| [US-D2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/21) | Donacion en modalidad Anonima | E1 | Implementada |
+| [US-D3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/22) | Registro previo de donacion y control de expiracion | E1 | Implementada |
+| [US-D4](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/23) | Retorno y pagina de agradecimiento con contacto de soporte | E1 | Implementada |
+| [US-C1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/24) | Reconocimiento publico de aportaciones en campana | E1 | Implementada |
+| [US-F1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/25) | Captura de datos fiscales CFDI 4.0 y visibilidad | E1 | Implementada |
+| [US-S1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/26) | Gestion interna de campanas y control al 100% de la meta | E1 | Implementada |
+| [US-S2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/27) | Consola de monitoreo y filtro de solicitudes de factura | E1 | Implementada |
+| [US-S3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/28) | Confirmacion manual de pago y envio de comprobante | E1 | Implementada |
+| [US-V2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/29) | Auditoria y prueba de seguridad para Guest User | E1 | Implementada |
+| [US-D1b](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30) | Donacion de monto libre personalizado | E2 | Pendiente |
+| [US-D5](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/31) | Confirmacion y comprobante automaticos via webhook | E2 | Pendiente |
+| [US-V3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/32) | Validacion de autenticidad e idempotencia del Webhook | E2 | Pendiente |
+| [US-S4](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/33) | Auditoria de confirmaciones automaticas y log de avisos descartados | E2 | Pendiente |
+
+<!-- BACKLOG-END -->
 
 ### (4) Seguridad y datos personales
 
@@ -38,7 +61,7 @@ sf project deploy start --target-org jDiaz --source-dir force-app
 ### (6) Bitácoras y registros
 
 - [Bitácora de IA](docs/bitacora_ia.md)
-- Bitácora de contribución: **TODO: pegar enlace o crear `docs/bitacora_contribucion.md`**
+- [Bitácora de contribución](docs/contribucion.md)
 - Registro de preguntas y reportes: **TODO: pegar enlace o crear `docs/registro_preguntas.md`**
 
 ---
