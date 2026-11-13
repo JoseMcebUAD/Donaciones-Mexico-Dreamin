@@ -61,4 +61,14 @@ private class PublicDonationControllerTest {
             System.assert(false, 'Invalid RFC must be rejected.');
         } catch (AuraHandledException expected) { }
     }
+
+    @IsTest
+    static void rejectsInactiveCampaignBeforeStripeCallout() {
+        Campaign__c campaign = new Campaign__c(Name = 'Inactive campaign', Goal_Amount__c = 500, Is_Active__c = false);
+        insert campaign;
+        try {
+            PublicDonationController.startDonation(validRequest(campaign.Id));
+            System.assert(false, 'Inactive campaigns must never create a Checkout Session.');
+        } catch (AuraHandledException expected) { }
+    }
 }

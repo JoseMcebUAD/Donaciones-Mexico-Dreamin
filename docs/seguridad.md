@@ -11,6 +11,10 @@
 7. `PublicCampaignController` expone únicamente campañas activas, meta, monto agregado, contador anónimo y reconocimientos consentidos. Nunca consulta `Donation__c`.
 8. `PublicDonationController` crea la donación controlada como `Pending`; Stripe recibe retornos construidos por el servidor, no URLs enviadas por el navegador.
 
+## Patrón Apex público
+
+Las clases `@AuraEnabled` públicas usan `with sharing`. Las lecturas y escrituras que requieren una proyección controlada se realizan en servicios internos de propósito único con `without sharing` y consultas/DML explícitos en `SYSTEM_MODE`. Esto es necesario porque las clases API 67 aplican CRUD/FLS del usuario por defecto; el Guest no recibe permisos CRM directos. Los servicios seleccionan sólo campos permitidos y nunca devuelven `Donation__c`.
+
 ## Prueba en incógnito
 
 1. Abre `https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/` en una ventana incógnito nueva.
