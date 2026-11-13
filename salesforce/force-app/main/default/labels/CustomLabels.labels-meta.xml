@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>Donation_Portal_Base_URL</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Public Mexico Dreamin donation portal base URL</shortDescription>
+        <value>https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones</value>
+    </labels>
+</CustomLabels>

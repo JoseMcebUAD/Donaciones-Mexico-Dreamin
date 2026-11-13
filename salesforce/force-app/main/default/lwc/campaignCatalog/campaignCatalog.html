@@ -29,7 +29,7 @@
                         <lightning-progress-bar class="campaign-progress" value={campaign.progressPercent}></lightning-progress-bar>
                         <div class="progress-caption"><span>{campaign.progressPercent}% de la meta</span><span>MXN</span></div>
                         <div class="campaign-wall">
-                            <c-donor-wall campaign-id={campaign.id}></c-donor-wall>
+                            <c-donor-wall donors={campaign.recognizedDonors} anonymous-count={campaign.anonymousDonorCount}></c-donor-wall>
                         </div>
                         <template if:true={campaign.isDonationBlocked}>
                             <p class="feedback blocked">{campaign.blockedReason}</p>

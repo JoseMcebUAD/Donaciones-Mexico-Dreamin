@@ -4,6 +4,8 @@ private class PublicDonationControllerTest {
         public HTTPResponse respond(HTTPRequest request) {
             System.assertEquals('POST', request.getMethod());
             System.assert(request.getBody().contains('client_reference_id='));
+            System.assert(request.getBody().contains('success_url=https%3A%2F%2Fempathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com%2Fdonaciones%2Fthank-you'));
+            System.assert(request.getBody().contains('cancel_url=https%3A%2F%2Fempathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com%2Fdonaciones%2F'));
             HttpResponse response = new HttpResponse();
             response.setStatusCode(200);
             response.setBody('{"id":"cs_test_123","url":"https://checkout.stripe.test/session"}');
@@ -28,8 +30,6 @@ private class PublicDonationControllerTest {
         request.postalCode = '97000';
         request.taxRegime = '601';
         request.cfdiUse = 'D04';
-        request.successUrl = 'https://example.test/s/thank-you?session_id={CHECKOUT_SESSION_ID}';
-        request.cancelUrl = 'https://example.test/s/donate-cancelled';
         return request;
     }
 

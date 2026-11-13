@@ -85,16 +85,6 @@ export default class DonationForm extends LightningElement {
         this.amount = Number(event.target.dataset.amount);
     }
 
-    getSuccessUrl() {
-        const currentUrl = new URL(window.location.href);
-        const siteMarker = '/s/';
-        const markerIndex = currentUrl.pathname.indexOf(siteMarker);
-        const sitePath = markerIndex >= 0
-            ? currentUrl.pathname.substring(0, markerIndex + siteMarker.length)
-            : '/s/';
-        return `${currentUrl.origin}${sitePath}thank-you?session_id={CHECKOUT_SESSION_ID}`;
-    }
-
     async submit() {
         const fields = [...this.template.querySelectorAll('lightning-input')];
         const combos = [...this.template.querySelectorAll('lightning-combobox')];
@@ -121,9 +111,7 @@ export default class DonationForm extends LightningElement {
                 rfc: this.template.querySelector('[name="rfc"]')?.value,
                 postalCode: this.template.querySelector('[name="postalCode"]')?.value,
                 taxRegime: this.taxRegime,
-                cfdiUse: this.cfdiUse,
-                successUrl: this.getSuccessUrl(),
-                cancelUrl: window.location.href
+                cfdiUse: this.cfdiUse
             });
             window.location.assign(response.checkoutUrl);
         } catch (error) {

@@ -2,24 +2,24 @@
 
 ## Configuración manual en la org
 
-1. Habilita My Domain y Digital Experiences; crea y publica un sitio Experience Cloud.
-2. Coloca `campaignCatalog` en la página pública, `donationThankYou` en `/s/thank-you` y, si procede, `donorWall` con su `campaignId` en Experience Builder.
-3. Configura un External Credential/Named Credential `Stripe_Test` hacia `https://api.stripe.com`. Guarda `sk_test_...` exclusivamente en la credencial protegida de la org.
-4. Configura Stripe Test con la URL publicada del sitio. El formulario usa `/s/thank-you?session_id={CHECKOUT_SESSION_ID}` como retorno exitoso.
-5. Autoriza al Guest User sólo para las clases `PublicCampaignController` y `PublicDonationController` si el administrador aprueba la exposición. Nunca autorices `DonationManagementService`.
-6. Concede Guest User sólo lectura de `Campaign__c` y campos públicos. No concedas lectura, edición, borrado, View All ni Modify All de `Donation__c`: la creación controlada ocurre sólo en Apex.
-7. La sesión de Stripe usa una referencia única persistida en `Checkout_Reference__c`; se crea antes del registro para respetar la restricción de Salesforce que impide un callout síncrono después de DML.
-8. Asigna `Donation Coordination` a Coordinación y `Donation Treasury` a Tesorería; agrega **Confirm Payment** al layout de `Donation__c`.
+1. Habilita My Domain y Digital Experiences y publica el sitio Experience Cloud.
+2. Coloca `campaignCatalog` en la página pública y `donationThankYou` en `/donaciones/thank-you`. El Wall of Fame se presenta dentro de cada campaña; no agregues un componente de muro separado.
+3. Configura la External Credential y Named Credential `Stripe_Test` hacia `https://api.stripe.com`. Guarda `sk_test_...` sólo en la credencial protegida de la org.
+4. Asigna el principal `Stripe_Test_External-Stripe_Org_Principal` mediante `Donation Public Guest` al Guest User del sitio y al usuario interno que realizará pruebas. No guardes ni muestres el secreto.
+5. Define `Donation_Portal_Base_URL` con la URL pública sin barra final. En esta org: `https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones`.
+6. No concedas al Guest User permisos directos de objeto sobre `Campaign__c`, `Donor_Recognition__c` o `Donation__c`. Autoriza sólo `PublicCampaignController` y `PublicDonationController`.
+7. `PublicCampaignController` expone únicamente campañas activas, meta, monto agregado, contador anónimo y reconocimientos consentidos. Nunca consulta `Donation__c`.
+8. `PublicDonationController` crea la donación controlada como `Pending`; Stripe recibe retornos construidos por el servidor, no URLs enviadas por el navegador.
 
 ## Prueba en incógnito
 
-1. En incógnito, sólo se muestran campañas activas.
-2. Prueba donativo normal, anónimo y con factura; anónimo + factura y RFC inválido deben fallar.
-3. Completa Stripe Test y comprueba que vuelve a agradecimiento sin afirmar pago confirmado y que el registro queda `Pending`.
-4. Como Tesorería, confirma una vez: debe cambiar a `Paid`, enviar comprobante cuando haya correo y rechazar repetición.
-5. El muro debe mostrar sólo donativos pagados, no anónimos y con consentimiento.
-6. Un visitante no debe poder consultar, editar ni borrar una donación ajena mediante URL o ID.
+1. Abre `https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/` en una ventana incógnito nueva.
+2. Comprueba que aparecen sólo campañas activas, la meta, el total recaudado, los reconocimientos públicos y el contador anónimo.
+3. Confirma en DevTools que `getActiveCampaigns` ya no devuelve HTTP 400 y que la respuesta no contiene RFC, correos, facturas ni registros `Donation__c`.
+4. Inicia una donación de prueba. Stripe Test debe abrir y el retorno debe ser `/donaciones/thank-you?session_id=...`.
+5. El retorno no confirma pago automáticamente: el registro queda `Pending` hasta la acción interna de Tesorería.
+6. Como visitante, intenta acceder a un registro `Donation__c`: debe ser denegado y nunca debe existir un enlace público hacia él.
 
 ## Evidencias
 
-Captura catálogo, validaciones, Stripe Test Checkout, retorno seguro, muro, vistas internas, acción de confirmación y prueba incógnito. Nunca captures claves, RFC reales ni URLs secretas.
+Captura catálogo público, Checkout Test, retorno seguro, Wall of Fame, vistas internas y una prueba en incógnito. Nunca captures claves, RFC reales, correos reales ni URLs de sesiones Stripe.

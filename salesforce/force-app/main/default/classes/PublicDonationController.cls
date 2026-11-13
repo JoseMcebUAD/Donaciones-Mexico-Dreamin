@@ -15,8 +15,6 @@ public without sharing class PublicDonationController {
         @AuraEnabled public String postalCode;
         @AuraEnabled public String taxRegime;
         @AuraEnabled public String cfdiUse;
-        @AuraEnabled public String successUrl;
-        @AuraEnabled public String cancelUrl;
     }
 
     public class CheckoutResponse {
@@ -47,8 +45,8 @@ public without sharing class PublicDonationController {
             request.amount,
             checkoutReference,
             request.donorEmail,
-            request.successUrl,
-            request.cancelUrl
+            successUrl(),
+            cancelUrl()
         );
         Donation__c donation = new Donation__c(
             Campaign__c = campaign.Id,
@@ -111,8 +109,22 @@ public without sharing class PublicDonationController {
         )) {
             throw new AuraHandledException('Provide a valid legal name, RFC, postal code, tax regime, and CFDI use.');
         }
-        if (String.isBlank(request.successUrl) || String.isBlank(request.cancelUrl)) {
-            throw new AuraHandledException('Checkout return URLs are not configured.');
+    }
+
+    // Return URLs are server-configured so callers cannot turn Checkout into an open redirect.
+    private static String portalBaseUrl() {
+        String baseUrl = System.Label.Donation_Portal_Base_URL;
+        if (String.isBlank(baseUrl) || !baseUrl.startsWith('https://') || baseUrl.endsWith('/')) {
+            throw new AuraHandledException('Checkout is temporarily unavailable. Please try again later.');
         }
+        return baseUrl;
+    }
+
+    private static String successUrl() {
+        return portalBaseUrl() + '/thank-you?session_id={CHECKOUT_SESSION_ID}';
+    }
+
+    private static String cancelUrl() {
+        return portalBaseUrl() + '/';
     }
 }

@@ -28,6 +28,6 @@ describe('c-campaign-catalog', () => {
         document.body.appendChild(element);
         getActiveCampaignsAdapter.emit([]);
         await Promise.resolve();
-        expect(element.shadowRoot.textContent).toContain('There are no active campaigns at this time.');
+        expect(element.shadowRoot.textContent).toContain('No hay campañas activas por el momento. Vuelve pronto.');
     });
 });
