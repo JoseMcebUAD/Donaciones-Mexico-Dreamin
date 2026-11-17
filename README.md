@@ -4,7 +4,7 @@
 
 ### (1) Sitio público
 
-> **TODO: pegar URL del sitio Experience Cloud**
+> **[https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/](https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/)**
 
 ### (2) Video demo
 
@@ -47,7 +47,7 @@
 ### (4) Seguridad y datos personales
 
 - [Seguridad, Stripe y Experience Cloud](docs/seguridad.md)
-- Datos personales: **TODO: pegar enlace o crear `docs/datos-personales.md`**
+- [Clasificación y tratamiento de datos personales (OA6)](docs/seguridad.md#4-clasificaci%C3%B3n-y-tratamiento-de-datos-personales-oa6)
 
 ### (5) Metadata respaldada
 
@@ -62,7 +62,7 @@ sf project deploy start --target-org jDiaz --source-dir force-app
 
 - [Bitácora de IA](docs/bitacora_ia.md)
 - [Bitácora de contribución](docs/contribucion.md)
-- Registro de preguntas y reportes: **TODO: pegar enlace o crear `docs/registro_preguntas.md`**
+- Registro de preguntas y reportes: pendiente crear `docs/preguntas_y_reportes.md` (requerido para E2)
 
 ---
 

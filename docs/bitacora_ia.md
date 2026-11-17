@@ -104,3 +104,94 @@ Se contrastó el documento generado contra la guía oficial y la rúbrica del pr
 * **Ahorro estimado:** ~95% en la fase de auditoría y alineación de backlog.
 
 ---
+
+### Entrada 03: Diagnóstico de visibilidad de campañas en el sitio público de Salesforce
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** José Ceballos
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1, US-V2 (RF-D1a, RF-V1, RF-V2, M2)
+* **Hito:** Entrega 1
+
+#### 1. Qué se pidió
+> *"Revisa este codigo y dime por qué no se ven las campañas en la página publica desplegada en Salesforce?"*
+
+#### 2. Qué se obtuvo
+Diagnóstico detallado de la capa LWC, Apex, permisos y metadatos del sitio público:
+* Revisión de `PublicCampaignController.cls`, `campaignCatalog.js`, `campaignCatalog.html`, `Donation_Public_Guest.permissionset-meta.xml`, `Campaign__c.sharingRules-meta.xml` y `Campaign__c.object-meta.xml`.
+* Identificación de las causas posibles según el mensaje mostrado en pantalla: falta de asignación del Permission Set `Donation_Public_Guest` / acceso Apex al Guest User del sitio, confusión entre el objeto estándar `Campaign` y el objeto personalizado `Campaign__c`, configuración manual pendiente en Experience Builder (*Public Access* y *Publish*), FLS incompleto en `Donation_Public_Guest`, regla de compartición atada al nombre `Donaciones_Mexico_Dreamin` y `manifest/package.xml` desactualizado.
+
+#### 3. Qué se verificó y cómo
+* Se contrastaron los hallazgos directamente contra los archivos de metadatos en `salesforce/force-app/` y contra `docs/seguridad.md` y `docs/e1-implementation-status.md`.
+* Posteriormente, al revisar `ai-backlog-10-11-2026.md`, se confirmó que la causa exacta observada en la org era el bloqueo HTTP 400 en `/webruntime/api/apex/execute` por faltar habilitar **Allow guest users to access public APIs** en *Experience Workspaces → Administration → Preferences*.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Hallazgo:** La primera revisión se enfocó únicamente en código/metadatos dentro de `salesforce/force-app/` sin haber leído aún `ai-backlog-10-11-2026.md` en la raíz del repositorio.
+* **Corrección:** Al incorporar la lectura de `ai-backlog-10-11-2026.md` en el siguiente paso, se precisó el diagnóstico con la evidencia del trace de navegador (HTTP 400 y la preferencia faltante en Experience Workspaces).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 1.5 a 2 horas de revisión cruzada entre LWC, Apex, Permission Sets, Sharing Rules y documentación.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~95% en la fase de diagnóstico.
+
+---
+
+### Entrada 04: Análisis de brechas para Entrega 2 contra el PDF de lineamientos
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** José Ceballos
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1b, US-D5, US-V3, US-S4 (RF-D1b, RF-D5, RF-S4, RF-V3a, RF-V3b, M1–M3, C1–C9)
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"¿Y cuáles serían los puntos para completar la entrega 2? Valida el archivo `Proyecto_ Donaciones para Mexico Dreamin — Lineamientos.pdf`"*
+
+#### 2. Qué se obtuvo
+Inventario completo de brechas técnicas y documentales para completar la Entrega 2:
+* **Pendientes operativos de E1:** habilitar *Allow guest users to access public APIs*, configurar `Stripe_Test` y el envío de correos.
+* **Pendientes técnicos de E2:** validación de monto mínimo ($10.00 MXN) en `donationForm` y `PublicDonationController`, creación de endpoint `@RestResource` para webhooks de Stripe (`RF-V3a` / `RF-D5`), verificación HMAC-SHA256 de `Stripe-Signature` e idempotencia (`RF-V3b`), registro de fuente de confirmación y bitácora de avisos rechazados (`RF-S4`), pruebas Apex y ejecución de Salesforce Code Analyzer (`C6`).
+* **Pendientes documentales y de entrega:** actualización de `README.md`, `docs/backlog.md`, `docs/seguridad.md`, `docs/bitacora_ia.md`, `docs/contribucion.md`, creación de `docs/preguntas_y_reportes.md`, etiqueta `entrega-2` y preparación de defensa oral.
+
+#### 3. Qué se verificó y cómo
+* Se revisó íntegramente el PDF de 20 páginas (`Proyecto_ Donaciones para Mexico Dreamin — Lineamientos.pdf`), incluyendo la tabla de requisitos funcionales, mínimos obligatorios (M1–M3), formatos mínimos de entregables y la rúbrica (C1–C9).
+* Se validó cada punto contra los archivos reales existentes en `docs/` y `salesforce/force-app/`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* Sin errores detectados: se identificó que `docs/preguntas_y_reportes.md` aún no existía en `docs/` y que en `README.md` figuraba con un nombre distinto (`docs/registro_preguntas.md`).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 2 a 3 horas de auditoría manual entre el PDF de lineamientos, la rúbrica y todo el repositorio.
+* **Tiempo real con IA:** Aproximadamente 10 minutos.
+* **Ahorro estimado:** ~93% en la planificación y detección de brechas de E2.
+
+---
+
+### Entrada 05: Cierre documental de Entrega 1 en `docs/backlog.md` y `README.md`
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** José Ceballos
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1 a US-V2 (E1)
+* **Hito:** Entrega 1
+
+#### 1. Qué se pidió
+> *"Actualiza `docs/backlog.md` con los cambios necesarios para que se vea que concluimos la entrega 1"*  
+> *"Actualiza el `README.md`"*
+
+#### 2. Qué se obtuvo
+* En `docs/backlog.md`: actualización del resumen de avance (`10/10` = `100%` en E1 y `10/14` = `71%` acumulado), cambio de estado de `Pendiente` / `En progreso` a `Cumplida` / `Completada (E1)` en el tablero, estado técnico y especificaciones de `US-D1` a `US-V2`, con enlaces reales al video demo (`https://youtu.be/_o0NqD-dlAc`), `docs/e1-implementation-status.md` y `docs/seguridad.md`.
+* En `README.md`: incorporación de la URL pública del sitio Experience Cloud, enlace directo a la sección de clasificación de datos personales en `docs/seguridad.md` y corrección de la referencia al archivo `docs/preguntas_y_reportes.md`.
+
+#### 3. Qué se verificó y cómo
+* Se ejecutó `git diff` sobre `docs/backlog.md` y `README.md` para comprobar la consistencia de porcentajes (`100%` E1, `71%` total) y que todos los enlaces apuntaran a archivos o URLs reales del proyecto.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Ajuste aplicado:** Se evitó crear un enlace roto en `README.md` hacia `docs/registro_preguntas.md` y se dejó explicitado que `docs/preguntas_y_reportes.md` (nombre exigido por el PDF) queda pendiente de creación para E2.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 30 a 45 minutos editando manualmente las 10 historias y validando enlaces entre documentos.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~88% en la actualización documental.
+
+---
