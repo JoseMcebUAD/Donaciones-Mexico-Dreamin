@@ -25,6 +25,7 @@ const CFDI_USE_OPTIONS = [
     { label: 'S01 - Sin efectos fiscales', value: 'S01' }
 ];
 
+const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 
 export default class DonationForm extends LightningElement {
     @api campaign;
@@ -35,6 +36,8 @@ export default class DonationForm extends LightningElement {
     postalCode = '';
     taxRegime = '';
     cfdiUse = 'D04';
+    recognitionImageBase64 = null;
+    recognitionImageFileName = null;
     isLoading = false;
     error;
 
@@ -62,6 +65,26 @@ export default class DonationForm extends LightningElement {
         this[event.target.name] = event.detail.value;
     }
 
+    handleImageChange(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            this.recognitionImageBase64 = null;
+            this.recognitionImageFileName = null;
+            return;
+        }
+        if (file.size > MAX_IMAGE_SIZE_BYTES) {
+            this.error = 'La imagen no debe superar 2 MB.';
+            event.target.value = '';
+            return;
+        }
+        this.recognitionImageFileName = file.name;
+        const reader = new FileReader();
+        reader.onload = () => {
+            this.recognitionImageBase64 = reader.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
     selectAmount(event) {
         this.amount = Number(event.target.dataset.amount);
     }
@@ -83,7 +106,8 @@ export default class DonationForm extends LightningElement {
                 isAnonymous: this.isAnonymous,
                 wantsRecognition: this.wantsRecognition,
                 recognitionName: this.template.querySelector('[name="recognitionName"]')?.value,
-                recognitionImageUrl: this.template.querySelector('[name="recognitionImageUrl"]')?.value,
+                recognitionImageBase64: this.recognitionImageBase64,
+                recognitionImageFileName: this.recognitionImageFileName,
                 needsInvoice: this.needsInvoice,
                 donorName: this.template.querySelector('[name="donorName"]').value,
                 donorEmail: this.template.querySelector('[name="donorEmail"]').value,

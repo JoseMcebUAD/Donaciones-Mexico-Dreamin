@@ -17,8 +17,13 @@
                 <div class="recognition-fields">
                     <p>Wall of Fame</p>
                     <lightning-input name="recognitionName" label="Nombre para mostrar" maxlength="100" onchange={handleChange} required></lightning-input>
-                    <lightning-input name="recognitionImageUrl" label="URL pública de tu logo o foto (opcional)" type="url" maxlength="255" placeholder="https://ejemplo.com/logo.png" onchange={handleChange}></lightning-input>
-                    <p class="recognition-help">Usa sólo una URL HTTPS pública. No subas documentos personales ni imágenes que no tengas derecho a publicar.</p>
+                    <div class="recognition-image-upload">
+                        <label class="slds-form-element__label">Foto o logo (opcional)</label>
+                        <input type="file" accept=".jpg,.jpeg,.png,.gif,.webp" onchange={handleImageChange} />
+                        <template if:true={recognitionImageFileName}>
+                            <p class="recognition-image-name">{recognitionImageFileName}</p>
+                        </template>
+                    </div>
                 </div>
             </template>
             <template if:true={needsInvoice}>
