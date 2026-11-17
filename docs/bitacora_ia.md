@@ -195,3 +195,33 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 * **Ahorro estimado:** ~88% en la actualización documental.
 
 ---
+
+### Entrada 06: Validación de monto mínimo para Stripe (`$10.00 MXN`, US-D1b)
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** José Ceballos
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1b (RF-D1b)
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Realiza el cambio del monto mínimo para STRIPE y documenta en `docs/bitacora_ia.md` también"*
+
+#### 2. Qué se obtuvo
+* Actualización de `salesforce/force-app/main/default/lwc/donationForm/donationForm.html` para exigir `min="10"`, `step="0.01"` y `message-when-range-underflow="El monto mínimo de donación es de $10.00 MXN."`.
+* Actualización de `salesforce/force-app/main/default/classes/PublicDonationController.cls` agregando la constante `MIN_DONATION_AMOUNT_MXN = 10.00` y validando en `validate()` que el importe sea mayor o igual a `$10.00 MXN`.
+* Nuevas pruebas unitarias en `PublicDonationControllerTest.cls` (`rejectsAmountBelowStripeMinimum` y `acceptsCustomAmountAtStripeMinimum`) y en `donationForm.test.js`.
+
+#### 3. Qué se verificó y cómo
+* Se revisó el diff de los archivos modificados (`donationForm.html`, `donationForm.test.js`, `PublicDonationController.cls`, `PublicDonationControllerTest.cls`) para confirmar la consistencia de la regla `>= $10.00 MXN` en frontend y backend y mensajes en español alineados con `US-D1b`.
+* Se intentó ejecutar `npm run lint` y `npm test` en `salesforce/`, constatando que `node_modules` no está instalado en este entorno local (`eslint` no reconocido), por lo que la ejecución de Jest y el deploy/Apex tests en la org quedan pendientes tras `npm install` y `sf org login web`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Ajuste aplicado:** Se mantuvo intacta la regla de validación de objeto `Amount_Must_Be_Positive` (`Amount__c <= 0`) para no acoplar la restricción de la pasarela Stripe MXN (`$10.00`) a registros internos de `Donation__c`, aplicando la regla en la capa de entrada pública (LWC + controlador Apex).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 45 a 60 minutos modificando UI, controlador Apex, pruebas unitarias y bitácora.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~90% en implementación y pruebas.
+
+---

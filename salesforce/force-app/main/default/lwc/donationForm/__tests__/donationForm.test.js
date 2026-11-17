@@ -19,4 +19,13 @@ describe('c-donation-form', () => {
         expect(element.wantsRecognition).toBe(false);
         expect(element.needsInvoice).toBe(false);
     });
+
+    it('enforces the Stripe minimum amount of 10 MXN on the amount input', () => {
+        const element = createElement('c-donation-form', { is: DonationForm });
+        element.campaign = { id: 'a001', name: 'Education fund' };
+        document.body.appendChild(element);
+        const amountInput = element.shadowRoot.querySelector('lightning-input[name="amount"]');
+        expect(amountInput).not.toBeNull();
+        expect(amountInput.min).toBe('10');
+    });
 });
