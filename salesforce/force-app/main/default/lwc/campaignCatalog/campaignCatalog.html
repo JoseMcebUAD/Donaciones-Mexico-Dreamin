@@ -36,6 +36,7 @@
                         </template>
                         <template if:false={campaign.isDonationBlocked}>
                             <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
+                            <c-campaign-share campaign={campaign}></c-campaign-share>
                         </template>
                         <div class="amounts">
                             <div><span>Recaudado</span><strong><lightning-formatted-number value={campaign.raisedAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
