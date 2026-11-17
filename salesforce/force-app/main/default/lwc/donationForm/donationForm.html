@@ -4,7 +4,7 @@
         <div class="form-area">
             <p class="field-label">Elige un monto sugerido</p>
             <div class="suggested-amounts"><button type="button" data-amount="250" onclick={selectAmount}>$250</button><button type="button" data-amount="500" onclick={selectAmount}>$500</button><button type="button" data-amount="1000" onclick={selectAmount}>$1,000</button></div>
-            <lightning-input name="amount" label="Otro monto (MXN)" type="number" min="1" value={amount} onchange={handleChange} required></lightning-input>
+            <lightning-input name="amount" label="Otro monto (MXN)" type="number" min="10" step="0.01" message-when-range-underflow="El monto mínimo de donación es de $10.00 MXN." value={amount} onchange={handleChange} required></lightning-input>
             <div class="form-divider"></div>
             <lightning-input name="donorName" label="Nombre completo" disabled={isAnonymous} required={nameRequired} onchange={handleChange}></lightning-input>
             <lightning-input name="donorEmail" label="Correo para tu comprobante" type="email" onchange={handleChange} required></lightning-input>
