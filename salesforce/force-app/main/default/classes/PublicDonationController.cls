@@ -17,8 +17,6 @@ public without sharing class PublicDonationController {
         @AuraEnabled public String postalCode;
         @AuraEnabled public String taxRegime;
         @AuraEnabled public String cfdiUse;
-        @AuraEnabled public String successUrl;
-        @AuraEnabled public String cancelUrl;
     }
 
     public class CheckoutResponse {
@@ -29,61 +27,38 @@ public without sharing class PublicDonationController {
     @AuraEnabled
     public static CheckoutResponse startDonation(DonationRequest request) {
         validate(request);
-        Campaign__c campaign = [
-            SELECT Id, Goal_Amount__c, Allow_Additional_Donations__c, Expiration_Date__c
-            FROM Campaign__c
-            WHERE Id = :request.campaignId AND Is_Active__c = true
-            LIMIT 1
-        ];
-        if (campaign.Expiration_Date__c != null && campaign.Expiration_Date__c < Date.today()) {
-            throw new AuraHandledException('Esta campaña ha cerrado y no admite nuevas donaciones.');
-        }
-        if (!campaign.Allow_Additional_Donations__c && campaign.Goal_Amount__c > 0) {
-            AggregateResult ar = [
-                SELECT SUM(Amount__c) raised
-                FROM Donation__c
-                WHERE Campaign__c = :campaign.Id AND Payment_Status__c = 'Paid'
-            ];
-            Decimal raised = ar.get('raised') != null ? (Decimal) ar.get('raised') : 0;
-            if (raised >= campaign.Goal_Amount__c) {
-                throw new AuraHandledException('Esta campaña alcanzó su meta y no admite nuevas donaciones.');
-            }
-        }
+        Campaign__c campaign = PublicDonationCommandService.findActiveCampaign(request.campaignId);
+        validateCampaignCapacity(campaign);
+
         String checkoutReference = 'MD-' + String.valueOf(Math.abs(Crypto.getRandomLong()));
         StripeCheckoutService.CheckoutResult checkout = StripeCheckoutService.createSession(
             request.amount,
             checkoutReference,
             request.donorEmail,
-            request.successUrl,
-            request.cancelUrl
+            successUrl(),
+            cancelUrl()
         );
-        Donation__c donation = new Donation__c(
-            Campaign__c = campaign.Id,
-            Amount__c = request.amount,
-            Payment_Status__c = 'Pending',
-            Is_Anonymous__c = request.isAnonymous,
-            Wants_Recognition__c = request.isAnonymous ? false : request.wantsRecognition,
-            Recognition_Type__c = request.wantsRecognition ? request.recognitionType : null,
-            Recognition_Name__c = request.wantsRecognition ? request.recognitionName.trim() : null,
-            Recognition_Image_URL__c = request.wantsRecognition && !String.isBlank(request.recognitionImageUrl)
-                ? request.recognitionImageUrl.trim()
-                : null,
-            Needs_Invoice__c = request.needsInvoice,
-            Donor_Name__c = request.isAnonymous ? null : request.donorName,
-            Donor_Email__c = request.donorEmail,
-            Legal_Name__c = request.legalName,
-            RFC__c = request.rfc == null ? null : request.rfc.trim().toUpperCase(),
-            Postal_Code__c = request.postalCode,
-            Tax_Regime__c = request.taxRegime,
-            CFDI_Use__c = request.cfdiUse,
-            Checkout_Reference__c = checkoutReference,
-            Stripe_Session_Id__c = checkout.id
-        );
-        insert donation;
         CheckoutResponse result = new CheckoutResponse();
-        result.donationId = donation.Id;
+        result.donationId = PublicDonationCommandService.createPendingDonation(
+            request,
+            campaign.Id,
+            checkoutReference,
+            checkout.id
+        );
         result.checkoutUrl = checkout.url;
         return result;
+    }
+
+    private static void validateCampaignCapacity(Campaign__c campaign) {
+        if (campaign.Expiration_Date__c != null && campaign.Expiration_Date__c < Date.today()) {
+            throw new AuraHandledException('Esta campaña ha cerrado y no admite nuevas donaciones.');
+        }
+        if (!campaign.Allow_Additional_Donations__c && campaign.Goal_Amount__c > 0) {
+            Decimal raised = campaign.Raised_Amount__c == null ? 0 : campaign.Raised_Amount__c;
+            if (raised >= campaign.Goal_Amount__c) {
+                throw new AuraHandledException('Esta campaña alcanzó su meta y no admite nuevas donaciones.');
+            }
+        }
     }
 
     private static void validate(DonationRequest request) {
@@ -121,8 +96,21 @@ public without sharing class PublicDonationController {
         )) {
             throw new AuraHandledException('Provide a valid legal name, RFC, postal code, tax regime, and CFDI use.');
         }
-        if (String.isBlank(request.successUrl) || String.isBlank(request.cancelUrl)) {
-            throw new AuraHandledException('Checkout return URLs are not configured.');
+    }
+
+    private static String portalBaseUrl() {
+        String baseUrl = System.Label.Donation_Portal_Base_URL;
+        if (String.isBlank(baseUrl) || !baseUrl.startsWith('https://') || baseUrl.endsWith('/')) {
+            throw new AuraHandledException('Checkout is temporarily unavailable. Please try again later.');
         }
+        return baseUrl;
+    }
+
+    private static String successUrl() {
+        return portalBaseUrl() + '/thank-you?session_id={CHECKOUT_SESSION_ID}';
+    }
+
+    private static String cancelUrl() {
+        return portalBaseUrl() + '/';
     }
 }

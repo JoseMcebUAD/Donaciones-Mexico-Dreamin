@@ -1,4 +1,5 @@
 <template>
+    <template if:true={hasAnyDonors}>
     <lightning-card title="Wall of Fame" icon-name="utility:heart">
         <div class="wall">
             <template if:true={hasDonors}>
@@ -26,7 +27,7 @@
             <template if:false={hasAnyDonors}>
                 <p>Aún no hay reconocimientos públicos.</p>
             </template>
-            <template if:true={error}><p class="slds-text-color_error">{error}</p></template>
         </div>
     </lightning-card>
+    </template>
 </template>

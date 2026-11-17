@@ -4,6 +4,8 @@ private class PublicDonationControllerTest {
         public HTTPResponse respond(HTTPRequest request) {
             System.assertEquals('POST', request.getMethod());
             System.assert(request.getBody().contains('client_reference_id='));
+            System.assert(request.getBody().contains('success_url=https%3A%2F%2Fempathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com%2Fdonaciones%2Fthank-you'));
+            System.assert(request.getBody().contains('cancel_url=https%3A%2F%2Fempathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com%2Fdonaciones%2F'));
             HttpResponse response = new HttpResponse();
             response.setStatusCode(200);
             response.setBody('{"id":"cs_test_123","url":"https://checkout.stripe.test/session"}');
@@ -28,8 +30,6 @@ private class PublicDonationControllerTest {
         request.postalCode = '97000';
         request.taxRegime = '601';
         request.cfdiUse = 'D04';
-        request.successUrl = 'https://example.test/s/thank-you?session_id={CHECKOUT_SESSION_ID}';
-        request.cancelUrl = 'https://example.test/s/donate-cancelled';
         return request;
     }
 
@@ -62,6 +62,15 @@ private class PublicDonationControllerTest {
         } catch (AuraHandledException expected) { }
     }
 
+    @IsTest
+    static void rejectsInactiveCampaignBeforeStripeCallout() {
+        Campaign__c campaign = new Campaign__c(Name = 'Inactive campaign', Goal_Amount__c = 500, Is_Active__c = false);
+        insert campaign;
+        try {
+            PublicDonationController.startDonation(validRequest(campaign.Id));
+            System.assert(false, 'Inactive campaigns must never create a Checkout Session.');
+        } catch (AuraHandledException expected) { }
+    }
     @IsTest
     static void rejectsAmountBelowStripeMinimum() {
         Campaign__c campaign = new Campaign__c(Name = 'Min amount campaign', Goal_Amount__c = 500, Is_Active__c = true);
