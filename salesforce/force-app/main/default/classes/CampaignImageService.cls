@@ -21,20 +21,24 @@ public with sharing class CampaignImageService {
         insert dist;
 
         dist = [
-            SELECT DistributionPublicUrl
+            SELECT DistributionPublicUrl, ContentDownloadUrl
             FROM ContentDistribution
             WHERE Id = :dist.Id
             WITH USER_MODE
             LIMIT 1
         ];
 
+        String imageUrl = dist.ContentDownloadUrl != null
+            ? dist.ContentDownloadUrl
+            : dist.DistributionPublicUrl;
+
         Campaign__c campaign = new Campaign__c(
             Id = campaignId,
-            Cover_Image_URL__c = dist.DistributionPublicUrl
+            Cover_Image_URL__c = imageUrl
         );
         update campaign;
 
-        return dist.DistributionPublicUrl;
+        return imageUrl;
     }
 
     @AuraEnabled(cacheable=true)
