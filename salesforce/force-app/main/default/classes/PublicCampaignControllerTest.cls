@@ -2,7 +2,7 @@
 private class PublicCampaignControllerTest {
     @TestSetup
     static void makeData() {
-        Campaign__c activeCampaign = new Campaign__c(Name = 'Active campaign', Goal_Amount__c = 1000, Is_Active__c = true);
+        Campaign__c activeCampaign = new Campaign__c(Name = 'Active campaign', Goal_Amount__c = 1000, Is_Active__c = true, Cover_Image_URL__c = 'https://example.test/cover.jpg');
         Campaign__c inactiveCampaign = new Campaign__c(Name = 'Inactive campaign', Goal_Amount__c = 500, Is_Active__c = false);
         insert new List<Campaign__c>{ activeCampaign, inactiveCampaign };
         insert new List<Donation__c>{
@@ -26,5 +26,23 @@ private class PublicCampaignControllerTest {
         System.assertEquals('Fundacion Ana', campaigns[0].recognizedDonors[0].displayName);
         System.assertEquals('Organization', campaigns[0].recognizedDonors[0].recognitionType);
         System.assertEquals('https://example.test/logo.png', campaigns[0].recognizedDonors[0].imageUrl);
+        System.assertEquals('https://example.test/cover.jpg', campaigns[0].coverImageUrl);
+    }
+
+    @IsTest
+    static void coverImageUrl_isNullWhenNotSet() {
+        Campaign__c c = new Campaign__c(Name = 'No Image', Goal_Amount__c = 500, Is_Active__c = true);
+        insert c;
+
+        Test.startTest();
+        List<PublicCampaignController.CampaignView> campaigns = PublicCampaignController.getActiveCampaigns();
+        Test.stopTest();
+
+        PublicCampaignController.CampaignView noImageView;
+        for (PublicCampaignController.CampaignView v : campaigns) {
+            if (v.name == 'No Image') noImageView = v;
+        }
+        Assert.isNotNull(noImageView);
+        Assert.isNull(noImageView.coverImageUrl, 'coverImageUrl should be null when not set');
     }
 }

@@ -20,6 +20,15 @@
             <div class="campaign-grid">
                 <template for:each={campaigns} for:item="campaign">
                     <article class="campaign-card" key={campaign.id}>
+                        <template if:true={campaign.coverImageUrl}>
+                            <div class="card-cover">
+                                <img src={campaign.coverImageUrl} alt={campaign.name} class="card-cover-img" />
+                            </div>
+                        </template>
+                        <template if:false={campaign.coverImageUrl}>
+                            <div class="card-cover card-cover--placeholder"></div>
+                        </template>
+                        <div class="card-body">
                         <div class="card-topline"><span class="status-dot"></span> Campaña activa</div>
                         <h3>{campaign.name}</h3>
                         <div class="amounts">
@@ -37,6 +46,7 @@
                         <template if:false={campaign.isDonationBlocked}>
                             <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
                         </template>
+                        </div>
                     </article>
                 </template>
             </div>

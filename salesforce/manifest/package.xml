@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
+        <members>Campaign__c.Cover_Image_URL__c</members>
         <members>Campaign__c.Goal_Amount__c</members>
         <members>Campaign__c.Is_Active__c</members>
         <members>Donation__c.Amount__c</members>
@@ -18,9 +19,18 @@
         <name>CustomField</name>
     </types>
     <types>
+        <members>CampaignImageService</members>
+        <members>CampaignImageServiceTest</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
         <members>Campaign__c</members>
         <members>Donation__c</members>
         <name>CustomObject</name>
+    </types>
+    <types>
+        <members>campaignImageUpload</members>
+        <name>LightningComponentBundle</name>
     </types>
     <types>
         <members>Campaign__c.Goal_Must_Be_Positive</members>

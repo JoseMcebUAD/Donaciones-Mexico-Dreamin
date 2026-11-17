@@ -6,6 +6,7 @@
     <fieldPermissions><editable>true</editable><field>Campaign__c.Is_Active__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>Campaign__c.Allow_Additional_Donations__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>Campaign__c.Expiration_Date__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>Campaign__c.Cover_Image_URL__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Campaign__c.Anonymous_Donor_Count__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Campaign__c.Raised_Amount__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Donor_Email__c</field><readable>true</readable></fieldPermissions>
