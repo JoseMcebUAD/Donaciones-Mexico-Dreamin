@@ -25,10 +25,6 @@ const CFDI_USE_OPTIONS = [
     { label: 'S01 - Sin efectos fiscales', value: 'S01' }
 ];
 
-const RECOGNITION_TYPE_OPTIONS = [
-    { label: 'Mi nombre', value: 'Individual' },
-    { label: 'Empresa u organización', value: 'Organization' }
-];
 
 export default class DonationForm extends LightningElement {
     @api campaign;
@@ -39,7 +35,6 @@ export default class DonationForm extends LightningElement {
     postalCode = '';
     taxRegime = '';
     cfdiUse = 'D04';
-    recognitionType = 'Individual';
     isLoading = false;
     error;
 
@@ -55,16 +50,6 @@ export default class DonationForm extends LightningElement {
         return CFDI_USE_OPTIONS;
     }
 
-    get recognitionTypeOptions() {
-        return RECOGNITION_TYPE_OPTIONS;
-    }
-
-    get recognitionNameLabel() {
-        return this.recognitionType === 'Organization'
-            ? 'Nombre de la empresa u organización'
-            : 'Nombre para mostrar';
-    }
-
     handleChange(event) {
         const name = event.target.name;
         this[name] = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
@@ -75,10 +60,6 @@ export default class DonationForm extends LightningElement {
 
     handleComboChange(event) {
         this[event.target.name] = event.detail.value;
-    }
-
-    handleRecognitionTypeChange(event) {
-        this.recognitionType = event.detail.value;
     }
 
     selectAmount(event) {
@@ -101,7 +82,6 @@ export default class DonationForm extends LightningElement {
                 amount: Number(this.amount),
                 isAnonymous: this.isAnonymous,
                 wantsRecognition: this.wantsRecognition,
-                recognitionType: this.recognitionType,
                 recognitionName: this.template.querySelector('[name="recognitionName"]')?.value,
                 recognitionImageUrl: this.template.querySelector('[name="recognitionImageUrl"]')?.value,
                 needsInvoice: this.needsInvoice,

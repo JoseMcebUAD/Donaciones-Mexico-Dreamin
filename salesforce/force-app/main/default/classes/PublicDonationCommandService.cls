@@ -26,7 +26,7 @@ public without sharing class PublicDonationCommandService {
             Payment_Status__c = 'Pending',
             Is_Anonymous__c = request.isAnonymous,
             Wants_Recognition__c = request.isAnonymous ? false : request.wantsRecognition,
-            Recognition_Type__c = request.wantsRecognition ? request.recognitionType : null,
+            Recognition_Type__c = request.wantsRecognition ? 'Individual' : null,
             Recognition_Name__c = request.wantsRecognition ? request.recognitionName.trim() : null,
             Recognition_Image_URL__c = request.wantsRecognition && !String.isBlank(request.recognitionImageUrl)
                 ? request.recognitionImageUrl.trim()

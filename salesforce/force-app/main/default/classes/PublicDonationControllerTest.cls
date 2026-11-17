@@ -19,7 +19,6 @@ private class PublicDonationControllerTest {
         request.amount = 250;
         request.isAnonymous = false;
         request.wantsRecognition = true;
-        request.recognitionType = 'Individual';
         request.recognitionName = 'Ana Example';
         request.recognitionImageUrl = 'https://example.test/ana.png';
         request.needsInvoice = true;

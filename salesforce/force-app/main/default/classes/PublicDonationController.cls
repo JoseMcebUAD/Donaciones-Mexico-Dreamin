@@ -6,7 +6,6 @@ public without sharing class PublicDonationController {
         @AuraEnabled public Decimal amount;
         @AuraEnabled public Boolean isAnonymous;
         @AuraEnabled public Boolean wantsRecognition;
-        @AuraEnabled public String recognitionType;
         @AuraEnabled public String recognitionName;
         @AuraEnabled public String recognitionImageUrl;
         @AuraEnabled public Boolean needsInvoice;
@@ -80,9 +79,6 @@ public without sharing class PublicDonationController {
             }
             if (String.isBlank(request.recognitionName)) {
                 throw new AuraHandledException('Provide the name to display on the recognition wall.');
-            }
-            if (request.recognitionType != 'Individual' && request.recognitionType != 'Organization') {
-                throw new AuraHandledException('Select whether the public recognition is for an individual or an organization.');
             }
             if (!String.isBlank(request.recognitionImageUrl) &&
                 !Pattern.matches('https://[^\\s]+', request.recognitionImageUrl.trim())) {
