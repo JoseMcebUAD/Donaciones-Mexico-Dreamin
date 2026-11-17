@@ -20,8 +20,8 @@
 | Entrega | Total | Cumplidas | Avance |
 |---------|-------|-----------|--------|
 | E1 | 10 | 10 | 100% (10/10) |
-| E2 | 4 | 0 | 0% (0/4) |
-| **Total** | **14** | **10** | **71%** |
+| E2 | 4 | 1 | 25% (1/4) |
+| **Total** | **14** | **11** | **79%** |
 
 > Calculo: issues cerradas en GitHub / total de issues x 100.
 
@@ -37,7 +37,7 @@
 | [US-S2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/27) | Consola de monitoreo y filtro de solicitudes de factura | E1 | Implementada |
 | [US-S3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/28) | Confirmacion manual de pago y envio de comprobante | E1 | Implementada |
 | [US-V2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/29) | Auditoria y prueba de seguridad para Guest User | E1 | Implementada |
-| [US-D1b](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30) | Donacion de monto libre personalizado | E2 | Pendiente |
+| [US-D1b](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30) | Donacion de monto libre personalizado | E2 | Implementada |
 | [US-D5](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/31) | Confirmacion y comprobante automaticos via webhook | E2 | Pendiente |
 | [US-V3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/32) | Validacion de autenticidad e idempotencia del Webhook | E2 | Pendiente |
 | [US-S4](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/33) | Auditoria de confirmaciones automaticas y log de avisos descartados | E2 | Pendiente |
