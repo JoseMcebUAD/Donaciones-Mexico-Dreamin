@@ -31,6 +31,12 @@
                         <div class="card-body">
                         <div class="card-topline"><span class="status-dot"></span> Campaña activa</div>
                         <h3>{campaign.name}</h3>
+                        <template if:true={campaign.isDonationBlocked}>
+                            <p class="feedback blocked">{campaign.blockedReason}</p>
+                        </template>
+                        <template if:false={campaign.isDonationBlocked}>
+                            <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
+                        </template>
                         <div class="amounts">
                             <div><span>Recaudado</span><strong><lightning-formatted-number value={campaign.raisedAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
                             <div><span>Meta</span><strong><lightning-formatted-number value={campaign.goalAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
@@ -40,12 +46,6 @@
                         <div class="campaign-wall">
                             <c-donor-wall donors={campaign.recognizedDonors} anonymous-count={campaign.anonymousDonorCount}></c-donor-wall>
                         </div>
-                        <template if:true={campaign.isDonationBlocked}>
-                            <p class="feedback blocked">{campaign.blockedReason}</p>
-                        </template>
-                        <template if:false={campaign.isDonationBlocked}>
-                            <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
-                        </template>
                         </div>
                     </article>
                 </template>
