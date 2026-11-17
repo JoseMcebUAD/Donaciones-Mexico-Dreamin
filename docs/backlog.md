@@ -12,8 +12,8 @@
 | Métrica | Entrega 1 (E1) | Entrega 2 (E2) |
 | :--- | :---: | :---: |
 | **Historias comprometidas** | 10 | 14 (10 de E1 + 4 de E2) |
-| **Historias cumplidas** | 10 | 10 |
-| **% de Avance** | **100%** | **71%** |
+| **Historias cumplidas** | 10 | 11 |
+| **% de Avance** | **100%** | **79%** |
 
 > **Fórmulas de cálculo de avance:**
 >
@@ -39,7 +39,7 @@
 | **US-S2** | RF-S2, RF-F2 | E1 | Monitoreo y filtro de facturas (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
 | **US-S3** | RF-S3 | E1 | Confirmación manual y comprobante (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
 | **US-V2** | RF-V2, M2 | E1 | Prueba de seguridad de Guest User (Staff Coordinación) | Cumplida | [docs/seguridad.md](seguridad.md) · [Video demo E1](https://youtu.be/_o0NqD-dlAc) |
-| **US-D1b** | RF-D1b | E2 | Donación con monto libre $\ge \$10.00\text{ MXN}$ (Donante) | Pendiente | `[Enlace a demo/captura]` |
+| **US-D1b** | RF-D1b | E2 | Donación con monto libre $\ge \$10.00\text{ MXN}$ (Donante) | Cumplida | Pendiente (implementado en commit `a35a447`) |
 | **US-D5** | RF-D5, RF-V3a | E2 | Confirmación automática vía webhook (Donante) | Pendiente | `[Enlace a demo/captura]` |
 | **US-V3** | RF-V3b, M3 | E2 | Validación de firma e idempotencia (Staff Tesorería) | Pendiente | `[Enlace a demo/captura]` |
 | **US-S4** | RF-S4 | E2 | Auditoría de webhook y avisos descartados (Staff Tesorería) | Pendiente | `[Enlace a demo/captura]` |
@@ -258,8 +258,8 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
 * **Criterios de Aceptación (Gherkin):**
   * **CA1 (Criterio mínimo):** Dado que seleccioné una campaña activa, cuando capturo en el formulario un monto personalizado válido mayor o igual al mínimo de Stripe ($\ge \$10.00\text{ MXN}$ o $\ge \$0.50\text{ USD}$), entonces la pasarela de prueba me cobra exactamente esa cantidad y la donación en Salesforce registra idéntico importe.
   * **CA2 (Criterio propio / Negativo - Validación de umbral mínimo de Stripe):** Dado que un donante captura un valor numérico menor a $\$10.00\text{ MXN}$ (o $\$0.50\text{ USD}$ si opera en dicha divisa), un número negativo o cero, cuando intenta avanzar, entonces el formulario bloquea la transición a Stripe y muestra una advertencia indicando el monto mínimo procesable por la pasarela.
-* **Estado:** Pendiente
-* **Evidencia:** `[Enlace a video demo / captura]`
+* **Estado:** Cumplida
+* **Evidencia:** Pendiente (implementado en commit `a35a447`)
 
 ---
 

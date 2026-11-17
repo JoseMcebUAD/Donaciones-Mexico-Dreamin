@@ -21,7 +21,7 @@ La IA detectó dos riesgos antes del despliegue: el token de `jDiaz` había expi
 ### Entrada 01: Generación y Refinamiento del Product Backlog (Historias de Usuario)
 
 * **Fecha:** 28 de octubre de 2026
-* **Autor:** [Nombre del integrante del equipo]
+* **Autor:** Jesús Méndez
 * **Herramienta:** Google Gemini (Gemini 3 Flash)
 * **Historia(s) Relacionada(s):** Todas (US-01 a US-14, cubriendo RF-D1a a RF-D5, RF-C1, RF-F1, RF-F2, RF-S1 a RF-S4, RF-V1, RF-V2, RF-V3a, RF-V3b)
 * **Hito:** Entrega 1 / Entrega 2
@@ -108,7 +108,7 @@ Se contrastó el documento generado contra la guía oficial y la rúbrica del pr
 ### Entrada 03: Diagnóstico de visibilidad de campañas en el sitio público de Salesforce
 
 * **Fecha:** 17 de noviembre de 2026
-* **Autor:** José Ceballos
+* **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
 * **Historia(s) Relacionada(s):** US-D1, US-V2 (RF-D1a, RF-V1, RF-V2, M2)
 * **Hito:** Entrega 1
@@ -139,7 +139,7 @@ Diagnóstico detallado de la capa LWC, Apex, permisos y metadatos del sitio púb
 ### Entrada 04: Análisis de brechas para Entrega 2 contra el PDF de lineamientos
 
 * **Fecha:** 17 de noviembre de 2026
-* **Autor:** José Ceballos
+* **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
 * **Historia(s) Relacionada(s):** US-D1b, US-D5, US-V3, US-S4 (RF-D1b, RF-D5, RF-S4, RF-V3a, RF-V3b, M1–M3, C1–C9)
 * **Hito:** Entrega 2
@@ -170,7 +170,7 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 ### Entrada 05: Cierre documental de Entrega 1 en `docs/backlog.md` y `README.md`
 
 * **Fecha:** 17 de noviembre de 2026
-* **Autor:** José Ceballos
+* **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
 * **Historia(s) Relacionada(s):** US-D1 a US-V2 (E1)
 * **Hito:** Entrega 1
@@ -199,7 +199,7 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 ### Entrada 06: Validación de monto mínimo para Stripe (`$10.00 MXN`, US-D1b)
 
 * **Fecha:** 17 de noviembre de 2026
-* **Autor:** José Ceballos
+* **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
 * **Historia(s) Relacionada(s):** US-D1b (RF-D1b)
 * **Hito:** Entrega 2
