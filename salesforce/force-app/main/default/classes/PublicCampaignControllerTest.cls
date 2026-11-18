@@ -3,7 +3,7 @@ private class PublicCampaignControllerTest {
     @TestSetup
     static void makeData() {
         Campaign__c activeCampaign = new Campaign__c(
-            Name = 'Active campaign', Goal_Amount__c = 1000, Is_Active__c = true,
+            Name = 'Active campaign', Goal_Amount__c = 1500, Is_Active__c = true,
             Cover_Image_URL__c = 'https://example.test/cover.jpg'
         );
         Campaign__c inactiveCampaign = new Campaign__c(
@@ -35,9 +35,9 @@ private class PublicCampaignControllerTest {
         System.assertEquals(1, campaigns.size());
         PublicCampaignController.CampaignView view = campaigns[0];
         System.assertEquals('Active campaign', view.name);
-        System.assertEquals(1000, view.goalAmount);
+        System.assertEquals(1500, view.goalAmount);
         System.assertEquals(500, view.raisedAmount);
-        System.assertEquals(50, view.progressPercent);
+        System.assertEquals(33.3, view.progressPercent);
         System.assertEquals(1, view.anonymousDonorCount);
         System.assertEquals(1, view.recognizedDonors.size());
         System.assertEquals('Fundacion Ana', view.recognizedDonors[0].displayName);

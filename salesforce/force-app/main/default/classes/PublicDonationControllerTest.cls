@@ -54,12 +54,13 @@ private class PublicDonationControllerTest {
             Test.startTest();
             PublicDonationController.CheckoutResponse response = PublicDonationController.prepareDonation(validRequest(campaign.Id));
             Test.stopTest();
-            Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c FROM Donation__c WHERE Checkout_Reference__c = :response.checkoutReference];
+            Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c, Privacy_Accepted__c FROM Donation__c WHERE Checkout_Reference__c = :response.checkoutReference];
             System.assertEquals('Pending', donation.Payment_Status__c);
             System.assertEquals(null, donation.Stripe_Session_Id__c);
             System.assertEquals('XAXX010101000', donation.RFC__c);
             System.assert(donation.Checkout_Reference__c.startsWith('MD-'));
             System.assertEquals('Ana Example', donation.Recognition_Name__c);
+            System.assertEquals(true, donation.Privacy_Accepted__c);
             System.assertEquals(null, response.checkoutUrl);
         }
     }
@@ -137,6 +138,18 @@ private class PublicDonationControllerTest {
         try {
             PublicDonationController.openCheckout('MD-00000000000000000000000000000000');
             System.assert(false, 'Unknown references must be rejected.');
+        } catch (AuraHandledException expected) { }
+    }
+
+    @IsTest
+    static void rejectsMissingPrivacyAcceptance() {
+        Campaign__c campaign = new Campaign__c(Name = 'Privacy campaign', Goal_Amount__c = 500, Is_Active__c = true);
+        insert campaign;
+        PublicDonationController.DonationRequest noPrivacy = validRequest(campaign.Id);
+        noPrivacy.privacyAccepted = false;
+        try {
+            PublicDonationController.prepareDonation(noPrivacy);
+            System.assert(false, 'Donations without privacy acceptance must be rejected.');
         } catch (AuraHandledException expected) { }
     }
 }

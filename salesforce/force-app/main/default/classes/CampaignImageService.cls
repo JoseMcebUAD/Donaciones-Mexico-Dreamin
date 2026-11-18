@@ -18,7 +18,7 @@ public with sharing class CampaignImageService {
         dist.PreferencesLinkLatestVersion = true;
         dist.PreferencesNotifyOnVisit = false;
         dist.PreferencesPasswordRequired = false;
-        insert dist;
+        insert as user dist;
 
         dist = [
             SELECT DistributionPublicUrl, ContentDownloadUrl
@@ -36,7 +36,7 @@ public with sharing class CampaignImageService {
             Id = campaignId,
             Cover_Image_URL__c = imageUrl
         );
-        update campaign;
+        update as user campaign;
 
         return imageUrl;
     }

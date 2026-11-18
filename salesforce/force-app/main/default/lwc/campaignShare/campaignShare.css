@@ -1,15 +1,15 @@
 :host { display: block; }
 
 /* --- Botón disparador (inline en la tarjeta) --- */
-.share-button { background: transparent; border: 1.5px solid #e7a943; border-radius: 10px; color: #17233d; cursor: pointer; font-size: .88rem; font-weight: 700; margin-top: .6rem; padding: .55rem 1rem; text-align: left; transition: background .2s ease; width: 100%; }
+.share-button { align-items: center; background: transparent; border: 1.5px solid #e7a943; border-radius: 10px; color: #17233d; cursor: pointer; display: flex; font-size: .88rem; font-weight: 700; justify-content: space-between; margin-top: 0; padding: .55rem 1rem; text-align: left; transition: background .2s ease; width: 100%; }
 .share-button:hover, .share-button:focus { background: #fff8ec; outline: 2px solid #e7a943; outline-offset: 2px; }
-.share-button span { float: right; font-size: 1rem; }
+.share-button span { font-size: 1rem; line-height: 1; }
 
-/* --- Backdrop fijo (escapa overflow:hidden del .campaign-card) --- */
-.share-backdrop { background: rgba(16, 28, 56, .55); bottom: 0; left: 0; position: fixed; right: 0; top: 0; z-index: 9998; }
+/* --- Backdrop fijo (centra el panel sin transform anidado) --- */
+.share-backdrop { align-items: center; background: rgba(16, 28, 56, .55); display: flex; inset: 0; justify-content: center; padding: 1rem; position: fixed; z-index: 9998; }
 
 /* --- Panel del popup --- */
-.share-popup { background: #fff; border-radius: 20px; box-shadow: 0 24px 60px rgba(16, 28, 56, .22), 0 4px 16px rgba(16, 28, 56, .1); left: 50%; max-width: 480px; padding: 2rem; position: fixed; top: 50%; transform: translate(-50%, -50%); width: calc(100vw - 2rem); z-index: 9999; }
+.share-popup { background: #fff; border-radius: 20px; box-shadow: 0 24px 60px rgba(16, 28, 56, .22), 0 4px 16px rgba(16, 28, 56, .1); max-width: 480px; padding: 2rem; position: relative; width: 100%; z-index: 9999; }
 
 /* --- Encabezado del popup --- */
 .share-popup-header { align-items: flex-start; display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 1.2rem; }

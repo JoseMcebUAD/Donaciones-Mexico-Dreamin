@@ -44,13 +44,15 @@
                                 <div><span>Meta</span><strong><lightning-formatted-number value={campaign.goalAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
                             </div>
                             <lightning-progress-bar class="campaign-progress" value={campaign.progressPercent}></lightning-progress-bar>
-                            <div class="progress-caption"><span>{campaign.progressPercent}% de la meta</span><span>MXN</span></div>
+                            <div class="progress-caption"><span><lightning-formatted-number value={campaign.progressPercent} maximum-fraction-digits="1"></lightning-formatted-number>% de la meta</span><span>MXN</span></div>
                             <div class="campaign-wall">
                                 <c-donor-wall donors={campaign.recognizedDonors} anonymous-count={campaign.anonymousDonorCount}></c-donor-wall>
                             </div>
                             <template if:false={campaign.isDonationBlocked}>
-                                <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
-                                <c-campaign-share campaign={campaign}></c-campaign-share>
+                                <div class="card-actions">
+                                    <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
+                                    <c-campaign-share campaign={campaign}></c-campaign-share>
+                                </div>
                             </template>
                             </div>
                         </article>

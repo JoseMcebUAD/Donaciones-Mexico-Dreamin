@@ -64,7 +64,7 @@ sf project deploy validate --target-org donacionesSandbox --source-dir force-app
 sf project deploy start --target-org donacionesSandbox --source-dir force-app --test-level RunSpecifiedTests --tests PublicDonationControllerTest --tests PublicDonationCommandServiceTest --tests PublicCampaignControllerTest --tests DonationProjectionServiceTest --tests DonationManagementServiceTest --tests DonationExpirationServiceTest --tests CampaignImageServiceTest --tests PortalContactControllerTest
 ```
 
-La corrección de la alerta de `Case` y el ajuste de disponibilidad de correo permitieron validar las 23 pruebas Apex dirigidas. El despliegue de esta restauración fue `0AfVC00000PJsXl0AL` (81 componentes, sin errores). ESLint y las 18 pruebas LWC también pasaron. No se ha validado un pago real con Stripe Test ni el recorrido visual como visitante anónimo.
+La corrección de la alerta de `Case` y el ajuste de disponibilidad de correo permitieron validar 24 pruebas Apex dirigidas tras integrar los cambios recientes de `entrega-2`. El despliegue final de esta restauración fue `0AfVC00000PJsvx0AD` (81 componentes, sin errores). ESLint y las 18 pruebas LWC también pasaron. No se ha validado un pago real con Stripe Test ni el recorrido visual como visitante anónimo.
 
 ### (6) Bitácoras y registros
 
@@ -94,6 +94,53 @@ Portal público de donaciones para Mexico Dreamin. Permite consultar campañas a
 | [#29](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/29) | US-V2 — Auditoría y prueba de seguridad para Guest User |
 
 **Entrega 2** — issues [#30](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30)–[#33](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/33) + mejoras post-feedback/UX: monto libre (`US-D1b`), portada de campaña (`US-S5`), compartir y deep-link (`US-D1c`), refactor de reconocimiento e imagen vía Files (`US-R1`/`US-R2`), FAQ y contacto vía `Case` (`US-UX1`/`US-UX2`), aviso de privacidad (`issue-45`), y pendientes de cierre E2 (`US-D5` webhook, `US-V3` HMAC/idempotencia, `US-S4` auditoría).
+
+## Arquitectura e Infraestructura
+
+Vista general de los portales, capa lógica Apex, integración segura con Stripe Checkout API y separación entre **Custom Objects** y **Objetos propios de Salesforce**. El modelo ER simplificado (UML) y el diccionario completo de campos se detallan en [docs/modelo_datos_er.md](docs/modelo_datos_er.md).
+
+```mermaid
+flowchart LR
+    subgraph EXT["1. Actores y Portales"]
+        GUEST["Experience Cloud - Guest User<br/>LWCs: campaignCatalog, campaignShare,<br/>donationForm, donorWall, faqSection,<br/>donationThankYou<br/>PS: Donation_Public_Guest (0 CRUD/FLS)"]
+        STAFF["Salesforce Staff Interno<br/>Coordination: Campanas, Portadas, Casos<br/>Treasury: Confirm Payment + Email Recibo<br/>Batch 24h: DonationExpirationService"]
+    end
+
+    subgraph APEX["2. Capa Logica Apex y Automatizacion"]
+        CTRL["Controladores Publicos AuraEnabled<br/>PublicCampaignController (with sharing)<br/>PublicDonationController (without sharing)<br/>PortalContactController (with sharing)"]
+        SVC["Servicios Privilegiados SYSTEM_MODE<br/>PublicCampaignReadService<br/>PublicDonationCommandService<br/>ContactCommandService"]
+        AUTO["Automatizacion y Staff<br/>DonationProjectionTrigger + Service<br/>CampaignImageService (USER_MODE)<br/>DonationManagementService<br/>StripeCheckoutService (Callout HTTP)"]
+    end
+
+    subgraph DATA["3. Capa de Datos Salesforce"]
+        CAMP["Campaign__c<br/>[Custom Object - ReadWrite]<br/>Meta, Recaudado, Anonimos,<br/>Expiracion, Portada"]
+        DON["Donation__c<br/>[Custom Object - Private]<br/>Monto >= 10 MXN, Pending/Paid/Cancelled,<br/>Stripe IDs, CFDI 4.0, Privacy_Accepted"]
+        REC["Donor_Recognition__c<br/>[Custom Object - Private]<br/>Muro publico si Paid + consentimiento"]
+        CASE["Case<br/>[Objeto propio de Salesforce]<br/>Consultas FAQ Contactanos (Origin=Web)"]
+        FILES["Salesforce Files<br/>[Objetos propios de Salesforce]<br/>ContentVersion + ContentDocumentLink<br/>+ ContentDistribution (URLs publicas)"]
+    end
+
+    subgraph STRIPE["4. Seguridad M3 y Pasarela Externa"]
+        CRED["Named Credential: Stripe_Test<br/>Clave de prueba pendiente de configurar en la sandbox"]
+        API["Stripe Checkout API (Externa)<br/>https://api.stripe.com<br/>POST /v1/checkout/sessions<br/>Pago hospedado PCI-DSS<br/>Retorno a /thank-you?session_id=..."]
+    end
+
+    GUEST -->|"Invoca 3 clases"| CTRL
+    CTRL -->|"Delega"| SVC
+    STAFF -->|"Gestiona y confirma"| AUTO
+    SVC -->|"Lee activas"| CAMP
+    SVC -->|"Inserta Pending"| DON
+    SVC -->|"Inserta Web Case"| CASE
+    DON -->|"Trigger Paid"| AUTO
+    AUTO -->|"Actualiza totales y muro"| CAMP
+    AUTO -->|"Proyecta"| REC
+    AUTO -->|"Publica URLs imagenes"| FILES
+    SVC -->|"Imagen <= 2 MB"| FILES
+    CTRL -->|"Crea sesion"| AUTO
+    AUTO -->|"callout:Stripe_Test"| CRED
+    CRED -->|"Bearer sk_test_..."| API
+    API -.->|"Redireccion segura"| GUEST
+```
 
 ## Estructura
 
@@ -142,13 +189,10 @@ docs/
   contribucion.md                    Registro de contribuciones del equipo (E1 y E2)
   e1-implementation-status.md        IDs de deploy y resultados de verificación E1
   qa-us-d1.md                        Plan y reporte QA de US-D1c
+  code_analyzer.md                   Reporte de Salesforce Code Analyzer y justificación (S14 / C6)
   stripe-test-setup.md               Guía de configuración segura de Stripe Test
-  bitacora_ia.md                     Bitácora cronológica de uso de IA (Entradas 01–14)
+  bitacora_ia.md                     Bitácora cronológica de uso de IA (Entradas 01–18)
   index.html                         Página estática para GitHub Pages
-  backlog.md                         Historias de usuario y criterios de aceptación
-  seguridad.md                       Configuración Experience Cloud y pruebas Guest User
-  e1-implementation-status.md        IDs de deploy y resultados de verificación
-  bitacora_ia.md                     Bitácora de uso de IA
 scripts/
   create_issues.ps1                  Crea los issues del backlog en GitHub
   update_backlog.ps1                 Actualiza subtareas y % de avance en README
@@ -165,6 +209,7 @@ scripts/
 cd salesforce
 npm install
 npm run lint
+npm run code-analyzer
 npm test
 sf project deploy start --target-org donacionesSandbox --source-dir force-app
 ```
@@ -174,4 +219,4 @@ Tras el despliegue, sigue [docs/seguridad.md](docs/seguridad.md) para publicar e
 ## Pruebas
 
 - **Entrega 1 (snapshot):** 6/6 pruebas dirigidas aprobadas con 92% de cobertura en `jDiaz` (ver [docs/e1-implementation-status.md](docs/e1-implementation-status.md)).
-- **Estado actual (Entrega 2 en `feat-FAQ`, desplegado en `mi-org`):** ESLint `0` errores, LWC Jest `3/3` suites (`17/17` tests pasando), y `RunLocalTests` en `mi-org` (`0Afbm00000ofchGCAQ`) con **49/49 pruebas Apex aprobadas** y **85.25% de cobertura global** (`78/78` componentes desplegados). Ver detalle en [docs/bitacora_ia.md](docs/bitacora_ia.md).
+- **Estado actual (Entrega 2 en `feat-FAQ`, desplegado en `mi-org`):** ESLint `0` errores, Salesforce Code Analyzer **`0` hallazgos High** (`10 → 0`, ver [docs/code_analyzer.md](docs/code_analyzer.md)), LWC Jest `3/3` suites (`17/17` tests pasando), y `RunLocalTests` en `mi-org` (`0Afbm00000og5EdCAI`) con **49/49 pruebas Apex aprobadas** (`78/78` componentes desplegados). Ver detalle en [docs/bitacora_ia.md](docs/bitacora_ia.md).

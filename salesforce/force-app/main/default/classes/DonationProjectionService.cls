@@ -14,6 +14,7 @@ public without sharing class DonationProjectionService {
                    Recognition_Type__c, Recognition_Image_URL__c
             FROM Donation__c
             WHERE Campaign__c IN :campaignIds
+            WITH SYSTEM_MODE
         ]) {
             if (donation.Payment_Status__c != 'Paid') {
                 continue;
@@ -51,6 +52,7 @@ public without sharing class DonationProjectionService {
             SELECT Id, Source_Donation__c
             FROM Donor_Recognition__c
             WHERE Campaign__c IN :campaignIds
+            WITH SYSTEM_MODE
         ]) {
             if (recognition.Source_Donation__c != null) {
                 existingByDonationId.put(recognition.Source_Donation__c, recognition);
@@ -79,12 +81,12 @@ public without sharing class DonationProjectionService {
         }
         recognitionsToDelete.addAll(existingByDonationId.values());
 
-        update campaignUpdates;
+        Database.update(campaignUpdates, AccessLevel.SYSTEM_MODE);
         if (!recognitionsToSave.isEmpty()) {
-            upsert recognitionsToSave;
+            Database.upsert(recognitionsToSave, AccessLevel.SYSTEM_MODE);
         }
         if (!recognitionsToDelete.isEmpty()) {
-            delete recognitionsToDelete;
+            Database.delete(recognitionsToDelete, AccessLevel.SYSTEM_MODE);
         }
     }
 }
