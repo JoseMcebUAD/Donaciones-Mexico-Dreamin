@@ -1,61 +1,147 @@
 # Portal de Donaciones Mexico Dreamin
 
-## Estado del proyecto
+## Entregables E1
 
-| Entrega | Historias comprometidas | Cumplidas | % Avance |
-| :--- | :---: | :---: | :---: |
-| E1 | 10 | 1 | 10% |
-| E2 | 4 | 0 | 0% |
+### (1) Sitio público
 
-> Fórmula: (historias cumplidas / total comprometidas) × 100.
-> El tablero completo con criterios de aceptación y evidencias de cada historia está en [`docs/backlog.md`](docs/backlog.md).
+> **[https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/](https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/)**
+
+### (2) Video demo
+
+> **(https://youtu.be/_o0NqD-dlAc)**
+
+### (3) Tablero de backlog
+
+[Tablero del proyecto](https://github.com/users/JoseMcebUAD/projects/8) | [Backlog completo](docs/backlog.md)
+
+<!-- BACKLOG-START -->
+[Tablero E1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues?q=is%3Aissue+label%3AE1) | [Tablero E2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues?q=is%3Aissue+label%3AE2)
+
+| Entrega | Total | Cumplidas | Avance |
+|---------|-------|-----------|--------|
+| E1 | 10 | 10 | 100% (10/10) |
+| E2 | 4 | 1 | 25% (1/4) |
+| **Total** | **14** | **11** | **79%** |
+
+> Calculo: issues cerradas en GitHub / total de issues x 100.
+
+| ID | Historia | Entrega | Estado |
+|----|----------|---------|--------|
+| [US-D1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/20) | Visualizacion publica de campanas y progreso financiero | E1 | Implementada |
+| [US-D2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/21) | Donacion en modalidad Anonima | E1 | Implementada |
+| [US-D3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/22) | Registro previo de donacion y control de expiracion | E1 | Implementada |
+| [US-D4](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/23) | Retorno y pagina de agradecimiento con contacto de soporte | E1 | Implementada |
+| [US-C1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/24) | Reconocimiento publico de aportaciones en campana | E1 | Implementada |
+| [US-F1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/25) | Captura de datos fiscales CFDI 4.0 y visibilidad | E1 | Implementada |
+| [US-S1](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/26) | Gestion interna de campanas y control al 100% de la meta | E1 | Implementada |
+| [US-S2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/27) | Consola de monitoreo y filtro de solicitudes de factura | E1 | Implementada |
+| [US-S3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/28) | Confirmacion manual de pago y envio de comprobante | E1 | Implementada |
+| [US-V2](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/29) | Auditoria y prueba de seguridad para Guest User | E1 | Implementada |
+| [US-D1b](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30) | Donacion de monto libre personalizado | E2 | Implementada |
+| [US-D5](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/31) | Confirmacion y comprobante automaticos via webhook | E2 | Pendiente |
+| [US-V3](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/32) | Validacion de autenticidad e idempotencia del Webhook | E2 | Pendiente |
+| [US-S4](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/33) | Auditoria de confirmaciones automaticas y log de avisos descartados | E2 | Pendiente |
+
+<!-- BACKLOG-END -->
+
+### (4) Seguridad y datos personales
+
+- [Seguridad, Stripe y Experience Cloud](docs/seguridad.md)
+- [Clasificación y tratamiento de datos personales (OA6)](docs/seguridad.md#4-clasificaci%C3%B3n-y-tratamiento-de-datos-personales-oa6)
+
+### (5) Metadata respaldada
+
+Toda la metadata desplegada en la org está versionada en [`salesforce/force-app/`](salesforce/force-app/). Para reproducir el estado de la org:
+
+```powershell
+cd salesforce
+sf project deploy start --target-org jDiaz --source-dir force-app
+```
+
+### (6) Bitácoras y registros
+
+- [Bitácora de IA](docs/bitacora_ia.md)
+- [Bitácora de contribución](docs/contribucion.md)
+- Registro de preguntas y reportes: pendiente crear `docs/preguntas_y_reportes.md` (requerido para E2)
 
 ---
 
-Entrega 1 del portal público de donaciones para Mexico Dreamin. Permite consultar campañas activas, iniciar un donativo con Stripe Test Checkout y reconocer donantes pagados con consentimiento. La operación interna se realiza desde Salesforce.
+Portal público de donaciones para Mexico Dreamin. Permite consultar campañas activas, iniciar un donativo con Stripe Test Checkout y reconocer donantes pagados con consentimiento. La operación interna se realiza desde Salesforce.
 
-## Alcance de Entrega 1
+## Alcance
 
-Se implementan US-01 a US-10: catálogo público, donativo anónimo o con reconocimiento, factura/RFC, intención `Pending`, Stripe Test Checkout, página de agradecimiento segura, muro de reconocimiento, gestión de campañas, revisión de donativos y confirmación manual de pago. US-11 a US-14 quedan para Entrega 2.
+**Entrega 1** — issues [#20](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/20)–[#29](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/29):
+
+| Issue | Historia |
+| :---: | :--- |
+| [#20](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/20) | US-D1 — Visualización pública de campañas y progreso financiero |
+| [#21](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/21) | US-D2 — Donación en modalidad anónima |
+| [#22](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/22) | US-D3 — Registro previo de donación y control de expiración |
+| [#23](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/23) | US-D4 — Retorno y página de agradecimiento con contacto de soporte |
+| [#24](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/24) | US-C1 — Reconocimiento público de aportaciones en campaña |
+| [#25](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/25) | US-F1 — Captura de datos fiscales CFDI 4.0 y visibilidad |
+| [#26](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/26) | US-S1 — Gestión interna de campañas y control al 100% de la meta |
+| [#27](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/27) | US-S2 — Consola de monitoreo y filtro de solicitudes de factura |
+| [#28](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/28) | US-S3 — Confirmación manual de pago y envío de comprobante |
+| [#29](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/29) | US-V2 — Auditoría y prueba de seguridad para Guest User |
+
+**Entrega 2** — issues [#30](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30)–[#33](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/33): monto libre, confirmación automática vía webhook, validación de firma e idempotencia, auditoría de eventos rechazados.
 
 ## Estructura
 
 ```text
-salesforce/                         Proyecto Salesforce DX
+salesforce/
   force-app/main/default/
-    classes/                         Apex y pruebas con HttpCalloutMock
-    lwc/                             Componentes públicos y acción de Tesorería
-    objects/                         Campaign__c y Donation__c
-    permissionsets/                  Permission Sets de operación
+    classes/
+      PublicCampaignController       Campañas activas para el sitio público
+      PublicDonationController       Creación de donaciones y sesión Stripe
+      DonationManagementService      Confirmación de pago, comprobante, muro
+      DonationExpirationService      Batch que expira donaciones abandonadas
+      StripeCheckoutService          Callout a Stripe Test Checkout API
+      *Test.cls                      Pruebas Apex (6/6 aprobadas, 92% cobertura)
+    lwc/
+      campaignCatalog                Catálogo público con auto-redirect
+      donationForm                   Formulario: anónimo, crédito, factura CFDI 4.0
+      donationConfirmation           Acción de Tesorería — Confirm Payment
+      donationThankYou               Página de agradecimiento segura
+      donorWall                      Muro de reconocimiento público
+    objects/
+      Campaign__c                    Meta, fecha de expiración, donaciones adicionales
+      Donation__c                    Estado, modalidad, campos fiscales RFC/CFDI 4.0
+    permissionsets/
+      Donation_Coordination          Acceso de coordinación
+      Donation_Treasury              Acceso de tesorería
+      Donation_Public_Guest          Mínimo privilegio para Guest User
+    tabs/                            Tabs de Campaign__c y Donation__c
+    sharingRules/                    Reglas de compartición de Campaign__c
 docs/
   index.html                         Página estática para GitHub Pages
-  backlog.md                         Historias de usuario
-  seguridad.md                       Configuración manual y pruebas Guest User
-  bitacora_ia.md                     Registro de IA
+  backlog.md                         Historias de usuario y criterios de aceptación
+  seguridad.md                       Configuración Experience Cloud y pruebas Guest User
+  e1-implementation-status.md        IDs de deploy y resultados de verificación
+  bitacora_ia.md                     Bitácora de uso de IA
+scripts/
+  create_issues.ps1                  Crea los issues del backlog en GitHub
+  update_backlog.ps1                 Actualiza subtareas y % de avance en README
 ```
 
 ## Requisitos y ejecución
 
-- Salesforce CLI, Node.js LTS, My Domain y Digital Experiences.
-- Org autorizada localmente como `jDiaz`.
-- Stripe Test con una Named Credential `Stripe_Test`; la clave secreta se guarda sólo en la org, jamás en Git.
+- Salesforce CLI (`sf`), Node.js LTS.
+- Org autorizada localmente: `sf org login web --alias jDiaz`.
+- My Domain y Digital Experiences habilitados en la org.
+- Named Credential `Stripe_Test` apuntando a `https://api.stripe.com` con la clave `sk_test_...` guardada solo en la org, nunca en Git.
 
 ```powershell
 cd salesforce
-sf org login web --alias jDiaz
 npm install
 npm run lint
 npm test
-sf project deploy validate --target-org jDiaz --source-dir force-app
 sf project deploy start --target-org jDiaz --source-dir force-app
 ```
 
-Tras el despliegue, sigue [docs/seguridad.md](docs/seguridad.md) para crear el sitio Experience Cloud, colocar `campaignCatalog`, `donorWall` y `donationThankYou`, y aplicar el mínimo privilegio de Guest User.
-
-## Seguridad y pagos
-
-Las interfaces públicas retornan sólo campañas activas y créditos autorizados; no aceptan IDs de donaciones para consultar o modificar datos de terceros. Un pago primero crea `Donation__c` como `Pending` y guarda la referencia de Salesforce en Stripe. La página de retorno no afirma pago confirmado. En E1 Tesorería confirma el pago una sola vez mediante **Confirm Payment**; webhook, firma e idempotencia quedan para E2.
+Tras el despliegue, sigue [docs/seguridad.md](docs/seguridad.md) para publicar el sitio Experience Cloud, colocar los LWC y aplicar el mínimo privilegio de Guest User.
 
 ## Pruebas
 
-Apex cubre campañas activas/inactivas, suma de sólo pagadas, muro, RFC, anonimato/factura, creación pendiente mediante `HttpCalloutMock` y confirmación duplicada. Jest cubre catálogo, estado vacío y el cambio a anónimo. La validación completa contra `jDiaz` aprobó 38 componentes y 6/6 pruebas Apex; consulta `docs/e1-implementation-status.md` para los IDs de verificación.
+6/6 clases Apex aprobadas con 92% de cobertura global. Cubren: campañas activas/inactivas, suma solo de pagadas, muro con consentimiento, validación RFC, desacoplamiento anónimo/factura, registro pendiente con `HttpCalloutMock`, expiración de donaciones abandonadas y bloqueo de confirmación duplicada. Jest cubre catálogo, estado vacío y cambio a anónimo. Ver IDs de verificación en [docs/e1-implementation-status.md](docs/e1-implementation-status.md).

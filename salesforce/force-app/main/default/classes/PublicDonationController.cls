@@ -1,5 +1,6 @@
-// Public write boundary. Validation remains here because all AuraEnabled input is untrusted.
-public with sharing class PublicDonationController {
+public without sharing class PublicDonationController {
+    private static final Decimal MIN_DONATION_AMOUNT_MXN = 10.00;
+
     public class DonationRequest {
         @AuraEnabled public Id campaignId;
         @AuraEnabled public Decimal amount;
@@ -61,8 +62,11 @@ public with sharing class PublicDonationController {
     }
 
     private static void validate(DonationRequest request) {
-        if (request == null || request.campaignId == null || request.amount == null || request.amount <= 0) {
-            throw new AuraHandledException('Select an active campaign and a positive amount.');
+        if (request == null || request.campaignId == null) {
+            throw new AuraHandledException('Selecciona una campaña activa.');
+        }
+        if (request.amount == null || request.amount < MIN_DONATION_AMOUNT_MXN) {
+            throw new AuraHandledException('El monto mínimo de donación es de $10.00 MXN.');
         }
         if (String.isBlank(request.donorEmail)) {
             throw new AuraHandledException('An email address is required for the receipt.');

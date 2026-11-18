@@ -11,7 +11,11 @@
 .section-heading h2 { color: #17233d; font-family: Georgia, serif; font-size: clamp(1.65rem, 3vw, 2.45rem); margin: 0; }
 .section-heading > p { color: #56647a; line-height: 1.5; margin: 0; max-width: 360px; }
 .campaign-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); }
-.campaign-card { background: #fff; border: 1px solid #e4e8f0; border-radius: 18px; box-shadow: 0 8px 24px rgba(30, 48, 80, .07); display: flex; flex-direction: column; min-height: 290px; padding: 1.5rem; transition: transform .2s ease, box-shadow .2s ease; }
+.campaign-card { background: #fff; border: 1px solid #e4e8f0; border-radius: 18px; box-shadow: 0 8px 24px rgba(30, 48, 80, .07); display: flex; flex-direction: column; min-height: 290px; overflow: hidden; padding: 0; transition: transform .2s ease, box-shadow .2s ease; }
+.card-cover { width: 100%; height: 180px; overflow: hidden; flex-shrink: 0; }
+.card-cover-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-cover--placeholder { background: linear-gradient(135deg, #e4e8f0 0%, #c8d0de 100%); }
+.card-body { display: flex; flex-direction: column; flex: 1; padding: 1.5rem; }
 .campaign-card:hover { box-shadow: 0 14px 30px rgba(30, 48, 80, .14); transform: translateY(-3px); }
 .card-topline { color: #3e7c65; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
 .status-dot { background: #4fb286; border-radius: 50%; display: inline-block; height: .5rem; margin-right: .35rem; width: .5rem; }
