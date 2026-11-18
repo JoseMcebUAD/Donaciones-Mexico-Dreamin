@@ -1,0 +1,52 @@
+<template>
+    <section class="faq-shell">
+        <div class="faq-header">
+            <p class="eyebrow">PREGUNTAS FRECUENTES</p>
+            <h2>¿Tienes dudas? Estamos aquí para ayudarte</h2>
+        </div>
+
+        <div class="faq-list">
+            <template for:each={faqItems} for:item="item">
+                <div key={item.id} class="faq-item">
+                    <button type="button" class="faq-question" data-id={item.id} onclick={toggleItem} aria-expanded={item.isOpen}>
+                        <span>{item.question}</span>
+                        <lightning-icon icon-name={item.iconName} size="x-small" aria-hidden="true"></lightning-icon>
+                    </button>
+                    <template if:true={item.isOpen}>
+                        <div class="faq-answer">
+                            <p>{item.answer}</p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <div class="contact-section">
+            <div class="contact-header">
+                <p class="eyebrow">CONTÁCTANOS</p>
+                <h3>¿No encontraste lo que buscabas?</h3>
+                <p>Envíanos un mensaje y te responderemos a la brevedad.</p>
+            </div>
+
+            <template if:false={submitted}>
+                <div class="contact-form">
+                    <lightning-input name="contactName" label="Nombre completo" value={contactName} onchange={handleContactChange} required></lightning-input>
+                    <lightning-input name="contactEmail" label="Correo electrónico" type="email" value={contactEmail} onchange={handleContactChange} required></lightning-input>
+                    <lightning-textarea name="contactMessage" label="Mensaje" value={contactMessage} max-length="1000" onchange={handleContactChange} required></lightning-textarea>
+                    <template if:true={contactError}><p class="form-error">{contactError}</p></template>
+                    <template if:true={isSending}><lightning-spinner alternative-text="Enviando mensaje" size="small"></lightning-spinner></template>
+                    <button class="send-button" type="button" onclick={sendMessage} disabled={isSending}>
+                        Enviar mensaje <span aria-hidden="true">→</span>
+                    </button>
+                </div>
+            </template>
+
+            <template if:true={submitted}>
+                <div class="contact-success">
+                    <lightning-icon icon-name="utility:success" size="medium"></lightning-icon>
+                    <p><strong>¡Mensaje enviado!</strong> En breve recibirás un correo de confirmación. Nuestro equipo te contactará pronto.</p>
+                </div>
+            </template>
+        </div>
+    </section>
+</template>

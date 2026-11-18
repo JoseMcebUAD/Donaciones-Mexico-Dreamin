@@ -1,61 +1,70 @@
 <template>
     <section class="portal-shell">
-        <header class="hero">
-            <p class="eyebrow">MEXICO DREAMIN · DONACIONES</p>
-            <h1>Tu apoyo transforma oportunidades.</h1>
-            <p class="hero-copy">Elige una causa, conoce su avance y apoya de forma segura con la cantidad que decidas aportar.</p>
-            <div class="hero-highlights">
-                <span><lightning-icon icon-name="utility:lock" size="xx-small"></lightning-icon> Pago seguro</span>
-                <span><lightning-icon icon-name="utility:heart" size="xx-small"></lightning-icon> Impacto local</span>
-                <span><lightning-icon icon-name="utility:people" size="xx-small"></lightning-icon> Comunidad</span>
+        <nav class="portal-nav">
+            <button type="button" class={homeNavClass} data-view="home" onclick={handleNav}>HOME</button>
+            <button type="button" class={faqNavClass} data-view="faq" onclick={handleNav}>FAQ</button>
+        </nav>
+        <template if:true={isHome}>
+            <header class="hero">
+                <p class="eyebrow">MEXICO DREAMIN · DONACIONES</p>
+                <h1>Tu apoyo transforma oportunidades.</h1>
+                <p class="hero-copy">Elige una causa, conoce su avance y apoya de forma segura con la cantidad que decidas aportar.</p>
+                <div class="hero-highlights">
+                    <span><lightning-icon icon-name="utility:lock" size="xx-small"></lightning-icon> Pago seguro</span>
+                    <span><lightning-icon icon-name="utility:heart" size="xx-small"></lightning-icon> Impacto local</span>
+                    <span><lightning-icon icon-name="utility:people" size="xx-small"></lightning-icon> Comunidad</span>
+                </div>
+            </header>
+            <div class="section-heading">
+                <div><p class="section-kicker">CAUSAS ACTIVAS</p><h2>Encuentra una causa para impulsar</h2></div>
+                <p>Tu donativo se registra con transparencia y sólo suma al avance tras su confirmación.</p>
             </div>
-        </header>
-        <div class="section-heading">
-            <div><p class="section-kicker">CAUSAS ACTIVAS</p><h2>Encuentra una causa para impulsar</h2></div>
-            <p>Tu donativo se registra con transparencia y sólo suma al avance tras su confirmación.</p>
-        </div>
-        <template if:true={isLoading}><div class="loading"><lightning-spinner alternative-text="Cargando campañas" size="small"></lightning-spinner></div></template>
-        <template if:true={error}><p class="feedback error">{error}</p></template>
-        <template if:true={hasCampaigns}>
-            <div class="campaign-grid">
-                <template for:each={campaigns} for:item="campaign">
-                    <article class="campaign-card" key={campaign.id}>
-                        <template if:true={campaign.coverImageUrl}>
-                            <div class="card-cover">
-                                <img src={campaign.coverImageUrl} alt={campaign.name} class="card-cover-img" />
+            <template if:true={isLoading}><div class="loading"><lightning-spinner alternative-text="Cargando campañas" size="small"></lightning-spinner></div></template>
+            <template if:true={error}><p class="feedback error">{error}</p></template>
+            <template if:true={hasCampaigns}>
+                <div class="campaign-grid">
+                    <template for:each={campaigns} for:item="campaign">
+                        <article class="campaign-card" key={campaign.id}>
+                            <template if:true={campaign.coverImageUrl}>
+                                <div class="card-cover">
+                                    <img src={campaign.coverImageUrl} alt={campaign.name} class="card-cover-img" />
+                                </div>
+                            </template>
+                            <template if:false={campaign.coverImageUrl}>
+                                <div class="card-cover card-cover--placeholder"></div>
+                            </template>
+                            <div class="card-body">
+                            <div class="card-topline"><span class="status-dot"></span> Campaña activa</div>
+                            <h3>{campaign.name}</h3>
+                            <template if:true={campaign.isDonationBlocked}>
+                                <p class="feedback blocked">{campaign.blockedReason}</p>
+                            </template>
+                            <template if:false={campaign.isDonationBlocked}>
+                                <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
+                            </template>
+                            <div class="amounts">
+                                <div><span>Recaudado</span><strong><lightning-formatted-number value={campaign.raisedAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
+                                <div><span>Meta</span><strong><lightning-formatted-number value={campaign.goalAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
                             </div>
-                        </template>
-                        <template if:false={campaign.coverImageUrl}>
-                            <div class="card-cover card-cover--placeholder"></div>
-                        </template>
-                        <div class="card-body">
-                        <div class="card-topline"><span class="status-dot"></span> Campaña activa</div>
-                        <h3>{campaign.name}</h3>
-                        <template if:true={campaign.isDonationBlocked}>
-                            <p class="feedback blocked">{campaign.blockedReason}</p>
-                        </template>
-                        <template if:false={campaign.isDonationBlocked}>
-                            <button class="donate-button" type="button" data-id={campaign.id} onclick={selectCampaign}>Apoyar esta causa <span aria-hidden="true">→</span></button>
-                        </template>
-                        <div class="amounts">
-                            <div><span>Recaudado</span><strong><lightning-formatted-number value={campaign.raisedAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
-                            <div><span>Meta</span><strong><lightning-formatted-number value={campaign.goalAmount} format-style="currency" currency-code="MXN"></lightning-formatted-number></strong></div>
-                        </div>
-                        <lightning-progress-bar class="campaign-progress" value={campaign.progressPercent}></lightning-progress-bar>
-                        <div class="progress-caption"><span>{campaign.progressPercent}% de la meta</span><span>MXN</span></div>
-                        <div class="campaign-wall">
-                            <c-donor-wall donors={campaign.recognizedDonors} anonymous-count={campaign.anonymousDonorCount}></c-donor-wall>
-                        </div>
-                        </div>
-                    </article>
-                </template>
-            </div>
+                            <lightning-progress-bar class="campaign-progress" value={campaign.progressPercent}></lightning-progress-bar>
+                            <div class="progress-caption"><span>{campaign.progressPercent}% de la meta</span><span>MXN</span></div>
+                            <div class="campaign-wall">
+                                <c-donor-wall donors={campaign.recognizedDonors} anonymous-count={campaign.anonymousDonorCount}></c-donor-wall>
+                            </div>
+                            </div>
+                        </article>
+                    </template>
+                </div>
+            </template>
+            <template if:false={isLoading}><template if:false={hasCampaigns}><template if:false={error}><p class="feedback">No hay campañas activas por el momento. Vuelve pronto.</p></template></template></template>
+            <template if:true={selectedCampaign}>
+                <div class="donation-anchor">
+                    <c-donation-form campaign={selectedCampaign}></c-donation-form>
+                </div>
+            </template>
         </template>
-        <template if:false={isLoading}><template if:false={hasCampaigns}><template if:false={error}><p class="feedback">No hay campañas activas por el momento. Vuelve pronto.</p></template></template></template>
-        <template if:true={selectedCampaign}>
-            <div class="donation-anchor">
-                <c-donation-form campaign={selectedCampaign}></c-donation-form>
-            </div>
+        <template if:true={isFaq}>
+            <c-faq-section></c-faq-section>
         </template>
     </section>
 </template>
