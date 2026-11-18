@@ -11,6 +11,7 @@ public with sharing class PublicCampaignController {
         @AuraEnabled public Integer anonymousDonorCount;
         @AuraEnabled public List<RecognizedDonorView> recognizedDonors;
         @AuraEnabled public String coverImageUrl;
+        @AuraEnabled public String description;
     }
 
     public class RecognizedDonorView {
@@ -41,6 +42,7 @@ public with sharing class PublicCampaignController {
                 : Integer.valueOf(campaign.Anonymous_Donor_Count__c);
             item.recognizedDonors = toRecognitionViews(snapshot.recognitions);
             item.coverImageUrl = campaign.Cover_Image_URL__c;
+            item.description = campaign.Description__c;
             if (isExpired) {
                 item.blockedReason = 'Esta campaña ha cerrado. Gracias por tu interés.';
             } else if (isFull) {

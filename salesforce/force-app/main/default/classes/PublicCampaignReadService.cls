@@ -9,7 +9,8 @@ public without sharing class PublicCampaignReadService {
     public static List<CampaignSnapshot> fetchActiveCampaigns() {
         List<Campaign__c> campaigns = [
             SELECT Id, Name, Goal_Amount__c, Raised_Amount__c, Anonymous_Donor_Count__c,
-                Expiration_Date__c, Allow_Additional_Donations__c, Cover_Image_URL__c
+                Expiration_Date__c, Allow_Additional_Donations__c, Cover_Image_URL__c,
+                Description__c
             FROM Campaign__c
             WHERE Is_Active__c = true
             WITH SYSTEM_MODE

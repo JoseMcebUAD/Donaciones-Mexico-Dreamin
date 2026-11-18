@@ -1,6 +1,6 @@
 <template>
     <section class="donation-panel">
-        <div class="panel-intro"><p class="eyebrow">APOYA ESTA CAUSA</p><h2>Haz crecer <span>{campaign.name}</span></h2><p>Tu información se usa únicamente para gestionar este donativo y su comprobante.</p></div>
+        <div class="panel-intro"><p class="eyebrow">APOYA ESTA CAUSA</p><h2>Haz crecer <span>{campaign.name}</span></h2><template if:true={campaign.description}><p class="campaign-description">{campaign.description}</p></template><template if:false={campaign.description}><p>Tu información se usa únicamente para gestionar este donativo y su comprobante.</p></template></div>
         <div class="form-area">
             <p class="field-label">Elige un monto sugerido</p>
             <div class="suggested-amounts"><button type="button" data-amount="250" onclick={selectAmount}>$250</button><button type="button" data-amount="500" onclick={selectAmount}>$500</button><button type="button" data-amount="1000" onclick={selectAmount}>$1,000</button></div>
