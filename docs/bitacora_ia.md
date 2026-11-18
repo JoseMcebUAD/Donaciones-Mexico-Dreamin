@@ -226,6 +226,7 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 
 ---
 
+### Entrada 07: Plan de QA, ejecución automatizada y matriz de pruebas para `feat/US-D1` (`US-D1c`)
 ### Entrada 07: Validación QA, pruebas automatizadas y corrección de test en `refactor/post-feedback` (`US-R1`, `US-R2`)
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
@@ -304,6 +305,41 @@ Se ejecutaron las pruebas locales de frontend y la validación con pruebas Apex 
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1, US-D1c
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Genera un plan de QA para validar que la HU está correctamente implementada. Revisa cuál es el nombre de la rama, esa es la HU."*
+> *"agrega esto a la bitacora en `docs/bitacora_ia.md`. También si quieres genera el md con las pruebas automatizadas y manuales tal cual la compartes acá"*
+
+#### 2. Qué se obtuvo
+* Inspección de la rama `feat/US-D1` (`8fe6427..HEAD`), identificando la implementación de `US-D1c` (`c-campaign-share`, integración en `c-campaign-catalog`, auto-selección por `?campaign=<id>`, refactor UI del botón `Apoyar esta causa` y pruebas Jest).
+* Generación del documento `docs/qa-us-d1.md` con:
+  * Resultados reales de la **Fase 1 (Pruebas Automatizadas Locales)**.
+  * Matriz de pruebas manuales funcionales para **Fase 2 (`US-D1c`)**, **Fase 3 (Regresión `US-D1`)** y **Fase 4 (UI / Responsividad / Navegadores)**.
+
+#### 3. Qué se verificó y cómo
+* `npx sfdx-lwc-jest -- --verbose campaignShare` (en `salesforce/`): **PASS** (`10/10` pruebas unitarias en verde).
+* `npm run test:unit` (en `salesforce/`): **FAIL** (código de salida `1`). `campaignCatalog.test.js` provoca un rechazo no controlado `TypeError: anchor.scrollIntoView is not a function` en `campaignCatalog.js:68:16` porque JSDOM no implementa `Element.prototype.scrollIntoView` ni existe guarda/mock en el test.
+* `npm run lint` (en `salesforce/`): **FAIL** (código de salida `1`, `4` problemas: `3` errores y `1` warning):
+  * `campaignCatalog.js:19:18` (`no-unused-vars`: `'_'`) y `52:9` (directiva `eslint-disable` sin uso).
+  * `campaignShare.js:88:27` (`@lwc/lwc/no-async-operation`: `setTimeout`) y `106:18` (`no-unused-vars`: `'_'`).
+* `npm run prettier:verify` (en `salesforce/`): **FAIL** (código de salida `1`, `118` archivos con diferencias de formato en el repositorio, incluidos los archivos nuevos/modificados de `US-D1c`).
+
+#### 4. Qué se corrigió / Errores detectados por QA
+* **Hallazgos reportados (sin modificar código fuente en esta sesión de QA):**
+  1. **Bloqueante en Jest (`campaignCatalog.js:68`):** `anchor.scrollIntoView(...)` rompe la ejecución de `npm run test:unit` en JSDOM; requiere guarda (`if (typeof anchor.scrollIntoView === 'function')`) o mock en `campaignCatalog.test.js`.
+  2. **Errores de ESLint:** Uso de `setTimeout` sin directiva en `campaignShare.js` y variables `catch (_)` no permitidas por `no-unused-vars` en `campaignCatalog.js` y `campaignShare.js`.
+  3. **Accesibilidad pendiente de validar:** `campaignShare` implementa `role="dialog"` y `aria-modal="true"`, pero no cierra con la tecla `Escape`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 40 a 60 minutos revisando el diff de la rama, ejecutando suites locales y redactando la matriz de pruebas QA + bitácora.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~90% en análisis, ejecución automatizada y documentación QA.
+
+---
+
+### Entrada 08: Bugfix de ESLint y `scrollIntoView` en JSDOM para `feat/US-D1` (`US-D1c`)
 * **Historia(s) Relacionada(s):** US-R1, US-R2, US-S5
 * **Hito:** Entrega 2 (Post-feedback)
 
@@ -374,6 +410,34 @@ Se corrigieron las suites de pruebas locales y de Apex, logrando un despliegue e
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1, US-D1c
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Haz los cambios y genera un commit con el bugfix. ¿Estás 100% seguro de que no es cosa de mi org? Si sí, procede y entonces agrega la entrada a `docs/bitacora_ia.md` del bugfix"*
+
+#### 2. Qué se obtuvo
+* Corrección en `salesforce/force-app/main/default/lwc/campaignCatalog/campaignCatalog.js`:
+  * Guarda defensiva `if (anchor && typeof anchor.scrollIntoView === 'function')` en `_scrollToDonationForm()` para evitar `TypeError` en JSDOM (`sfdx-lwc-jest`) donde `Element.prototype.scrollIntoView` no existe.
+  * Cambio de `catch (_)` a `catch` y eliminación de la directiva `// eslint-disable-next-line @lwc/lwc/no-async-operation` sin uso.
+* Corrección en `salesforce/force-app/main/default/lwc/campaignShare/campaignShare.js`:
+  * Cambio de `catch (_)` a `catch` en `_fallbackCopy()`.
+  * Directiva `// eslint-disable-next-line @lwc/lwc/no-async-operation` sobre `setTimeout` en `_showCopied()` (el temporizador ya se limpia en `closePopup()` y `disconnectedCallback()`).
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (en `salesforce/`): **PASS** (código de salida `0`, `0` errores y `0` warnings).
+* `npm run test:unit` (en `salesforce/`):
+  * `campaignCatalog.test.js`: **PASS**
+  * `campaignShare.test.js`: **PASS**
+  * `donationForm.test.js`: **FAIL** (`1` test fallido preexistente fuera de `US-D1c`: `enforces the Stripe minimum amount of 10 MXN on the amount input`, `amountInput` es `null`). Total: `2/3` suites en verde, `16/17` tests en verde.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Confirmación de entorno:** Los fallos no provenían de la org de Salesforce sino del entorno local de pruebas/linting (`JSDOM` sin `scrollIntoView` y reglas estrictas de `@salesforce/eslint-config-lwc`).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 20 a 30 minutos diagnosticando, corrigiendo y re-ejecutando Jest/ESLint.
+* **Tiempo real con IA:** Aproximadamente 3 minutos.
+* **Ahorro estimado:** ~88% en corrección y verificación.
 * **Historia(s) Relacionada(s):** US-D1, US-V2 (RF-D1a, RF-V1, RF-V2, M2)
 * **Hito:** Entrega 1 / Entrega 2
 
