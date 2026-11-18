@@ -226,11 +226,43 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 
 ---
 
-### Entrada 07: Pruebas previas al despliegue en sandbox `mi-org` (LWC Jest, ESLint y Apex `RunLocalTests`)
-
+### Entrada 07: Validación QA, pruebas automatizadas y corrección de test en `refactor/post-feedback` (`US-R1`, `US-R2`)
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-R1, US-R2
+* **Hito:** Entrega 2 (Post-feedback)
+
+#### 1. Qué se pidió
+> *"Cambié de HU, válida esta nueva y ejecuta las pruebas automatizadas. Agrega también los resultados a `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* Revisión de los cambios de la rama `refactor/post-feedback` (`8fe6427..HEAD`):
+  * `US-R1` (`f8d766e`): eliminación de `recognitionType` en `donationForm`, `donorWall`, `PublicCampaignController` y `PublicDonationController` (fijando `'Individual'` en `PublicDonationCommandService`).
+  * `US-R2` (`8977d67`): reemplazo de URL de imagen por carga directa de archivo (`<= 2 MB`, Base64) en `donationForm` y publicación vía `ContentVersion` + `ContentDistribution` (`ContentDownloadUrl`) en `PublicDonationCommandService.publishDonorImage()`.
+* Corrección en `salesforce/force-app/main/default/lwc/donationForm/__tests__/donationForm.test.js` del test preexistente `enforces the Stripe minimum amount of 10 MXN on the amount input`, cambiando `querySelector('lightning-input[name="amount"]')` por `querySelectorAll('lightning-input')[0]` tras `await flushPromises()`.
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (en `salesforce/`): **PASS** (`0` errores, `0` warnings).
+* `npm run test:unit` (en `salesforce/`):
+  * Antes del fix: `1` suite en verde (`campaignCatalog.test.js`) y `1` fallo preexistente en `donationForm.test.js` (`amountInput` era `null` porque el stub de `lightning-input` no refleja `name` como atributo HTML).
+  * Después del fix: **PASS** — `2/2` suites (`campaignCatalog.test.js`, `donationForm.test.js`) y `4/4` tests en verde (`1.637 s`).
+* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000oeoHTCAY` contra `mi-org` / `jsvela111.cfef96266380@agentforce.com`): **FAIL en compilación (9 componentes)**, por lo que las pruebas Apex no llegaron a ejecutarse (`Passing: 0, Failing: 0, Total: 0`):
+  * **Fallo en `US-R2` (`PublicDonationCommandService.cls:71:14`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload` (bloquea en cascada `PublicDonationCommandServiceTest`, `PublicDonationController` y `PublicDonationControllerTest`).
+  * **Fallos preexistentes de `US-S5` (`CampaignImageService.cls`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload (17:14)` y `No such column 'ContentDownloadUrl' on entity 'ContentVersion' (47:41)` (bloquea `CampaignImageServiceTest` y `campaignImageUpload`).
+  * **Fallo preexistente de configuración (`Donation_Public_Guest`):** `Unable to find ExternalCredentialPrincipal: Stripe_Test_External-Stripe_Org_Principal`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Ajuste aplicado:** Se mantuvo sin cambios `handleImageChange` en `donationForm.js` al no presentar fallos en las pruebas y se corrigió únicamente el selector del stub en `donationForm.test.js`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 30 a 45 minutos analizando el diff, ejecutando Jest/ESLint, corrigiendo el test y documentando en bitácora.
+* **Tiempo real con IA:** Aproximadamente 4 minutos.
+* **Ahorro estimado:** ~88% en validación QA y documentación.
+
+---
+
+### Entrada 08: Bugfix de `ContentDistribution` / SOQL y despliegue validado en `mi-org` (`refactor/post-feedback`)
 * **Historia(s) Relacionada(s):** US-01 a US-10, US-D1b (validación integral pre-despliegue)
 * **Hito:** Entrega 1 / Entrega 2
 
@@ -272,6 +304,32 @@ Se ejecutaron las pruebas locales de frontend y la validación con pruebas Apex 
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-R1, US-R2, US-S5
+* **Hito:** Entrega 2 (Post-feedback)
+
+#### 1. Qué se pidió
+> *"Realiza los cambios necesarios en el código y en mi org. Valida bien antes de todo y si funciona, genera el commit como bugfix y agrega a la `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* Corrección en `salesforce/force-app/main/default/classes/PublicDonationCommandService.cls` (línea 71): reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload` en `ContentDistribution`.
+* Corrección en `salesforce/force-app/main/default/classes/CampaignImageService.cls`:
+  * Línea 17: reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload`.
+  * Líneas 47–50: eliminación de `ContentDocument.LatestPublishedVersion.ContentDownloadUrl` en el SOQL de `getCoverImages()` (campo no existente en `ContentVersion` y no utilizado en `ImageView`).
+* Configuración en `mi-org` (`jsvela111.cfef96266380@agentforce.com`): creación de la `ExternalCredential` `Stripe_Test_External` con el principal `Stripe_Org_Principal` (Deploy ID `0Afbm00000ofdS1CAI`) para habilitar el despliegue de `Donation_Public_Guest`, seguida del despliegue de `force-app` (Deploy ID `0Afbm00000oeSwuCAE`).
+
+#### 3. Qué se verificó y cómo
+* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000ofFpWCAU`): **PASS** — `45/45` pruebas Apex locales en verde (`0` fallos).
+* `sf project deploy start -o mi-org --source-dir force-app` (Deploy ID `0Afbm00000oeSwuCAE`): **Succeeded** (`100%`).
+* `sf apex run test -o mi-org -n PublicDonationCommandServiceTest -n PublicCampaignControllerTest -n PublicDonationControllerTest -r human -w 10` (Test Run ID `707bm00001XCGHg`): **PASS** — `11/11` pruebas (`100%`).
+* `npm run test:unit` y `npm run lint` (en `salesforce/`): **PASS** — `2/2` suites (`4/4` tests LWC Jest) y `0` errores de ESLint.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Hallazgos corregidos:** `PreferencesAllowOriginalRelatedEntityDownload` no existe en `ContentDistribution` (el campo correcto es `PreferencesAllowOriginalDownload`) y `ContentDownloadUrl` pertenece a `ContentDistribution`, no a `ContentVersion`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 40 a 60 minutos diagnosticando errores de metadata/SOQL, creando la External Credential en la org, desplegando y ejecutando todas las suites Apex y LWC.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~90% en corrección, despliegue y validación integral.
 * **Historia(s) Relacionada(s):** US-01 a US-10, US-D1b (despliegue integral y suite de pruebas)
 * **Hito:** Entrega 1 / Entrega 2
 

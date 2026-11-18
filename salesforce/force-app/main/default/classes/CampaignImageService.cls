@@ -14,6 +14,7 @@ public with sharing class CampaignImageService {
         ContentDistribution dist = new ContentDistribution();
         dist.Name = 'CampaignCover-' + campaignId;
         dist.ContentVersionId = cv.Id;
+        dist.PreferencesAllowOriginalDownload = true;
         dist.PreferencesLinkLatestVersion = true;
         dist.PreferencesNotifyOnVisit = false;
         dist.PreferencesPasswordRequired = false;

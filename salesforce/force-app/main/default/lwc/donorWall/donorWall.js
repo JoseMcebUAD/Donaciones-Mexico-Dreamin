@@ -9,8 +9,7 @@ export default class DonorWall extends LightningElement {
         this._donors = (value || []).map((donor) => ({
             ...donor,
             imageAlt: `Logo o foto de ${donor.displayName}`,
-            initial: donor.displayName ? donor.displayName.charAt(0).toUpperCase() : 'D',
-            recognitionTypeLabel: donor.recognitionType === 'Organization' ? 'ORGANIZACIÓN' : 'DONANTE'
+            initial: donor.displayName ? donor.displayName.charAt(0).toUpperCase() : 'D'
         }));
     }
 
