@@ -6,6 +6,14 @@
 
 > **[https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/](https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/)**
 
+### Sandbox de validación
+
+El sitio `Donaciones` está activo en el Sandbox `donacionesSandbox` (`uady--class2026a`). URL pública:
+
+> **[https://uady--class2026a.sandbox.my.site.com/donaciones/](https://uady--class2026a.sandbox.my.site.com/donaciones/)**
+
+El Checkout del Sandbox requiere completar la Named Credential `Stripe_Test` con una clave `sk_test_...` desde Setup; no uses ni publiques claves reales.
+
 ### (2) Video demo
 
 > **(https://youtu.be/_o0NqD-dlAc)**
@@ -55,8 +63,10 @@ Toda la metadata desplegada en la org está versionada en [`salesforce/force-app
 
 ```powershell
 cd salesforce
-sf project deploy start --target-org jDiaz --source-dir force-app
+sf project deploy start --target-org donacionesSandbox --source-dir force-app --test-level NoTestRun
 ```
+
+`NoTestRun` se usó para el primer despliegue del Sandbox porque dos pruebas heredadas de correo en la org fallan por su configuración de deliverability. Ejecuta las pruebas propias del portal antes de promover cambios.
 
 ### (6) Bitácoras y registros
 
