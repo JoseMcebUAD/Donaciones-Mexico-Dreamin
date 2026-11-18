@@ -6,9 +6,17 @@
 
 > **[https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/](https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/)**
 
+### Sandbox de validación
+
+El sitio `Donaciones` está activo en el Sandbox `donacionesSandbox` (`uady--class2026a`). URL pública:
+
+> **[https://uady--class2026a.sandbox.my.site.com/donaciones/](https://uady--class2026a.sandbox.my.site.com/donaciones/)**
+
+El Checkout del Sandbox requiere completar la Named Credential `Stripe_Test` con una clave `sk_test_...` desde Setup; no uses ni publiques claves reales.
+
 ### (2) Video demo
 
-> **(https://youtu.be/_o0NqD-dlAc)**
+> **(https://josemcebuad.github.io/Donaciones-Mexico-Dreamin/)**
 
 ### (3) Tablero de backlog
 
@@ -56,8 +64,10 @@ Toda la metadata desplegada en la org está versionada en [`salesforce/force-app
 
 ```powershell
 cd salesforce
-sf project deploy start --target-org jDiaz --source-dir force-app
+sf project deploy start --target-org donacionesSandbox --source-dir force-app --test-level NoTestRun
 ```
+
+`NoTestRun` se usó para el primer despliegue del Sandbox porque dos pruebas heredadas de correo en la org fallan por su configuración de deliverability. Ejecuta las pruebas propias del portal antes de promover cambios.
 
 ### (6) Bitácoras y registros
 
@@ -137,6 +147,11 @@ docs/
   qa-us-d1.md                        Plan y reporte QA de US-D1c
   stripe-test-setup.md               Guía de configuración segura de Stripe Test
   bitacora_ia.md                     Bitácora cronológica de uso de IA (Entradas 01–14)
+  index.html                         Página estática para GitHub Pages
+  backlog.md                         Historias de usuario y criterios de aceptación
+  seguridad.md                       Configuración Experience Cloud y pruebas Guest User
+  e1-implementation-status.md        IDs de deploy y resultados de verificación
+  bitacora_ia.md                     Bitácora de uso de IA
 scripts/
   create_issues.ps1                  Crea los issues del backlog en GitHub
   update_backlog.ps1                 Actualiza subtareas y % de avance en README
