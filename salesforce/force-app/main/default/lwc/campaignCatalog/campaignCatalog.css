@@ -1,5 +1,9 @@
 :host { display: block; color: #17233d; font-family: "Salesforce Sans", Arial, sans-serif; }
 .portal-shell { max-width: 1180px; margin: 0 auto; padding: 1.25rem; }
+.portal-nav { display: flex; gap: 0.25rem; margin-bottom: 1rem; }
+.nav-btn { background: transparent; border: none; border-bottom: 2px solid transparent; color: #56647a; cursor: pointer; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; padding: 0.4rem 0.75rem; text-transform: uppercase; transition: color 0.15s, border-color 0.15s; }
+.nav-btn:hover { color: #17233d; }
+.nav-btn--active { border-bottom-color: #e7a943; color: #17233d; }
 .hero { background: radial-gradient(circle at 85% 10%, #ffcf83 0, rgba(255,207,131,.1) 24%, transparent 45%), linear-gradient(125deg, #14213d 0%, #223f6d 58%, #185c63 100%); border-radius: 24px; color: #fff; padding: clamp(2rem, 6vw, 4.75rem); box-shadow: 0 18px 45px rgba(16, 34, 61, .2); }
 .eyebrow,.section-kicker { color: #e6af58; font-size: .72rem; font-weight: 700; letter-spacing: .13em; margin: 0 0 .7rem; }
 .hero h1 { color: #fff; font-family: Georgia, serif; font-size: clamp(2.15rem, 5vw, 4.25rem); letter-spacing: -.04em; line-height: 1.04; margin: 0; max-width: 750px; }

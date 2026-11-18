@@ -40,6 +40,8 @@ export default class DonationForm extends LightningElement {
     recognitionImageFileName = null;
     isLoading = false;
     error;
+    privacyAccepted = false;
+    showPrivacyText = false;
 
     get nameRequired() {
         return !this.isAnonymous;
@@ -51,6 +53,24 @@ export default class DonationForm extends LightningElement {
 
     get cfdiUseOptions() {
         return CFDI_USE_OPTIONS;
+    }
+
+    get recognitionTypeOptions() {
+        return RECOGNITION_TYPE_OPTIONS;
+    }
+
+    get recognitionNameLabel() {
+        return this.recognitionType === 'Organization'
+            ? 'Nombre de la empresa u organización'
+            : 'Nombre para mostrar';
+    }
+
+    get privacyLinkLabel() {
+        return this.showPrivacyText ? 'Ocultar aviso' : 'Ver aviso de privacidad';
+    }
+
+    togglePrivacyText() {
+        this.showPrivacyText = !this.showPrivacyText;
     }
 
     handleChange(event) {
@@ -95,6 +115,10 @@ export default class DonationForm extends LightningElement {
         if (!fields.every((f) => f.checkValidity()) || !combos.every((c) => c.checkValidity())) {
             fields.forEach((f) => f.reportValidity());
             combos.forEach((c) => c.reportValidity());
+            return;
+        }
+        if (!this.privacyAccepted) {
+            this.error = 'Debes aceptar el aviso de privacidad para continuar.';
             return;
         }
         this.error = undefined;

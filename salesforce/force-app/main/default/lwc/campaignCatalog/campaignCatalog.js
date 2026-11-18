@@ -6,6 +6,27 @@ export default class CampaignCatalog extends LightningElement {
     selectedCampaign;
     error;
     isLoading = true;
+    currentView = 'home';
+
+    get isHome() {
+        return this.currentView === 'home';
+    }
+
+    get isFaq() {
+        return this.currentView === 'faq';
+    }
+
+    get homeNavClass() {
+        return this.currentView === 'home' ? 'nav-btn nav-btn--active' : 'nav-btn';
+    }
+
+    get faqNavClass() {
+        return this.currentView === 'faq' ? 'nav-btn nav-btn--active' : 'nav-btn';
+    }
+
+    handleNav(event) {
+        this.currentView = event.currentTarget.dataset.view;
+    }
 
     @wire(getActiveCampaigns)
     wiredCampaigns({ data, error }) {
