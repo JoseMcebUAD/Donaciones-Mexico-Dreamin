@@ -1,33 +1,30 @@
-import { LightningElement, api, wire } from 'lwc';
-import getRecognizedDonors from '@salesforce/apex/PublicCampaignController.getRecognizedDonors';
-import getAnonymousDonorCount from '@salesforce/apex/PublicCampaignController.getAnonymousDonorCount';
+import { LightningElement, api } from 'lwc';
 
 export default class DonorWall extends LightningElement {
-    @api campaignId;
-    donors = [];
-    anonymousCount = 0;
-    error;
+    _donors = [];
+    _anonymousCount = 0;
 
-    @wire(getRecognizedDonors, { campaignId: '$campaignId' })
-    wiredDonors({ data, error }) {
-        if (data) {
-            this.donors = data.map((donor) => ({
-                ...donor,
-                imageAlt: `Logo o foto de ${donor.displayName}`,
-                initial: donor.displayName ? donor.displayName.charAt(0).toUpperCase() : 'D',
-                recognitionTypeLabel: donor.recognitionType === 'Organization' ? 'ORGANIZACIÓN' : 'DONANTE'
-            }));
-            this.error = undefined;
-        } else if (error) {
-            this.donors = [];
-            this.error = 'El muro de reconocimiento no está disponible por el momento.';
-        }
+    @api
+    set donors(value) {
+        this._donors = (value || []).map((donor) => ({
+            ...donor,
+            imageAlt: `Logo o foto de ${donor.displayName}`,
+            initial: donor.displayName ? donor.displayName.charAt(0).toUpperCase() : 'D',
+            recognitionTypeLabel: donor.recognitionType === 'Organization' ? 'ORGANIZACIÓN' : 'DONANTE'
+        }));
     }
 
-    @wire(getAnonymousDonorCount, { campaignId: '$campaignId' })
-    wiredAnonCount({ data, error }) {
-        if (data !== undefined) this.anonymousCount = data;
-        else if (error) this.anonymousCount = 0;
+    get donors() {
+        return this._donors;
+    }
+
+    @api
+    set anonymousCount(value) {
+        this._anonymousCount = Number(value) || 0;
+    }
+
+    get anonymousCount() {
+        return this._anonymousCount;
     }
 
     get hasDonors() { return this.donors.length > 0; }

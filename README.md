@@ -8,7 +8,7 @@
 
 ### (2) Video demo
 
-> **(https://youtu.be/_o0NqD-dlAc)**
+> **(https://josemcebuad.github.io/Donaciones-Mexico-Dreamin/)**
 
 ### (3) Tablero de backlog
 
@@ -115,6 +115,7 @@ salesforce/
     tabs/                            Tabs de Campaign__c y Donation__c
     sharingRules/                    Reglas de compartición de Campaign__c
 docs/
+  index.html                         Página estática para GitHub Pages
   backlog.md                         Historias de usuario y criterios de aceptación
   seguridad.md                       Configuración Experience Cloud y pruebas Guest User
   e1-implementation-status.md        IDs de deploy y resultados de verificación

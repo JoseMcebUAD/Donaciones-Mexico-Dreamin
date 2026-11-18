@@ -1,0 +1,68 @@
+<template>
+    <lightning-card title="Imagen de portada" icon-name="utility:image">
+        <div class="slds-p-around_medium">
+
+            <template lwc:if={currentCoverUrl}>
+                <div class="cover-preview">
+                    <p class="slds-text-title_caps slds-m-bottom_x-small">Portada actual</p>
+                    <img src={currentCoverUrl} alt="Imagen de portada actual" class="cover-img" />
+                </div>
+            </template>
+            <template lwc:else>
+                <div class="cover-placeholder">
+                    <lightning-icon icon-name="utility:image" size="large"></lightning-icon>
+                    <p>Sin imagen de portada</p>
+                </div>
+            </template>
+
+            <div class="slds-m-top_medium">
+                <lightning-file-upload
+                    label="Subir nueva imagen de portada"
+                    name="coverImage"
+                    accept=".jpg,.jpeg,.png,.gif,.webp"
+                    record-id={recordId}
+                    multiple="false"
+                    onuploadfinished={handleUploadFinished}
+                    disabled={isUploading}>
+                </lightning-file-upload>
+            </div>
+
+            <template lwc:if={isUploading}>
+                <div class="slds-m-top_small slds-align_absolute-center">
+                    <lightning-spinner alternative-text="Publicando imagen..." size="small"></lightning-spinner>
+                    <span class="slds-m-left_small">Publicando imagen...</span>
+                </div>
+            </template>
+
+            <template lwc:if={uploadError}>
+                <div class="slds-m-top_small">
+                    <p class="error-msg">{uploadError}</p>
+                </div>
+            </template>
+
+            <template lwc:if={allImages.length}>
+                <div class="slds-m-top_large">
+                    <p class="slds-text-title_caps slds-m-bottom_x-small">Imágenes subidas ({allImages.length})</p>
+                    <ul class="image-list">
+                        <template for:each={allImages} for:item="img">
+                            <li key={img.contentDocumentId} class="image-list-item">
+                                <lightning-icon icon-name="doctype:image" size="small"></lightning-icon>
+                                <span class="slds-m-left_x-small">{img.title}</span>
+                                <lightning-button-icon
+                                    icon-name="utility:upload"
+                                    variant="bare"
+                                    alternative-text="Usar como portada"
+                                    title="Usar como portada"
+                                    data-id={img.contentDocumentId}
+                                    onclick={handleSetCover}
+                                    class="slds-m-left_small">
+                                </lightning-button-icon>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

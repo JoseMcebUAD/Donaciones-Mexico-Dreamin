@@ -7,9 +7,4 @@
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightningCommunity__Default">
-            <property name="campaignId" type="String" label="Campaign Id" description="Id of the campaign to display." />
-        </targetConfig>
-    </targetConfigs>
 </LightningComponentBundle>

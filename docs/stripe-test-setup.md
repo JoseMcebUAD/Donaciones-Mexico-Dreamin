@@ -2,39 +2,33 @@
 
 ## Flujo implementado
 
-El portal crea una **Checkout Session** por cada donación desde `StripeCheckoutService`. Esto conserva el monto elegido, el correo del donante y una referencia de Salesforce (`MD-...`) en `client_reference_id` y `metadata[salesforce_reference]`.
+`StripeCheckoutService` crea una Checkout Session mediante `callout:Stripe_Test/v1/checkout/sessions`. La clave `sk_test_...` vive exclusivamente en la External Credential de Salesforce; nunca aparece en Apex, LWC, Git, evidencias ni chat.
 
-La sesión se crea mediante el endpoint `callout:Stripe_Test/v1/checkout/sessions`; por ello la clave secreta nunca se almacena en Apex, LWC, Git ni documentación.
+Cada intento usa una referencia `MD-...` en `client_reference_id` y `metadata[salesforce_reference]`. Salesforce crea el registro como `Pending` sólo después de recibir una sesión válida de Stripe.
 
-## Configuración manual en Salesforce
+## Configuración
 
-Una persona administradora de la org debe crear la credencial con el nombre exacto `Stripe_Test`:
+1. Configura `Stripe_Test` con URL `https://api.stripe.com` y la External Credential `Stripe_Test_External`.
+2. Usa un principal de Named Principal con el encabezado Basic requerido por Stripe, construido desde el secreto almacenado en Salesforce.
+3. Asigna `Stripe_Test_External-Stripe_Org_Principal` en el permission set `Donation Public Guest`.
+4. Asigna ese permission set al Guest User del sitio y al usuario interno que prueba Checkout. Este permission set no concede acceso directo a objetos de campaña, reconocimiento o donación.
+5. Configura `Donation_Portal_Base_URL` a `https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones`.
 
-1. En **Setup**, abre **Named Credentials** y crea una credencial para `https://api.stripe.com`.
-2. Usa una credencial externa de tipo **Named Principal** o la opción equivalente de autenticación de la org.
-3. Agrega el secreto de Stripe Test (`sk_test_...`) como secreto de la credencial. No lo pegues en el repositorio, capturas, chat o código fuente.
-4. Configura la autenticación que genere el encabezado `Authorization` requerido por Stripe para la clave secreta. Usa la documentación vigente de Stripe y la interfaz disponible en la org.
-5. Asigna el principal de la credencial al contexto que ejecuta el controlador público, sin conceder permisos de lectura/escritura directos sobre `Donation__c` al Guest User.
-6. Guarda y prueba primero desde un usuario interno; después realiza la prueba desde incógnito.
+El servidor, y no el navegador, genera estas rutas:
 
-## URL compartida
-
-El enlace recibido es:
-
-`https://donate.stripe.com/test_fZu00k5QQ9c0ePldUV6Na00`
-
-Es un **Stripe Payment Link** de prueba. Puede usarse para verificar que la cuenta Stripe Test funciona, pero no es el flujo principal del portal: un Payment Link reutilizable no recibe por sí solo el monto dinámico ni la referencia única de cada donación Salesforce. El flujo implementado usa Checkout Sessions para mantener esa trazabilidad.
+- Éxito: `/donaciones/thank-you?session_id={CHECKOUT_SESSION_ID}`
+- Cancelación: `/donaciones/`
 
 ## Prueba esperada
 
-1. Un visitante selecciona campaña, monto y preferencias de reconocimiento.
-2. Salesforce registra una donación en estado `Pending`.
-3. Salesforce crea una Checkout Session de Stripe Test y redirige a su URL.
-4. Stripe muestra el correo precargado y recibe la referencia `MD-...`.
-5. Stripe vuelve a la página de agradecimiento sin declarar el pago confirmado; E1 requiere confirmación manual.
+1. El visitante elige campaña, monto y preferencias de reconocimiento.
+2. Salesforce crea una Checkout Session Test y una donación `Pending`.
+3. Stripe recibe el correo, el monto y la referencia de Salesforce, y muestra Checkout Test.
+4. Stripe regresa a agradecimiento sin afirmar que el pago está confirmado.
+5. Tesorería confirma el pago de forma controlada en E1.
 
 ## Wall of Fame
 
-Si el donante autoriza reconocimiento, puede elegir **Mi nombre** o **Empresa u organización**, indicar el texto público y, opcionalmente, una URL HTTPS pública para logo/foto. Por privacidad y mínimo privilegio, esta entrega no permite que visitantes anónimos suban archivos directamente a Salesforce.
+Sólo donaciones `Paid`, no anónimas y con consentimiento generan `Donor_Recognition__c`. El portal recibe únicamente nombre de reconocimiento, tipo, monto y URL HTTPS opcional de logo/foto; nunca RFC, correo, datos fiscales ni identificadores de donación.
 
-El muro recibe sólo los campos públicos mínimos: nombre de reconocimiento, tipo, URL de imagen opcional y monto de donaciones `Paid` con consentimiento. No expone correos, RFC, datos fiscales ni identificadores de donación.
+El Payment Link compartido de Stripe puede servir para comprobar la cuenta Test, pero no es el flujo principal porque no conserva el monto ni la referencia única por intento de Salesforce.
