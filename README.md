@@ -8,7 +8,7 @@
 
 ### (2) Video demo
 
-> **(https://youtu.be/_o0NqD-dlAc)**
+> **(https://josemcebuad.github.io/Donaciones-Mexico-Dreamin/)**
 
 ### (3) Tablero de backlog
 
