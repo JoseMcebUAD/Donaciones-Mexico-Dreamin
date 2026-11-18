@@ -72,6 +72,17 @@ describe('c-campaign-share', () => {
         expect(el.shadowRoot.querySelector('.share-popup')).toBeNull();
     });
 
+    it('closes the popup when Escape is pressed', async () => {
+        const el = mountShare();
+        el.shadowRoot.querySelector('.share-button').click();
+        await Promise.resolve();
+        el.shadowRoot
+            .querySelector('.share-backdrop')
+            .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await Promise.resolve();
+        expect(el.shadowRoot.querySelector('.share-popup')).toBeNull();
+    });
+
     it('constructs the share URL using window.location + campaign id', async () => {
         const el = mountShare();
         el.shadowRoot.querySelector('.share-button').click();

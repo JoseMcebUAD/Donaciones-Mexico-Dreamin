@@ -543,3 +543,164 @@ Se corrigieron las suites de pruebas locales y de Apex, logrando un despliegue e
 * **Ahorro estimado:** ~96% en auditoría documental, modelado ER y validación QA integral.
 
 ---
+
+### Entrada 15: Publicación en `mi-org`, comparativa contra `entrega-2` y diagrama de infraestructura en `README.md` y `docs/modelo_datos_er.md`
+
+* **Fecha:** 18 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** Todas (`feat-FAQ` / Entrega 2: `US-D1`–`US-V2`, `US-D1b`, `US-S5`, `US-D1c`, `US-R1`, `US-R2`, `US-UX1`, `US-UX2`, `issue-45`)
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"¿Está desplegado correctamente en mi-org? Sigo viendo la pantalla antigua"*  
+> *"Valida `docs/modelo_datos_er.md` y hazlo más como un diagrama a grandes rasgos, pero que muestre la infraestructura completa, así como los puntos más importantes de cada elemento. Incluyendo el API de Stripe... también pon si son custom objects o objetos propios de salesforce"*  
+> *"Mantenlo mejor en .md y agrega solo si son custom objects o objetos propios de salesforce"*  
+> *"Incrusta el diagrama simplificado en el README.md y agrega la entrada en la bitacora de IA"*
+
+#### 2. Qué se obtuvo
+* **Diagnóstico y republicación de Experience Cloud en `mi-org`:**
+  * Se comprobó que los bundles LWC (`campaignCatalog`, `campaignShare`, `donationForm`, `faqSection`) tenían `LastModifiedDate: 2026-11-18T06:39:44Z`, pero la última publicación del sitio (`08Pbm00001D0kJWEAZ`) era anterior (`04:05:52Z`).
+  * Se ejecutó `sf community publish --name "Donaciones_Mexico_Dreamin" --target-org mi-org`, completando el job `08Pbm00001D2Rm3EAF` (`Status: Complete`, `2026-11-18T06:52:05Z`) sobre la URL `https://orgfarm-4b855452bf-dev-ed.develop.my.site.com/DonacionesMexicoDreaminvforcesite`.
+* **Comparativa de ramas (`feat-FAQ` `0165f0f` vs `origin/entrega-2` `09c7afb`):**
+  * Se identificó que `feat-FAQ` contiene 38 archivos bajo `salesforce/` (`+1,096 / -189` líneas) ausentes en `origin/entrega-2` (`US-D1c`, `US-R1`, `US-R2`, `US-UX1`, `US-UX2`, `issue-45`, fixes de sandbox y documentación validada), mientras que `origin/entrega-2` únicamente conserva `docs/index.html` y el enlace de la presentación E2.
+* **Refinamiento del diagrama de infraestructura/ER y actualización de `README.md`:**
+  * Se simplificó `docs/modelo_datos_er.md` incorporando un diagrama general Mermaid `flowchart LR` de extremo a extremo (Experience Cloud, Staff Interno, Capa Apex, `Named Credential: Stripe_Test` + Stripe Checkout API, y capa de datos con etiquetas explícitas `[Custom Object]` vs `[Objeto propio de Salesforce]`) junto al UML ER compacto (`Sección 1.1`) y la guía explicativa en 5 puntos.
+  * Se incrustó dicho diagrama general en `README.md` (sección `## Arquitectura e Infraestructura`) y se actualizó `docs/stripe-test-setup.md` y la validación cruzada de enlaces en `README.md` y `docs/*.md`.
+
+#### 3. Qué se verificó y cómo
+* `sf data query` en `mi-org` (`Network`, `Site`, `LightningComponentBundle`, `BackgroundOperation` y `PermissionSetAssignment` del Guest User `005bm00000c5ly5AAA` con `Donation_Public_Guest`): confirmado `Live` y `Complete` tras la republicación `08Pbm00001D2Rm3EAF`.
+* Validación de enlaces relativos Markdown en `README.md` y `docs/*.md`: `0` enlaces rotos.
+* `git status -s` y `git diff --stat origin/entrega-2..HEAD -- salesforce/`: confirmada la consistencia de todos los archivos Markdown y eliminación del archivo temporal `.excalidraw`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Ajuste de formato y alcance:** Se generó inicialmente un archivo `.excalidraw` externo y se retiró de inmediato a solicitud del usuario para mantener la documentación de arquitectura 100 % en `.md` renderizable nativamente en GitHub.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 1.5 a 2 horas diagnosticando el caché de publicación en Experience Cloud, comparando ramas, diseñando el diagrama de infraestructura Mermaid y actualizando `README.md` + `docs/`.
+* **Tiempo real con IA:** Aproximadamente 8 minutos.
+* **Ahorro estimado:** ~92% en diagnóstico en org, arquitectura visual y documentación.
+
+---
+
+### Entrada 16: Auditoría contra lineamientos PDF, ejecución de Salesforce Code Analyzer y remediación de hallazgos `High` (`S14` / `C6`)
+
+* **Fecha:** 18 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** Calidad técnica transversal (`S14`, `C6`, `C9`, `M2`) — `CampaignImageService`, `DonationManagementService`, `DonationProjectionService`, `Donation_Treasury`
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Valida también `docs/contribucion.md` y valida si se cumplen todos los puntos establecidos en `Proyecto_ Donaciones para Mexico Dreamin — Lineamientos.pdf`, revisa si nos faltan documentos o funcionalidades"*  
+> *"¿Podrías implementar el Code Analyzer y dar tus puntos de vista sobre los hallazgos? Genera lo que se solicita en el documento y agrega en la `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* **Auditoría completa contra el PDF de lineamientos:** identificación de brechas pendientes (`docs/preguntas_y_reportes.md` para E6/C7, tabla + horas en `docs/contribucion.md` para E4/C9, entradas de los 3 integrantes en `docs/bitacora_ia.md` para C3, etiqueta/video E2 y funcionalidades `RF-D5`/`RF-V3a`/`RF-V3b`/`RF-S4`).
+* **Integración de Salesforce Code Analyzer (`code-analyzer@5.15.0`):**
+  * Incorporación del script `"code-analyzer": "sf code-analyzer run --workspace force-app --rule-selector Recommended --view table"` en `salesforce/package.json`.
+  * Creación de `docs/code_analyzer.md` con el inventario completo de hallazgos, remediaciones aplicadas y justificación técnica de cada regla pendiente (`S14` / `C6`).
+* **Remediación de los 10 hallazgos `High` (`ApexCRUDViolation`) y 1 `Moderate` (`UnusedLocalVariable`):**
+  * `CampaignImageService.cls`: añadidos `insert as user dist;` y `update as user campaign;` para consistencia total en `USER_MODE`.
+  * `DonationManagementService.cls` y `Donation_Treasury.permissionset-meta.xml`: añadidos `WITH USER_MODE` / `update as user donation;` junto con la FLS de lectura de datos de recibo/CFDI para Tesorería.
+  * `DonationProjectionService.cls`: explicitados `WITH SYSTEM_MODE` en consultas SOQL y `AccessLevel.SYSTEM_MODE` en operaciones DML del trigger.
+  * `PublicDonationCommandServiceTest.cls`: eliminada variable local sin uso `donation`.
+
+#### 3. Qué se verificó y cómo
+* **Corrida inicial Code Analyzer:** `397` violaciones en `27` archivos (`10` High, `26` Moderate, `361` Low; `0` hallazgos en `retire-js`, `regex` y `cpd`).
+* **Corrida post-fix Code Analyzer:** **`386` violaciones en `27` archivos (`0` High, `25` Moderate, `361` Low)**.
+* `npm run lint` (`salesforce/`): **PASS** (`0` errores).
+* `npm run test:unit` (`salesforce/`): **PASS** (`3/3` suites, `17/17` tests en `20.268 s`).
+* `sf project deploy start --test-level RunLocalTests --target-org mi-org --source-dir force-app` (Deploy ID `0Afbm00000og5EdCAI`): **Succeeded** — `78/78` componentes desplegados y **`49/49` pruebas Apex aprobadas** (`0` fallos, `32540 ms`).
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* Sin errores de ejecución: al revisar el impacto de agregar `WITH USER_MODE` en `DonationManagementService.cls`, se detectó preventivamente que `Donation_Treasury.permissionset-meta.xml` carecía de FLS de lectura sobre los campos de correo/CFDI del comprobante, corrigiendo ambos archivos en conjunto para no romper el flujo real de Tesorería en orgs sin `Donation_Coordination`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 2 a 3 horas configurando Code Analyzer, analizando 397 hallazgos, remediando modos CRUD/FLS + Permission Set, redactando justificaciones y validando el despliegue con `RunLocalTests`.
+* **Tiempo real con IA:** Aproximadamente 6 minutos.
+* **Ahorro estimado:** ~95% en análisis estático, remediación de seguridad y documentación `S14`.
+
+---
+
+### Entrada 17: Bugfix del modal de compartir (`US-D1c`), datos QA y validación de imagen de donante (`US-R2`) en `mi-org`
+
+* **Fecha:** 18 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** `US-D1c`, `US-R2`, `US-D1`, `US-S1`, `US-S2`, `US-S3`, `US-C1`, `US-F1`
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Puedes crear campañas para poder hacer las pruebas de QA necesarias?"*  
+> *"Corrige un bug y agrega el commit de bugfix. Al darle click a compartir, se abre un modal, sin embargo, hace que se quede parpadeando a lo loco tras darle click a whatsapp para compartir y volver a la pagina"*  
+> *"Y necesito otra cosa, como pruebo si me deja subir imagenes si no puedo iniciar el checkout?"*  
+> *"Haz la prueba que mencionas en el punto 3. Agrega también el registro a la `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* **Corrección del bug de parpadeo en modal de compartir (`9a85966`):**
+  * `campaignCatalog.css`: eliminación de `transform: translateY(-3px)` y de la transición de `transform` en `.campaign-card` / `.campaign-card:hover` (conservando `box-shadow` y `border-color`), evitando que `.campaign-card` generara un *containing block* sobre `position: fixed` y recortara el modal con `overflow: hidden` al volver de la pestaña de WhatsApp.
+  * `campaignShare.css`, `campaignShare.html`, `campaignShare.js`, `campaignShare.test.js`: centrado del diálogo vía Flexbox en `.share-backdrop` (sin `position: fixed` ni `transform` anidados), foco inicial y cierre accesible con tecla `Escape` + nuevo test unitario Jest.
+* **Siembra de datos QA ficticios en `mi-org`:**
+  * 5 campañas (`Viaje Mexico Dreamin 2026 - Estudiantes UADY`, `Becas Ingenieria & Ciencia 2026`, `Fondo Cerrado por Fecha`, `Fondo Meta Alcanzada 100%` y `Campana Oculta Inactiva`) y 4 donaciones iniciales (`Paid`, anónima con CFDI 4.0 `EKU9003173C9`, `Pending` y meta al 100%).
+* **Diagnóstico de bloqueo de Checkout en `mi-org` y prueba directa de `US-R2`:**
+  * Se identificó que `mi-org` cuenta con `ExternalCredential` `Stripe_Test_External` (`0ptbm000001Hei1AAC`), pero carece aún de la `NamedCredential` `Stripe_Test`, de `ExternalCredentialPrincipalAccess` en `Donation_Public_Guest` y de la actualización de `Donation_Portal_Base_URL`.
+  * Se probó el flujo backend de `US-R2` ejecutando `PublicDonationCommandService.createPendingDonation` con un PNG de `64x64` en Base64 (`qa-donor-avatar.png`) sobre `Becas Ingenieria & Ciencia 2026` (`a00bm00003REvv0AAD`) y pasándola a `Paid`.
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (`salesforce/`): **PASS** (`0` errores).
+* `npm run test:unit` (`salesforce/`): **PASS** (`3/3` suites, **`18/18` tests** pasando en `2.748 s`).
+* Despliegue LWC en `mi-org` (`0Afbm00000ogPV3CAM`) y republicación de `Donaciones_Mexico_Dreamin` (`08Pbm00001D2rYXEAZ`): **Succeeded** / **`Complete`**.
+* **Prueba `US-R2` en `mi-org` (`sf apex run`):**
+  * Donación creada: `a01bm00003K0fNtAAJ` (`DON-00004`, `$750.00 MXN`).
+  * Imagen publicada vía `ContentVersion` + `ContentDistribution` (`ContentDownloadUrl` generado en `orgfarm-4b855452bf-dev-ed.develop.file.force.com`).
+  * Proyección automática por `DonationProjectionTrigger`: `Donor_Recognition__c` `a02bm00000gNmlJAAS` (`REC-00002`, `Display_Name__c = 'Donante Con Foto QA'`).
+  * Verificación del endpoint público `PublicCampaignController.getActiveCampaigns()`: retorna la entrada `{"displayName":"Donante Con Foto QA","amount":750.00,"imageUrl":"..."}` lista para renderizarse en `donorWall`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* En el primer intento de la prueba anónima en `mi-org`, la consulta directa sobre `Donor_Recognition__c WHERE Source_Donation__c = :donationId` falló por falta de FLS de lectura del usuario administrador en `Source_Donation__c`; se ajustó la consulta de verificación a `Campaign__c` y se confirmó igualmente la salida pública vía `PublicCampaignController.getActiveCampaigns()` (`WITH SYSTEM_MODE`).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 2 a 2.5 horas depurando el bug CSS de `transform` + `position: fixed`, sembrando escenarios QA en org, diagnosticando `NamedCredential` y validando `ContentDistribution`.
+* **Tiempo real con IA:** Aproximadamente 10 minutos.
+* **Ahorro estimado:** ~92% en resolución de bug UI, preparación de entorno QA y validación de carga de imágenes.
+
+---
+
+### Entrada 18: Alineación de tarjetas en `campaignCatalog`, porcentaje a 1 decimal y diagnóstico de vistas internas en `mi-org`
+
+* **Fecha:** 18 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** `US-D1`, `US-D1c`, `US-S1`
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Da formato a el listado de campañas. Se ve medio chueco y descuadrado. Así también, en los porcentajes, limita a un decimal"*  
+> *"Pero no me sale ninguna campaña en mi salesforce, pero en la pagina sí"*  
+> *"Perfecto, genera el commit y agrega el registro a `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* **Alineación visual del catálogo de campañas (`campaignCatalog.html`, `campaignCatalog.css`, `campaignShare.css`):**
+  * Eliminación de `margin-top: auto` heredado en `.donate-button` (que empujaba botones, montos y barra hacia abajo en tarjetas más altas) y ajuste de `margin-top: 0` en `.share-button`.
+  * Contenedor `.card-actions` (`min-height: 5.85rem`), títulos `h3` (`min-height: 3.55rem`) y `height: 100%` en `.campaign-card` sobre un grid `repeat(auto-fit, minmax(300px, 1fr))`, más retiro del `border-top` vacío de `.campaign-wall`.
+* **Límite de 1 decimal en porcentajes (`PublicCampaignController.cls`, `PublicCampaignControllerTest.cls`, `campaignCatalog.html`):**
+  * Redondeo en Apex con `.setScale(1, System.RoundingMode.HALF_UP)` (evitando cadenas de 32 decimales como `33.3333...`) y renderizado en UI mediante `<lightning-formatted-number value={campaign.progressPercent} maximum-fraction-digits="1"></lightning-formatted-number>`.
+* **Diagnóstico de visibilidad en Salesforce interno (`mi-org`):**
+  * Verificación por SOQL de `5` registros en `Campaign__c` vs `0` en el objeto estándar `Campaign`, más `PermissionSetAssignment` (`Donation_Coordination` activo), explicando el uso de `/lightning/o/Campaign__c/list` con cambio de vista de `Recently Viewed` a `All`.
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (`salesforce/`): **PASS** (`0` errores).
+* `npm run test:unit` (`salesforce/`): **PASS** (`3/3` suites, `18/18` tests en `2.783 s`).
+* `sf project deploy start --test-level RunLocalTests --target-org mi-org --source-dir force-app` (Deploy ID `0Afbm00000ogS1VCAU`): **Succeeded** — **`49/49` pruebas Apex aprobadas** (`18758 ms`).
+* `sf community publish --name "Donaciones_Mexico_Dreamin" --target-org mi-org` (`08Pbm00001D2QyWEAV`): **`Complete`**.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* Sin errores: se corrigió el desfase de diseño dejado por la reubicación previa del botón `Apoyar esta causa` (`margin-top: auto` residual en CSS) y se actualizó `PublicCampaignControllerTest` para validar explícitamente el redondeo a `33.3` sobre `500 / 1500`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 45 a 60 minutos depurando CSS grid/flex, ajustando Apex + tests, desplegando, republicando el sitio y consultando objetos estándar vs custom en org.
+* **Tiempo real con IA:** Aproximadamente 4 minutos.
+* **Ahorro estimado:** ~92% en corrección UI/Apex y soporte operativo en org.
+
+---

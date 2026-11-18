@@ -67,10 +67,8 @@ private class PublicDonationCommandServiceTest {
         Id donationId = PublicDonationCommandService.createPendingDonation(request, campaign.Id, 'MD-003', 'sess_003');
         Test.stopTest();
 
-        Donation__c donation = [SELECT Recognition_Image_URL__c FROM Donation__c WHERE Id = :donationId];
         List<ContentDocumentLink> links = [SELECT Id FROM ContentDocumentLink WHERE LinkedEntityId = :donationId];
         System.assertEquals(1, links.size(), 'A ContentDocumentLink should be created for the uploaded image.');
-        // ContentDistribution URLs are not generated in test context, but the field is updated
-        // (URL may be null in sandbox test mode; we verify the ContentVersion was created)
+        // ContentDistribution URLs are not generated in test context; ContentVersion/Link existence verifies publication.
     }
 }

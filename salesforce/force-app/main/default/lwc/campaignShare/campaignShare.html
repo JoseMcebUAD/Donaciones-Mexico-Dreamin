@@ -4,8 +4,8 @@
     </button>
 
     <template if:true={isOpen}>
-        <div class="share-backdrop" onclick={handleBackdropClick}>
-            <div class="share-popup" role="dialog" aria-modal="true" aria-labelledby="share-popup-title" onclick={stopPropagation}>
+        <div class="share-backdrop" onclick={handleBackdropClick} onkeydown={handleKeyDown}>
+            <div class="share-popup" role="dialog" aria-modal="true" aria-labelledby="share-popup-title" tabindex="-1" onclick={stopPropagation}>
                 <div class="share-popup-header">
                     <h2 id="share-popup-title" class="share-popup-title">{campaign.name}</h2>
                     <button class="share-close" type="button" onclick={closePopup} aria-label="Cerrar">×</button>
