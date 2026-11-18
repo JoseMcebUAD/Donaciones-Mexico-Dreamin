@@ -12,3 +12,7 @@ package.xml
 **/__tests__/**
 
 node_modules/
+
+# Metadata que requiere configuración manual en la org antes de deployar
+**/sharingRules/**
+**/assignmentRules/**
