@@ -2,11 +2,7 @@
 
 ## Entregables E1
 
-### (1) Sitio público
-
-> **[https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/](https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones/)**
-
-### Sandbox de validación
+### (1) Sitio público del Sandbox
 
 El sitio `Donaciones` está activo en el Sandbox `donacionesSandbox` (`uady--class2026a`). URL pública:
 
