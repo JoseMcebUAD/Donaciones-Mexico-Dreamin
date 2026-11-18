@@ -21,31 +21,37 @@ public without sharing class PublicDonationController {
     }
 
     public class CheckoutResponse {
-        @AuraEnabled public Id donationId;
+        @AuraEnabled public String checkoutReference;
         @AuraEnabled public String checkoutUrl;
     }
 
     @AuraEnabled
-    public static CheckoutResponse startDonation(DonationRequest request) {
+    public static CheckoutResponse prepareDonation(DonationRequest request) {
         validate(request);
         Campaign__c campaign = PublicDonationCommandService.findActiveCampaign(request.campaignId);
         validateCampaignCapacity(campaign);
 
-        String checkoutReference = 'MD-' + String.valueOf(Math.abs(Crypto.getRandomLong()));
+        String checkoutReference = 'MD-' + EncodingUtil.convertToHex(Crypto.generateAesKey(128));
+        PublicDonationCommandService.createPendingDonation(request, campaign.Id, checkoutReference, null);
+        CheckoutResponse result = new CheckoutResponse();
+        result.checkoutReference = checkoutReference;
+        return result;
+    }
+
+    @AuraEnabled
+    public static CheckoutResponse openCheckout(String checkoutReference) {
+        Donation__c donation = PublicDonationCommandService.findPendingDonation(checkoutReference);
+        Campaign__c campaign = PublicDonationCommandService.findActiveCampaign(donation.Campaign__c);
+        validateCampaignCapacity(campaign);
         StripeCheckoutService.CheckoutResult checkout = StripeCheckoutService.createSession(
-            request.amount,
+            donation.Amount__c,
             checkoutReference,
-            request.donorEmail,
+            donation.Donor_Email__c,
             successUrl(),
             cancelUrl()
         );
+        PublicDonationCommandService.attachCheckoutSession(donation.Id, checkout.id);
         CheckoutResponse result = new CheckoutResponse();
-        result.donationId = PublicDonationCommandService.createPendingDonation(
-            request,
-            campaign.Id,
-            checkoutReference,
-            checkout.id
-        );
         result.checkoutUrl = checkout.url;
         return result;
     }
@@ -72,11 +78,11 @@ public without sharing class PublicDonationController {
         if (String.isBlank(request.donorEmail)) {
             throw new AuraHandledException('An email address is required for the receipt.');
         }
-        if (!request.isAnonymous && String.isBlank(request.donorName)) {
+        if (request.isAnonymous != true && String.isBlank(request.donorName)) {
             throw new AuraHandledException('Provide your name or select anonymous donation.');
         }
-        if (request.wantsRecognition) {
-            if (request.isAnonymous) {
+        if (request.wantsRecognition == true) {
+            if (request.isAnonymous == true) {
                 throw new AuraHandledException('Anonymous donations cannot be displayed on the recognition wall.');
             }
             if (String.isBlank(request.recognitionName)) {
@@ -92,6 +98,9 @@ public without sharing class PublicDonationController {
         }
         if (request.privacyAccepted != true) {
             throw new AuraHandledException('Debes aceptar el aviso de privacidad para continuar.');
+        }
+        if (request.isAnonymous == true && request.needsInvoice == true) {
+            throw new AuraHandledException('Una donación anónima no puede solicitar factura.');
         }
     }
 

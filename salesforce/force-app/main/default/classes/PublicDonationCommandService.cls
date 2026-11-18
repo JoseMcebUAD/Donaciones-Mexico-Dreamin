@@ -53,6 +53,33 @@ public without sharing class PublicDonationCommandService {
         return donationId;
     }
 
+    public static Donation__c findPendingDonation(String checkoutReference) {
+        if (String.isBlank(checkoutReference) || !Pattern.matches('MD-[0-9a-f]{32}', checkoutReference)) {
+            throw new AuraHandledException('No se encontró un intento de pago válido.');
+        }
+        List<Donation__c> donations = [
+            SELECT Id, Campaign__c, Amount__c, Donor_Email__c
+            FROM Donation__c
+            WHERE Checkout_Reference__c = :checkoutReference
+                AND Payment_Status__c = 'Pending'
+                AND Stripe_Session_Id__c = null
+                AND CreatedDate = LAST_N_DAYS:1
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (donations.isEmpty()) {
+            throw new AuraHandledException('Este intento de pago ya no está disponible.');
+        }
+        return donations[0];
+    }
+
+    public static void attachCheckoutSession(Id donationId, String stripeSessionId) {
+        if (String.isBlank(stripeSessionId) || !stripeSessionId.startsWith('cs_test_')) {
+            throw new AuraHandledException('La pasarela devolvió una sesión inválida.');
+        }
+        Database.update(new Donation__c(Id = donationId, Stripe_Session_Id__c = stripeSessionId), AccessLevel.SYSTEM_MODE);
+    }
+
     private static String publishDonorImage(Id donationId, String base64Data, String fileName) {
         String rawBase64 = base64Data.contains(',') ? base64Data.substringAfter(',') : base64Data;
         String safeFileName = String.isBlank(fileName) ? 'donor-image.jpg' : fileName;
