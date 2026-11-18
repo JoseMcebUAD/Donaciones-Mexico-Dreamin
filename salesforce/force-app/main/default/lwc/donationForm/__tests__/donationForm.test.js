@@ -42,6 +42,8 @@ describe('c-donation-form', () => {
         expect(needsInvoiceInput.checked).toBe(true);
         expect(element.shadowRoot.querySelector('.recognition-fields')).toBeNull();
         expect(element.shadowRoot.querySelector('.invoice-fields')).not.toBeNull();
+    });
+
     it('clears public recognition when an anonymous donation is selected', async () => {
         const element = createElement('c-donation-form', { is: DonationForm });
         element.campaign = { id: 'a001', name: 'Education fund' };
