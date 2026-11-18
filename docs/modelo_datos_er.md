@@ -1,4 +1,4 @@
-# Modelo de Datos y Diagrama Entidad-Relación (ER)
+# Arquitectura de Infraestructura y Modelo de Datos (ER / UML)
 
 **Proyecto:** Portal de Donaciones para Mexico Dreamin  
 **Programa:** SF Vibe Lab (UADY × Salesforce, Mérida)  
@@ -8,127 +8,145 @@
 
 ---
 
-## 1. Diagrama Entidad-Relación (Mermaid `erDiagram`)
+## 1. Arquitectura General e Infraestructura Completa
 
-El siguiente diagrama representa 1:1 los objetos personalizados (`Campaign__c`, `Donation__c`, `Donor_Recognition__c`) y los objetos estándar de Salesforce utilizados activamente en la solución (`Case`, `ContentDocument`, `ContentVersion`, `ContentDocumentLink`, `ContentDistribution`).
+El siguiente diagrama de alto nivel muestra la infraestructura completa de extremo a extremo (Portal Público, Staff Interno, Capa Lógica Apex, Seguridad/API de Stripe y Objetos de Salesforce distinguiendo **Custom Objects** de **Objetos propios de Salesforce**):
 
 ```mermaid
-erDiagram
-    Campaign__c {
-        id Id PK "Record ID"
-        Text Name "Text(80), Campaign Name (required)"
-        Currency Goal_Amount__c "Currency(16,2), required, > 0"
-        Currency Raised_Amount__c "Currency(16,2), default 0 (proyectado)"
-        Number Anonymous_Donor_Count__c "Number(8,0), default 0 (proyectado)"
-        Date Expiration_Date__c "Date, fecha limite"
-        Checkbox Allow_Additional_Donations__c "Checkbox, default false"
-        Checkbox Is_Active__c "Checkbox, default true"
-        Url Cover_Image_URL__c "Url, portada (US-S5)"
-    }
+flowchart LR
+    subgraph EXT["1. Actores y Portales"]
+        GUEST["Experience Cloud - Guest User<br/>LWCs: campaignCatalog, campaignShare,<br/>donationForm, donorWall, faqSection,<br/>donationThankYou<br/>PS: Donation_Public_Guest (0 CRUD/FLS)"]
+        STAFF["Salesforce Staff Interno<br/>Coordination: Campanas, Portadas, Casos<br/>Treasury: Confirm Payment + Email Recibo<br/>Batch 24h: DonationExpirationService"]
+    end
 
-    Donation__c {
-        id Id PK "Record ID"
-        AutoNumber Name "DON-{00000}, Donation Number"
-        Lookup Campaign__c FK "Lookup(Campaign__c), required, Restrict"
-        Currency Amount__c "Currency(16,2), required, > 0"
-        Picklist Payment_Status__c "Restricted: Pending*, Paid, Cancelled"
-        Checkbox Is_Anonymous__c "Checkbox, default false"
-        Checkbox Wants_Recognition__c "Checkbox, default false"
-        Text Recognition_Name__c "Text(100)"
-        Picklist Recognition_Type__c "Restricted: Individual*, Organization"
-        Url Recognition_Image_URL__c "Url (ContentDownloadUrl US-R2)"
-        Checkbox Needs_Invoice__c "Checkbox, default false"
-        Text Donor_Name__c "Text(255)"
-        Email Donor_Email__c "Email"
-        Text Legal_Name__c "Text(255)"
-        Text RFC__c "Text(13), formato SAT"
-        Text Postal_Code__c "Text(5)"
-        Picklist Tax_Regime__c "Restricted: 601..626 (SAT CFDI 4.0)"
-        Picklist CFDI_Use__c "Restricted: D04*, G01, G03, D01, D10, CN01, CP01, S01"
-        Text Checkout_Reference__c "Text(40), External ID, Unique"
-        Text Stripe_Session_Id__c "Text(255)"
-        Checkbox Privacy_Accepted__c "Checkbox, default false (LFPDPPP issue-45)"
-    }
+    subgraph APEX["2. Capa Logica Apex y Automatizacion"]
+        CTRL["Controladores Publicos AuraEnabled<br/>PublicCampaignController (with sharing)<br/>PublicDonationController (without sharing)<br/>ContactController (with sharing)"]
+        SVC["Servicios Privilegiados SYSTEM_MODE<br/>PublicCampaignReadService<br/>PublicDonationCommandService<br/>ContactCommandService"]
+        AUTO["Automatizacion y Staff<br/>DonationProjectionTrigger + Service<br/>CampaignImageService (USER_MODE)<br/>DonationManagementService<br/>StripeCheckoutService (Callout HTTP)"]
+    end
 
-    Donor_Recognition__c {
-        id Id PK "Record ID"
-        AutoNumber Name "REC-{00000}, Recognition Number"
-        Lookup Campaign__c FK "Lookup(Campaign__c), required, Restrict"
-        Lookup Source_Donation__c FK "Lookup(Donation__c), SetNull"
-        Text Display_Name__c "Text(255), required"
-        Text Recognition_Type__c "Text(40)"
-        Url Image_URL__c "Url"
-        Currency Amount__c "Currency(16,2)"
-        Checkbox Is_Public__c "Checkbox, default false"
-    }
+    subgraph DATA["3. Capa de Datos Salesforce"]
+        CAMP["Campaign__c<br/>[Custom Object - ReadWrite]<br/>Meta, Recaudado, Anonimos,<br/>Expiracion, Portada"]
+        DON["Donation__c<br/>[Custom Object - Private]<br/>Monto >= 10 MXN, Pending/Paid/Cancelled,<br/>Stripe IDs, CFDI 4.0, Privacy_Accepted"]
+        REC["Donor_Recognition__c<br/>[Custom Object - Private]<br/>Muro publico si Paid + consentimiento"]
+        CASE["Case<br/>[Objeto de Salesforce]<br/>Consultas FAQ Contactanos (Origin=Web)"]
+        FILES["Salesforce Files<br/>[Objetos propios de Salesforce]<br/>ContentVersion + ContentDocumentLink<br/>+ ContentDistribution (URLs publicas)"]
+    end
 
-    Case {
-        id Id PK "Record ID"
-        AutoNumber CaseNumber "Standard AutoNumber"
-        Text Subject "Contacto desde portal - {name}"
-        LongTextArea Description "Mensaje del visitante (US-UX2)"
-        Text SuppliedName "Text(80), nombre de contacto"
-        Email SuppliedEmail "Email, correo de contacto"
-        Picklist Origin "Web"
-        Picklist Status "New"
-        Lookup OwnerId FK "User / Queue (AssignmentRule)"
-    }
+    subgraph STRIPE["4. Seguridad M3 y Pasarela Externa"]
+        CRED["Named Credential: Stripe_Test<br/>External Credential: Stripe_Test_External<br/>Secret sk_test_... cifrado en Org"]
+        API["Stripe Checkout API (Externa)<br/>https://api.stripe.com<br/>POST /v1/checkout/sessions<br/>Pago hospedado PCI-DSS<br/>Retorno a /thank-you?session_id=..."]
+    end
 
-    ContentDocument {
-        id Id PK "Record ID"
-        Text Title "Titulo del archivo"
-        Lookup LatestPublishedVersionId FK "Lookup(ContentVersion)"
-    }
-
-    ContentVersion {
-        id Id PK "Record ID"
-        Lookup ContentDocumentId FK "Lookup(ContentDocument)"
-        Text Title "Nombre del archivo"
-        Text PathOnClient "Ruta/nombre cliente"
-        Base64 VersionData "Contenido binario (<= 2 MB en US-R2)"
-        Checkbox IsLatest "Version vigente"
-        Checkbox IsMajorVersion "Version principal"
-        Lookup FirstPublishLocationId FK "Polimorfica: Donation__c / Campaign__c"
-    }
-
-    ContentDocumentLink {
-        id Id PK "Record ID"
-        Lookup ContentDocumentId FK "Lookup(ContentDocument)"
-        Lookup LinkedEntityId FK "Polimorfica: Campaign__c / Donation__c"
-        Picklist ShareType "V (Viewer)"
-        Picklist Visibility "AllUsers"
-    }
-
-    ContentDistribution {
-        id Id PK "Record ID"
-        Text Name "CampaignCover-* / DonorImage-*"
-        Lookup ContentVersionId FK "Lookup(ContentVersion)"
-        Url DistributionPublicUrl "URL publica de distribucion"
-        Url ContentDownloadUrl "URL directa de descarga/render"
-        Checkbox PreferencesAllowOriginalDownload "true"
-        Checkbox PreferencesLinkLatestVersion "true"
-        Checkbox PreferencesNotifyOnVisit "false"
-        Checkbox PreferencesPasswordRequired "false"
-    }
-
-    Campaign__c ||--o{ Donation__c : "Donations (Campaign__c, Restrict)"
-    Campaign__c ||--o{ Donor_Recognition__c : "Public_Recognitions (Campaign__c, Restrict)"
-    Donation__c |o--o| Donor_Recognition__c : "Public_Recognition (Source_Donation__c, SetNull)"
-    ContentDocument ||--|{ ContentVersion : "versiona (ContentDocumentId)"
-    ContentVersion ||--o{ ContentDistribution : "publica URL (ContentVersionId)"
-    ContentDocument ||--o{ ContentDocumentLink : "vincula (ContentDocumentId)"
-    Campaign__c ||--o{ ContentDocumentLink : "portada US-S5 (LinkedEntityId)"
-    Donation__c ||--o{ ContentDocumentLink : "foto donante US-R2 (LinkedEntityId)"
-    Donation__c ||--o{ ContentVersion : "publicacion inicial US-R2 (FirstPublishLocationId)"
+    GUEST -->|"Invoca 3 clases"| CTRL
+    CTRL -->|"Delega"| SVC
+    STAFF -->|"Gestiona y confirma"| AUTO
+    SVC -->|"Lee activas"| CAMP
+    SVC -->|"Inserta Pending"| DON
+    SVC -->|"Inserta Web Case"| CASE
+    DON -->|"Trigger Paid"| AUTO
+    AUTO -->|"Actualiza totales y muro"| CAMP
+    AUTO -->|"Proyecta"| REC
+    AUTO -->|"Publica URLs imagenes"| FILES
+    SVC -->|"Imagen <= 2 MB"| FILES
+    CTRL -->|"Crea sesion"| AUTO
+    AUTO -->|"callout:Stripe_Test"| CRED
+    CRED -->|"Bearer sk_test_..."| API
+    API -.->|"Redireccion segura"| GUEST
 ```
 
-> **Nota sobre objetos estándar independientes:** `Case` no posee relación directa (`Lookup`/`Master-Detail`) hacia `Campaign__c` ni `Donation__c`; atiende consultas generales enviadas desde el formulario de contacto en la pestaña **FAQ** (`US-UX2`).
+---
+
+## 1.1 Modelo Entidad-Relación Simplificado (UML)
+
+Este diagrama complementa la vista de infraestructura detallando las **5 entidades de datos** y diferenciando explícitamente entre **Custom Objects (`__c`)** y **Objetos propios de Salesforce**:
+
+```mermaid
+classDiagram
+    direction LR
+
+    class Campaign__c {
+        <<Custom Object - OWD ReadWrite>>
+        +Id Id PK
+        +String Name
+        +Currency Goal_Amount__c
+        +Currency Raised_Amount__c
+        +Number Anonymous_Donor_Count__c
+        +Date Expiration_Date__c
+        +Boolean Is_Active__c
+        +Boolean Allow_Additional_Donations__c
+        +Url Cover_Image_URL__c
+    }
+
+    class Donation__c {
+        <<Custom Object - OWD Private>>
+        +Id Id PK
+        +AutoNumber Name
+        +Id Campaign__c FK
+        +Currency Amount__c
+        +Picklist Payment_Status__c
+        +String Checkout_Reference__c
+        +String Stripe_Session_Id__c
+        +String Donor_Name__c
+        +Email Donor_Email__c
+        +Boolean Is_Anonymous__c
+        +Boolean Wants_Recognition__c
+        +Boolean Needs_Invoice__c
+        +String RFC__c
+        +Boolean Privacy_Accepted__c
+    }
+
+    class Donor_Recognition__c {
+        <<Custom Object - OWD Private>>
+        +Id Id PK
+        +AutoNumber Name
+        +Id Campaign__c FK
+        +Id Source_Donation__c FK
+        +String Display_Name__c
+        +Url Image_URL__c
+        +Currency Amount__c
+        +Boolean Is_Public__c
+    }
+
+    class ContentDistribution {
+        <<Objeto de Salesforce - Files>>
+        +Id Id PK
+        +Id ContentVersionId FK
+        +String Name
+        +Url ContentDownloadUrl
+    }
+
+    class Case {
+        <<Objeto de Salesforce - Soporte>>
+        +Id Id PK
+        +AutoNumber CaseNumber
+        +String Subject
+        +String SuppliedName
+        +Email SuppliedEmail
+        +Picklist Origin
+        +Picklist Status
+    }
+
+    Campaign__c "1" --> "0..*" Donation__c : recibe
+    Campaign__c "1" --> "0..*" Donor_Recognition__c : exhibe
+    Donation__c "0..1" ..> "0..1" Donor_Recognition__c : proyecta si Paid
+    Campaign__c "1" ..> "0..*" ContentDistribution : portada
+    Donation__c "1" ..> "0..*" ContentDistribution : foto donante
+```
+
+### Cómo explicar la infraestructura completa en 5 puntos
+
+1. **Mínimo Privilegio en Experience Cloud (`Donation_Public_Guest`):** El visitante no autenticado interactúa solo con los LWCs públicos y tiene **0 permisos CRUD/FLS** sobre objetos; únicamente puede invocar 3 clases Apex (`PublicCampaignController`, `PublicDonationController`, `ContactController`).
+2. **Integración Segura con Stripe (`Named Credential`):** `PublicDonationController` valida monto (`>= $10.00 MXN`), RFC y aviso de privacidad (`Privacy_Accepted__c`), y llama a `StripeCheckoutService` mediante `callout:Stripe_Test/v1/checkout/sessions` (la clave `sk_test_...` vive cifrada en la org, nunca en Git ni en el navegador). Stripe procesa el pago fuera de Salesforce (PCI-DSS) y devuelve al usuario a `/thank-you?session_id=...` sin autoconfirmar el pago.
+3. **Separación de Datos Privados (`Donation__c` Custom Object) y Públicos (`Donor_Recognition__c` Custom Object):** La donación nace como `Pending` en `Donation__c` (`OWD: Private`), resguardando correo, RFC y datos CFDI 4.0. Solo cuando Tesorería confirma el pago (`Paid`) y envía el recibo, `DonationProjectionTrigger` recalcula `Raised_Amount__c` y `Anonymous_Donor_Count__c` en `Campaign__c` y proyecta registros en `Donor_Recognition__c` si hubo consentimiento.
+4. **Imágenes Públicas con Objetos propios de Salesforce (`Salesforce Files`):** Tanto portadas de campaña (`US-S5`) como fotos de donantes (`US-R2`) se guardan como `ContentVersion` y se publican vía `ContentDistribution` (`ContentDownloadUrl`) para mostrarlas sin exponer registros internos.
+5. **Atención a Dudas con Objeto de Salesforce (`Case`):** El formulario **Contáctanos** en la pestaña FAQ (`US-UX2`) crea registros estándar `Case` (`Origin = 'Web'`) aislados del flujo financiero.
 
 ---
 
 ## 2. Diccionario de Objetos y Campos
 
-### 2.1 `Campaign__c` (`Campaign` / `Campaigns`)
+### 2.1 `Campaign__c` *(Custom Object — `Campaign` / `Campaigns`)*
 
 - **Archivo:** `salesforce/force-app/main/default/objects/Campaign__c/Campaign__c.object-meta.xml`
 - **Name Field:** `Name` (`Campaign Name`, `Text(80)`)
@@ -145,7 +163,7 @@ erDiagram
 | `Is_Active__c` | Is Active | `Checkbox` | Default `true` | Controla si la campaña es visible en el portal público (`PublicCampaignReadService`). |
 | `Cover_Image_URL__c` | Cover Image URL | `Url` | Opcional | URL pública generada vía `ContentDistribution` (`CampaignImageService`, `US-S5`). |
 
-### 2.2 `Donation__c` (`Donation` / `Donations`)
+### 2.2 `Donation__c` *(Custom Object — `Donation` / `Donations`)*
 
 - **Archivo:** `salesforce/force-app/main/default/objects/Donation__c/Donation__c.object-meta.xml`
 - **Name Field:** `Name` (`Donation Number`, `AutoNumber`, formato `DON-{00000}`)
@@ -175,7 +193,7 @@ erDiagram
 | `Stripe_Session_Id__c` | Stripe Session ID | `Text(255)` | Opcional | Identificador `cs_test_...` de la sesión de Stripe Checkout. |
 | `Privacy_Accepted__c` | Privacy Accepted | `Checkbox` | Default `false` | Registra la aceptación explícita del Aviso de Privacidad LFPDPPP (`issue-45`), validada en `donationForm` y `PublicDonationController` y persistida por `PublicDonationCommandService`. |
 
-### 2.3 `Donor_Recognition__c` (`Donor Recognition` / `Donor Recognitions`)
+### 2.3 `Donor_Recognition__c` *(Custom Object — `Donor Recognition` / `Donor Recognitions`)*
 
 - **Archivo:** `salesforce/force-app/main/default/objects/Donor_Recognition__c/Donor_Recognition__c.object-meta.xml`
 - **Name Field:** `Name` (`Recognition Number`, `AutoNumber`, formato `REC-{00000}`)
@@ -192,7 +210,7 @@ erDiagram
 | `Amount__c` | Amount | `Currency(16,2)` | Opcional | Importe mostrado en el muro público. |
 | `Is_Public__c` | Is Public | `Checkbox` | Default `false` | Solo `true` cuando la donación está `Paid`, no es anónima y tiene consentimiento. |
 
-### 2.4 Objetos Estándar Integrados (`Case` y Salesforce Files)
+### 2.4 Objetos propios de Salesforce (`Case` y Salesforce Files)
 
 | Objeto | Uso en el portal | Campos / Relaciones relevantes |
 | :--- | :--- | :--- |

@@ -9,13 +9,14 @@ public with sharing class DonationManagementService {
                    Is_Anonymous__c, Campaign__r.Name
             FROM Donation__c
             WHERE Id = :donationId
+            WITH USER_MODE
             FOR UPDATE
         ];
         if (donation.Payment_Status__c == 'Paid') {
             throw new AuraHandledException('This donation is already paid; no duplicate receipt was sent.');
         }
         donation.Payment_Status__c = 'Paid';
-        update donation;
+        update as user donation;
         if (!String.isBlank(donation.Donor_Email__c)) {
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
             email.setToAddresses(new String[] { donation.Donor_Email__c });

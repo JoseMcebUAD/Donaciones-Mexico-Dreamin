@@ -5,6 +5,7 @@
   "description": "Salesforce App",
   "scripts": {
     "lint": "eslint **/{aura,lwc}/**/*.js",
+    "code-analyzer": "sf code-analyzer run --workspace force-app --rule-selector Recommended --view table",
     "test": "npm run test:unit",
     "test:unit": "sfdx-lwc-jest",
     "test:unit:watch": "sfdx-lwc-jest --watch",
