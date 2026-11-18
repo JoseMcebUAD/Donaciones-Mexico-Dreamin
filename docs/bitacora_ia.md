@@ -227,6 +227,80 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 ---
 
 ### Entrada 07: Plan de QA, ejecución automatizada y matriz de pruebas para `feat/US-D1` (`US-D1c`)
+### Entrada 07: Validación QA, pruebas automatizadas y corrección de test en `refactor/post-feedback` (`US-R1`, `US-R2`)
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-R1, US-R2
+* **Hito:** Entrega 2 (Post-feedback)
+
+#### 1. Qué se pidió
+> *"Cambié de HU, válida esta nueva y ejecuta las pruebas automatizadas. Agrega también los resultados a `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* Revisión de los cambios de la rama `refactor/post-feedback` (`8fe6427..HEAD`):
+  * `US-R1` (`f8d766e`): eliminación de `recognitionType` en `donationForm`, `donorWall`, `PublicCampaignController` y `PublicDonationController` (fijando `'Individual'` en `PublicDonationCommandService`).
+  * `US-R2` (`8977d67`): reemplazo de URL de imagen por carga directa de archivo (`<= 2 MB`, Base64) en `donationForm` y publicación vía `ContentVersion` + `ContentDistribution` (`ContentDownloadUrl`) en `PublicDonationCommandService.publishDonorImage()`.
+* Corrección en `salesforce/force-app/main/default/lwc/donationForm/__tests__/donationForm.test.js` del test preexistente `enforces the Stripe minimum amount of 10 MXN on the amount input`, cambiando `querySelector('lightning-input[name="amount"]')` por `querySelectorAll('lightning-input')[0]` tras `await flushPromises()`.
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (en `salesforce/`): **PASS** (`0` errores, `0` warnings).
+* `npm run test:unit` (en `salesforce/`):
+  * Antes del fix: `1` suite en verde (`campaignCatalog.test.js`) y `1` fallo preexistente en `donationForm.test.js` (`amountInput` era `null` porque el stub de `lightning-input` no refleja `name` como atributo HTML).
+  * Después del fix: **PASS** — `2/2` suites (`campaignCatalog.test.js`, `donationForm.test.js`) y `4/4` tests en verde (`1.637 s`).
+* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000oeoHTCAY` contra `mi-org` / `jsvela111.cfef96266380@agentforce.com`): **FAIL en compilación (9 componentes)**, por lo que las pruebas Apex no llegaron a ejecutarse (`Passing: 0, Failing: 0, Total: 0`):
+  * **Fallo en `US-R2` (`PublicDonationCommandService.cls:71:14`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload` (bloquea en cascada `PublicDonationCommandServiceTest`, `PublicDonationController` y `PublicDonationControllerTest`).
+  * **Fallos preexistentes de `US-S5` (`CampaignImageService.cls`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload (17:14)` y `No such column 'ContentDownloadUrl' on entity 'ContentVersion' (47:41)` (bloquea `CampaignImageServiceTest` y `campaignImageUpload`).
+  * **Fallo preexistente de configuración (`Donation_Public_Guest`):** `Unable to find ExternalCredentialPrincipal: Stripe_Test_External-Stripe_Org_Principal`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Ajuste aplicado:** Se mantuvo sin cambios `handleImageChange` en `donationForm.js` al no presentar fallos en las pruebas y se corrigió únicamente el selector del stub en `donationForm.test.js`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 30 a 45 minutos analizando el diff, ejecutando Jest/ESLint, corrigiendo el test y documentando en bitácora.
+* **Tiempo real con IA:** Aproximadamente 4 minutos.
+* **Ahorro estimado:** ~88% en validación QA y documentación.
+
+---
+
+### Entrada 08: Bugfix de `ContentDistribution` / SOQL y despliegue validado en `mi-org` (`refactor/post-feedback`)
+* **Historia(s) Relacionada(s):** US-01 a US-10, US-D1b (validación integral pre-despliegue)
+* **Hito:** Entrega 1 / Entrega 2
+
+#### 1. Qué se pidió
+> *"Realiza las pruebas y agrega el prompt a `docs/bitacora_ia.md` con autor 'Jesús Méndez'. Si son exitosas, intenta el despliegue y si funciona también documenta en el archivo bitacora"*
+
+#### 2. Qué se obtuvo
+Se ejecutaron las pruebas locales de frontend y la validación con pruebas Apex en la sandbox `mi-org`:
+* **ESLint (`npm run lint` en `salesforce/`):** Sin errores (código 0).
+* **Pruebas unitarias LWC (`npm test` / `sfdx-lwc-jest`):** **Fallaron** (2 de 2 suites fallidas; 1 prueba pasada, 3 fallidas de 4 totales):
+  * `donationForm.test.js`: falló en `clears public recognition and invoice selections when made anonymous` (`TypeError: element.handleChange is not a function`) y en `enforces the Stripe minimum amount of 10 MXN on the amount input` (`amountInput` resultó `null`).
+  * `campaignCatalog.test.js`: falló en `shows empty state when no public campaigns are returned` porque la aserción esperaba texto en inglés (`"There are no active campaigns at this time."`) mientras que el componente renderiza el mensaje en español (`"No hay campañas activas por el momento. Vuelve pronto."`).
+* **Validación Apex en `mi-org` (`sf project deploy start --dry-run --test-level RunLocalTests --target-org mi-org`, Deploy ID `0Afbm00000oeSTsCAM`):**
+  * **Metadatos:** `51/51 (100%)` componentes validados correctamente.
+  * **Pruebas Apex:** **Fallaron** (`29` pasaron, `8` fallaron de `37` totales; cobertura promedio `51%`, por debajo del `75%` requerido).
+  * **Errores en Apex Tests:**
+    * `No such column 'Allow_Additional_Donations__c'` / `'Expiration_Date__c'` en `Campaign__c` y `'Payment_Status__c'` en `Donation__c` (`PublicDonationControllerTest`, `DonationManagementServiceTest`, `PublicCampaignControllerTest`).
+    * `Operation failed due to fields being inaccessible on Sobject Campaign__c` (`DonationExpirationServiceTest`).
+    * `System.QueryException: Variable does not exist: tmpVar1` en `PublicCampaignController.getRecognizedDonors` línea 71 (`PublicCampaignControllerTest.returnsOnlyRecognizedPaidDonors`).
+
+#### 3. Qué se verificó y cómo
+* Se verificaron los resultados directamente desde la salida de `npm run lint`, `npm test` (`sfdx-lwc-jest`) y `sf project deploy start --dry-run --test-level RunLocalTests --target-org mi-org`.
+* Al no ser exitosas las pruebas (tanto Jest como `RunLocalTests`), **no se ejecutó el despliegue real** a `mi-org`, respetando la condición indicada en el prompt.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* Sin modificaciones de código en esta interacción; quedaron identificados los bloqueos reales que impiden un despliegue con `RunLocalTests`:
+  1. Falta de acceso FLS del usuario administrador que ejecuta los tests en `mi-org` sobre los campos nuevos (o necesidad de desplegar primero objetos/campos y asignar Permission Sets antes de correr tests, además de revisar `tmpVar1` en `PublicCampaignController.cls` línea 71).
+  2. Pruebas unitarias Jest desactualizadas respecto al HTML/JS actual de `donationForm` y al texto en español de `campaignCatalog`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 45 a 60 minutos ejecutando suites locales, validando en org, analizando trazas de error y documentando la bitácora.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~90% en diagnóstico pre-despliegue y registro documental.
+
+---
+
+### Entrada 08: Corrección de pruebas LWC/Apex y despliegue exitoso en sandbox `mi-org`
 
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
@@ -266,6 +340,72 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 ---
 
 ### Entrada 08: Bugfix de ESLint y `scrollIntoView` en JSDOM para `feat/US-D1` (`US-D1c`)
+* **Historia(s) Relacionada(s):** US-R1, US-R2, US-S5
+* **Hito:** Entrega 2 (Post-feedback)
+
+#### 1. Qué se pidió
+> *"Realiza los cambios necesarios en el código y en mi org. Valida bien antes de todo y si funciona, genera el commit como bugfix y agrega a la `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* Corrección en `salesforce/force-app/main/default/classes/PublicDonationCommandService.cls` (línea 71): reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload` en `ContentDistribution`.
+* Corrección en `salesforce/force-app/main/default/classes/CampaignImageService.cls`:
+  * Línea 17: reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload`.
+  * Líneas 47–50: eliminación de `ContentDocument.LatestPublishedVersion.ContentDownloadUrl` en el SOQL de `getCoverImages()` (campo no existente en `ContentVersion` y no utilizado en `ImageView`).
+* Configuración en `mi-org` (`jsvela111.cfef96266380@agentforce.com`): creación de la `ExternalCredential` `Stripe_Test_External` con el principal `Stripe_Org_Principal` (Deploy ID `0Afbm00000ofdS1CAI`) para habilitar el despliegue de `Donation_Public_Guest`, seguida del despliegue de `force-app` (Deploy ID `0Afbm00000oeSwuCAE`).
+
+#### 3. Qué se verificó y cómo
+* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000ofFpWCAU`): **PASS** — `45/45` pruebas Apex locales en verde (`0` fallos).
+* `sf project deploy start -o mi-org --source-dir force-app` (Deploy ID `0Afbm00000oeSwuCAE`): **Succeeded** (`100%`).
+* `sf apex run test -o mi-org -n PublicDonationCommandServiceTest -n PublicCampaignControllerTest -n PublicDonationControllerTest -r human -w 10` (Test Run ID `707bm00001XCGHg`): **PASS** — `11/11` pruebas (`100%`).
+* `npm run test:unit` y `npm run lint` (en `salesforce/`): **PASS** — `2/2` suites (`4/4` tests LWC Jest) y `0` errores de ESLint.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Hallazgos corregidos:** `PreferencesAllowOriginalRelatedEntityDownload` no existe en `ContentDistribution` (el campo correcto es `PreferencesAllowOriginalDownload`) y `ContentDownloadUrl` pertenece a `ContentDistribution`, no a `ContentVersion`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 40 a 60 minutos diagnosticando errores de metadata/SOQL, creando la External Credential en la org, desplegando y ejecutando todas las suites Apex y LWC.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~90% en corrección, despliegue y validación integral.
+* **Historia(s) Relacionada(s):** US-01 a US-10, US-D1b (despliegue integral y suite de pruebas)
+* **Hito:** Entrega 1 / Entrega 2
+
+#### 1. Qué se pidió
+> *"/plan Revisa los test y dime cuales serían las correcciones necesarias."*  
+> *"Adelante, también documenta los cambios que se tuvieron que hacer para que el despliegue fuese exitoso"*
+
+#### 2. Qué se obtuvo
+Se corrigieron las suites de pruebas locales y de Apex, logrando un despliegue exitoso completo en la sandbox `mi-org`:
+* **Cambios en configuración de la org destino (`mi-org`):**
+  1. Se habilitó **Digital Experiences** y se creó el sitio con el Guest User `Donaciones_Mexico_Dreamin` requerido por `Campaign__c.sharingRules-meta.xml`.
+  2. Se cambió el idioma del usuario administrador desplegador de `es_MX` a `en_US` para que la Metadata API aceptara `<value>true</value>` en el criterio booleano de `Campaign__c.Active_Campaigns_for_Guests` (en español exigía `"Verdadero"` / `"Falso"`).
+* **Cambios en pruebas LWC Jest:**
+  1. `campaignCatalog.test.js`: se actualizó la aserción del estado vacío al mensaje real en español (`"No hay campañas activas por el momento. Vuelve pronto."`).
+  2. `donationForm.test.js`: se reescribieron las pruebas para interactuar con el DOM en `shadowRoot` (eventos `change` y búsqueda por `input.name === 'amount'`), alineando la validación de `isAnonymous` con el desacople de factura de E1 v2 (solo desmarca/deshabilita `wantsRecognition` y conserva `needsInvoice`).
+* **Cambios en pruebas Apex (tests autocontenidos):**
+  1. Se creó `DonationTestDataFactory.cls` (+ `.cls-meta.xml`) para generar un usuario administrador de prueba con los Permission Sets `Donation_Coordination` y `Donation_Treasury` asignados.
+  2. Se envolvieron las pruebas de `DonationExpirationServiceTest.cls`, `DonationManagementServiceTest.cls`, `PublicCampaignControllerTest.cls` y `PublicDonationControllerTest.cls` en `System.runAs(testUser)` para garantizar FLS sobre los campos nuevos incluso en orgs limpias.
+* **Despliegue real exitoso (`sf project deploy start --test-level RunLocalTests --target-org mi-org`):**
+  * **Deploy ID:** `0Afbm00000oemyoCAA`
+  * **Estado:** `Succeeded` (`52/52` componentes desplegados).
+  * **Pruebas Apex:** `37/37` pasando (`0` fallos).
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` en `salesforce/`: 0 errores.
+* `npm test` (`sfdx-lwc-jest`) en `salesforce/`: `2/2` suites, `4/4` pruebas pasando.
+* `sf project deploy start --dry-run --test-level RunLocalTests --target-org mi-org` (`0Afbm00000oeSbvCAE`): `52/52` componentes y `37/37` pruebas Apex pasando.
+* `sf project deploy start --test-level RunLocalTests --target-org mi-org` (`0Afbm00000oemyoCAA`): despliegue real confirmado con `Status: Succeeded`, `52/52` componentes y `37/37` pruebas Apex pasando.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* En la primera actualización de `DonationExpirationServiceTest.cls` quedó fuera el método `testSchedulable()` sin `System.runAs(testUser)`, fallando en el primer `--dry-run` (`36/37`). Se corrigió agregando `System.runAs(testUser)` también en `testSchedulable()`, alcanzando `37/37`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 3 a 4 horas depurando errores de `SharingGuestRule` por idioma/nickname, reescribiendo tests Jest con stubs LWC, añadiendo `System.runAs` con Permission Sets en Apex y ejecutando el despliegue.
+* **Tiempo real con IA:** Aproximadamente 15 minutos.
+* **Ahorro estimado:** ~92% en resolución de bloqueos de despliegue y estabilización de pruebas.
+
+---
+
+### Entrada 09: Asignación de Permission Sets y publicación del sitio `Donaciones_Mexico_Dreamin` en `mi-org`
 
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
@@ -298,5 +438,35 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 * **Estimación sin IA:** 20 a 30 minutos diagnosticando, corrigiendo y re-ejecutando Jest/ESLint.
 * **Tiempo real con IA:** Aproximadamente 3 minutos.
 * **Ahorro estimado:** ~88% en corrección y verificación.
+* **Historia(s) Relacionada(s):** US-D1, US-V2 (RF-D1a, RF-V1, RF-V2, M2)
+* **Hito:** Entrega 1 / Entrega 2
+
+#### 1. Qué se pidió
+> *"Podrías publicar el sitio por favor y haz los ajustes necesarios para el despliegue, también documenta eso en la bitacora de IA"*
+
+#### 2. Qué se obtuvo
+* **Asignación de Permission Sets en `mi-org`:**
+  * Se asignó `Donation_Public_Guest` al Guest User del sitio (`donaciones_mexico_dreamin@00dbm0000191y5heau.org.force.com`).
+  * Se asignó `Donation_Coordination` al usuario administrador (`jsvela111.cfef96266380@agentforce.com`).
+* **Publicación del sitio Experience Cloud:**
+  * Se ejecutó `sf community publish --name "Donaciones_Mexico_Dreamin" --target-org mi-org`.
+  * **Network Id:** `0DBbm000006ClqvGAC`
+  * **Job Id (`SiteTaskPublish`):** `08Pbm00001D0kJWEAZ` (estado `Running` en `BackgroundOperation`).
+  * **URL publicada:** `https://orgfarm-4b855452bf-dev-ed.develop.my.site.com/DonacionesMexicoDreaminvforcesite`
+
+#### 3. Qué se verificó y cómo
+* Se consultaron `PermissionSetAssignment`, `Network`, `Site` y `BackgroundOperation` mediante `sf data query` en `mi-org` para confirmar la asignación de `Donation_Public_Guest` y el inicio del job `SiteTaskPublish` (`08Pbm00001D0kJWEAZ`).
+* Se identificaron los pasos manuales de Experience Workspaces / Builder que quedan por completar en la interfaz web de `mi-org` (ya que el proyecto no versiona `ExperienceBundle`):
+  1. Activar el sitio en **Experience Workspaces → Administration → Settings → Activate** (actualmente `UnderConstruction`).
+  2. Habilitar **Allow guest users to access public APIs** en **Experience Workspaces → Administration → Preferences** y **Public Access** en Experience Builder.
+  3. Colocar los LWC (`campaignCatalog`, `donationConfirmation`, `donationThankYou`) en las páginas correspondientes del sitio y volver a publicar.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* Sin errores: se validó previamente que existían dos sitios en `mi-org` (`donaciones-dreamin` y `Donaciones_Mexico_Dreamin`), seleccionando `Donaciones_Mexico_Dreamin` por coincidir con la regla `Campaign__c.Active_Campaigns_for_Guests`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 20 a 30 minutos buscando IDs de sitios/Guest Users, asignando permisos y publicando por CLI.
+* **Tiempo real con IA:** Aproximadamente 2 minutos.
+* **Ahorro estimado:** ~90% en configuración post-despliegue.
 
 ---

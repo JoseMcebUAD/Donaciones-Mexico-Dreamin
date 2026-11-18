@@ -15,7 +15,6 @@ public with sharing class PublicCampaignController {
 
     public class RecognizedDonorView {
         @AuraEnabled public String displayName;
-        @AuraEnabled public String recognitionType;
         @AuraEnabled public String imageUrl;
         @AuraEnabled public Decimal amount;
     }
@@ -55,9 +54,6 @@ public with sharing class PublicCampaignController {
         for (Donor_Recognition__c recognition : recognitions) {
             RecognizedDonorView item = new RecognizedDonorView();
             item.displayName = recognition.Display_Name__c;
-            item.recognitionType = String.isBlank(recognition.Recognition_Type__c)
-                ? 'Individual'
-                : recognition.Recognition_Type__c;
             item.imageUrl = recognition.Image_URL__c;
             item.amount = recognition.Amount__c;
             result.add(item);
