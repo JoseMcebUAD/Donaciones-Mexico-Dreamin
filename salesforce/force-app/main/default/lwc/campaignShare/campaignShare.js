@@ -85,6 +85,7 @@ export default class CampaignShare extends LightningElement {
     _showCopied() {
         this.copied = true;
         if (this._copyTimer) clearTimeout(this._copyTimer);
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
         this._copyTimer = setTimeout(() => {
             this.copied = false;
             this._copyTimer = null;
@@ -103,7 +104,7 @@ export default class CampaignShare extends LightningElement {
         try {
             document.execCommand('copy');
             this._showCopied();
-        } catch (_) {
+        } catch {
             // silent fail — URL visible en pantalla para copia manual
         }
         document.body.removeChild(el);

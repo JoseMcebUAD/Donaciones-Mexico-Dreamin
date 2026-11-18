@@ -16,7 +16,7 @@ export default class CampaignCatalog extends LightningElement {
             if (idParam) {
                 this._campaignIdFromUrl = idParam;
             }
-        } catch (_) {
+        } catch {
             // URL parsing is non-critical
         }
     }
@@ -49,10 +49,9 @@ export default class CampaignCatalog extends LightningElement {
     }
 
     _scrollToDonationForm() {
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
         Promise.resolve().then(() => {
             const anchor = this.template.querySelector('.donation-anchor');
-            if (anchor) {
+            if (anchor && typeof anchor.scrollIntoView === 'function') {
                 anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
