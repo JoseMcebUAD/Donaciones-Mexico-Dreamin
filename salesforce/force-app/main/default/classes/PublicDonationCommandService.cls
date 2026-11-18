@@ -68,7 +68,7 @@ public without sharing class PublicDonationCommandService {
         ContentDistribution dist = new ContentDistribution();
         dist.Name = 'DonorImage-' + donationId;
         dist.ContentVersionId = cv.Id;
-        dist.PreferencesAllowOriginalRelatedEntityDownload = true;
+        dist.PreferencesAllowOriginalDownload = true;
         dist.PreferencesLinkLatestVersion = true;
         dist.PreferencesNotifyOnVisit = false;
         dist.PreferencesPasswordRequired = false;

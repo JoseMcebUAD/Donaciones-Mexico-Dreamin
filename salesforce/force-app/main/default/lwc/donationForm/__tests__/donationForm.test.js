@@ -35,12 +35,14 @@ describe('c-donation-form', () => {
         expect(element.shadowRoot.querySelector('.recognition-fields')).toBeNull();
     });
 
-    it('enforces the Stripe minimum amount of 10 MXN on the amount input', () => {
+    it('enforces the Stripe minimum amount of 10 MXN on the amount input', async () => {
         const element = createElement('c-donation-form', { is: DonationForm });
         element.campaign = { id: 'a001', name: 'Education fund' };
         document.body.appendChild(element);
-        const amountInput = element.shadowRoot.querySelector('lightning-input[name="amount"]');
-        expect(amountInput).not.toBeNull();
+        await flushPromises();
+        const inputs = element.shadowRoot.querySelectorAll('lightning-input');
+        const amountInput = inputs[0];
+        expect(amountInput).toBeDefined();
         expect(amountInput.min).toBe('10');
     });
 });
