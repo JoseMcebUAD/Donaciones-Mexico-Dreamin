@@ -1,5 +1,5 @@
 import { LightningElement, track } from 'lwc';
-import createCase from '@salesforce/apex/ContactController.createCase';
+import createCase from '@salesforce/apex/PortalContactController.createCase';
 
 const FAQ_DATA = [
     {

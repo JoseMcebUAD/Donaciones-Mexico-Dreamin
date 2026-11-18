@@ -4,8 +4,9 @@ private class PublicDonationControllerTest {
         public HTTPResponse respond(HTTPRequest request) {
             System.assertEquals('POST', request.getMethod());
             System.assert(request.getBody().contains('client_reference_id='));
-            System.assert(request.getBody().contains('success_url=https%3A%2F%2Fempathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com%2Fdonaciones%2Fthank-you'));
-            System.assert(request.getBody().contains('cancel_url=https%3A%2F%2Fempathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com%2Fdonaciones%2F'));
+            String baseUrl = System.Label.Donation_Portal_Base_URL;
+            System.assert(request.getBody().contains('success_url=' + EncodingUtil.urlEncode(baseUrl + '/thank-you?session_id={CHECKOUT_SESSION_ID}', 'UTF-8')));
+            System.assert(request.getBody().contains('cancel_url=' + EncodingUtil.urlEncode(baseUrl + '/', 'UTF-8')));
             HttpResponse response = new HttpResponse();
             response.setStatusCode(200);
             response.setBody('{"id":"cs_test_123","url":"https://checkout.stripe.test/session"}');
@@ -34,24 +35,33 @@ private class PublicDonationControllerTest {
         return request;
     }
 
+    @TestSetup
+    static void checkoutFixture() {
+        Campaign__c campaign = new Campaign__c(Name = 'Checkout fixture', Goal_Amount__c = 500, Is_Active__c = true);
+        insert campaign;
+        insert new Donation__c(
+            Campaign__c = campaign.Id, Amount__c = 250, Payment_Status__c = 'Pending',
+            Donor_Email__c = 'checkout@example.test', Checkout_Reference__c = 'MD-0123456789abcdef0123456789abcdef'
+        );
+    }
+
     @IsTest
-    static void createsPendingDonationAndStripeCheckout() {
+    static void createsPendingDonationBeforeCheckout() {
         User testUser = DonationTestDataFactory.createTestUser();
         System.runAs(testUser) {
             Campaign__c campaign = new Campaign__c(Name = 'Public campaign', Goal_Amount__c = 500, Is_Active__c = true);
             insert campaign;
-            Test.setMock(HttpCalloutMock.class, new StripeMock());
             Test.startTest();
-            PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(validRequest(campaign.Id));
+            PublicDonationController.CheckoutResponse response = PublicDonationController.prepareDonation(validRequest(campaign.Id));
             Test.stopTest();
-            Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c, Privacy_Accepted__c FROM Donation__c WHERE Id = :response.donationId];
+            Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c, Privacy_Accepted__c FROM Donation__c WHERE Checkout_Reference__c = :response.checkoutReference];
             System.assertEquals('Pending', donation.Payment_Status__c);
-            System.assertEquals('cs_test_123', donation.Stripe_Session_Id__c);
+            System.assertEquals(null, donation.Stripe_Session_Id__c);
             System.assertEquals('XAXX010101000', donation.RFC__c);
             System.assert(donation.Checkout_Reference__c.startsWith('MD-'));
             System.assertEquals('Ana Example', donation.Recognition_Name__c);
             System.assertEquals(true, donation.Privacy_Accepted__c);
-            System.assertEquals('https://checkout.stripe.test/session', response.checkoutUrl);
+            System.assertEquals(null, response.checkoutUrl);
         }
     }
 
@@ -64,7 +74,7 @@ private class PublicDonationControllerTest {
             PublicDonationController.DonationRequest invalidRfc = validRequest(campaign.Id);
             invalidRfc.rfc = 'BAD';
             try {
-                PublicDonationController.startDonation(invalidRfc);
+                PublicDonationController.prepareDonation(invalidRfc);
                 System.assert(false, 'Invalid RFC must be rejected.');
             } catch (AuraHandledException expected) { }
         }
@@ -75,7 +85,7 @@ private class PublicDonationControllerTest {
         Campaign__c campaign = new Campaign__c(Name = 'Inactive campaign', Goal_Amount__c = 500, Is_Active__c = false);
         insert campaign;
         try {
-            PublicDonationController.startDonation(validRequest(campaign.Id));
+            PublicDonationController.prepareDonation(validRequest(campaign.Id));
             System.assert(false, 'Inactive campaigns must never create a Checkout Session.');
         } catch (AuraHandledException expected) { }
     }
@@ -88,7 +98,7 @@ private class PublicDonationControllerTest {
             PublicDonationController.DonationRequest lowAmount = validRequest(campaign.Id);
             lowAmount.amount = 9.99;
             try {
-                PublicDonationController.startDonation(lowAmount);
+                PublicDonationController.prepareDonation(lowAmount);
                 System.assert(false, 'Amount below 10 MXN must be rejected.');
             } catch (AuraHandledException expected) { }
         }
@@ -102,28 +112,44 @@ private class PublicDonationControllerTest {
             insert campaign;
             PublicDonationController.DonationRequest minRequest = validRequest(campaign.Id);
             minRequest.amount = 10.00;
-            Test.setMock(HttpCalloutMock.class, new StripeMock());
             Test.startTest();
-            PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(minRequest);
+            PublicDonationController.CheckoutResponse response = PublicDonationController.prepareDonation(minRequest);
             Test.stopTest();
-            Donation__c donation = [SELECT Amount__c, Payment_Status__c FROM Donation__c WHERE Id = :response.donationId];
+            Donation__c donation = [SELECT Amount__c, Payment_Status__c FROM Donation__c WHERE Checkout_Reference__c = :response.checkoutReference];
             System.assertEquals(10.00, donation.Amount__c);
             System.assertEquals('Pending', donation.Payment_Status__c);
         }
     }
 
     @IsTest
+    static void opensCheckoutOnlyForPreparedAttempt() {
+        Test.setMock(HttpCalloutMock.class, new StripeMock());
+        Test.startTest();
+        PublicDonationController.CheckoutResponse response = PublicDonationController.openCheckout('MD-0123456789abcdef0123456789abcdef');
+        Test.stopTest();
+        System.assertEquals('https://checkout.stripe.test/session', response.checkoutUrl);
+        Donation__c donation = [SELECT Stripe_Session_Id__c, Payment_Status__c FROM Donation__c WHERE Checkout_Reference__c = 'MD-0123456789abcdef0123456789abcdef'];
+        System.assertEquals('cs_test_123', donation.Stripe_Session_Id__c);
+        System.assertEquals('Pending', donation.Payment_Status__c);
+    }
+
+    @IsTest
+    static void refusesUnknownOrRepeatedCheckoutReference() {
+        try {
+            PublicDonationController.openCheckout('MD-00000000000000000000000000000000');
+            System.assert(false, 'Unknown references must be rejected.');
+        } catch (AuraHandledException expected) { }
+    }
+
+    @IsTest
     static void rejectsMissingPrivacyAcceptance() {
-        User testUser = DonationTestDataFactory.createTestUser();
-        System.runAs(testUser) {
-            Campaign__c campaign = new Campaign__c(Name = 'Privacy campaign', Goal_Amount__c = 500, Is_Active__c = true);
-            insert campaign;
-            PublicDonationController.DonationRequest noPrivacy = validRequest(campaign.Id);
-            noPrivacy.privacyAccepted = false;
-            try {
-                PublicDonationController.startDonation(noPrivacy);
-                System.assert(false, 'Donations without privacy acceptance must be rejected.');
-            } catch (AuraHandledException expected) { }
-        }
+        Campaign__c campaign = new Campaign__c(Name = 'Privacy campaign', Goal_Amount__c = 500, Is_Active__c = true);
+        insert campaign;
+        PublicDonationController.DonationRequest noPrivacy = validRequest(campaign.Id);
+        noPrivacy.privacyAccepted = false;
+        try {
+            PublicDonationController.prepareDonation(noPrivacy);
+            System.assert(false, 'Donations without privacy acceptance must be rejected.');
+        } catch (AuraHandledException expected) { }
     }
 }

@@ -11,7 +11,7 @@
             <div class="options">
                 <lightning-input name="isAnonymous" label="Quiero donar de forma anónima" type="checkbox" checked={isAnonymous} onchange={handleChange}></lightning-input>
                 <lightning-input name="wantsRecognition" label="Autorizo mostrar mi nombre y monto en el muro" type="checkbox" checked={wantsRecognition} disabled={isAnonymous} onchange={handleChange}></lightning-input>
-                <lightning-input name="needsInvoice" label="Necesito factura" type="checkbox" checked={needsInvoice} onchange={handleChange}></lightning-input>
+                <lightning-input name="needsInvoice" label="Necesito factura" type="checkbox" checked={needsInvoice} disabled={isAnonymous} onchange={handleChange}></lightning-input>
             </div>
             <template if:true={wantsRecognition}>
                 <div class="recognition-fields">

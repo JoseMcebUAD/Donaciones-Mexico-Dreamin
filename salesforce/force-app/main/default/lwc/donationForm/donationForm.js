@@ -1,5 +1,6 @@
 import { LightningElement, api } from 'lwc';
-import startDonation from '@salesforce/apex/PublicDonationController.startDonation';
+import prepareDonation from '@salesforce/apex/PublicDonationController.prepareDonation';
+import openCheckout from '@salesforce/apex/PublicDonationController.openCheckout';
 
 const TAX_REGIME_OPTIONS = [
     { label: '601 - General de Ley Personas Morales', value: '601' },
@@ -68,6 +69,7 @@ export default class DonationForm extends LightningElement {
         this[name] = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
         if (name === 'isAnonymous' && event.target.checked) {
             this.wantsRecognition = false;
+            this.needsInvoice = false;
         }
     }
 
@@ -114,7 +116,7 @@ export default class DonationForm extends LightningElement {
         this.error = undefined;
         this.isLoading = true;
         try {
-            const response = await startDonation({
+            const prepared = await prepareDonation({ request: {
                 campaignId: this.campaign.id,
                 amount: Number(this.amount),
                 isAnonymous: this.isAnonymous,
@@ -131,8 +133,9 @@ export default class DonationForm extends LightningElement {
                 taxRegime: this.taxRegime,
                 cfdiUse: this.cfdiUse,
                 privacyAccepted: this.privacyAccepted
-            });
-            window.location.assign(response.checkoutUrl);
+            }});
+            const checkout = await openCheckout({ checkoutReference: prepared.checkoutReference });
+            window.location.assign(checkout.checkoutUrl);
         } catch (error) {
             this.error = error.body?.message || 'Unable to start checkout.';
         } finally {

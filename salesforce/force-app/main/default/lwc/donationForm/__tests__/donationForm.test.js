@@ -10,7 +10,7 @@ describe('c-donation-form', () => {
         }
     });
 
-    it('clears public recognition when made anonymous while keeping invoice independent', async () => {
+    it('clears recognition and invoice when made anonymous', async () => {
         const element = createElement('c-donation-form', { is: DonationForm });
         element.campaign = { id: 'a001', name: 'Education fund' };
         document.body.appendChild(element);
@@ -39,9 +39,10 @@ describe('c-donation-form', () => {
 
         expect(wantsRecognitionInput.checked).toBe(false);
         expect(wantsRecognitionInput.disabled).toBe(true);
-        expect(needsInvoiceInput.checked).toBe(true);
+        expect(needsInvoiceInput.checked).toBe(false);
+        expect(needsInvoiceInput.disabled).toBe(true);
         expect(element.shadowRoot.querySelector('.recognition-fields')).toBeNull();
-        expect(element.shadowRoot.querySelector('.invoice-fields')).not.toBeNull();
+        expect(element.shadowRoot.querySelector('.invoice-fields')).toBeNull();
     });
 
     it('enforces the Stripe minimum amount of 10 MXN on the amount input', async () => {

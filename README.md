@@ -6,9 +6,9 @@
 
 El sitio `Donaciones` está activo en el Sandbox `donacionesSandbox` (`uady--class2026a`). URL pública:
 
-> **[https://uady--class2026a.sandbox.my.site.com/donaciones/](https://uady--class2026a.sandbox.my.site.com/donaciones/)**
+> **[https://uady--class2026a.sandbox.my.site.com/donaciones/s/](https://uady--class2026a.sandbox.my.site.com/donaciones/s/)**
 
-El Checkout del Sandbox requiere completar la Named Credential `Stripe_Test` con una clave `sk_test_...` desde Setup; no uses ni publiques claves reales.
+El Checkout del Sandbox requiere crear la Named Credential `Stripe_Test` con una clave `sk_test_...` desde Setup; no uses ni publiques claves reales. Al 18 de noviembre de 2026, esa credencial todavía no existe en la sandbox, por lo que el pago de prueba no está verificado de extremo a extremo.
 
 ### (2) Video demo
 
@@ -60,10 +60,11 @@ Toda la metadata desplegada en la org está versionada en [`salesforce/force-app
 
 ```powershell
 cd salesforce
-sf project deploy start --target-org donacionesSandbox --source-dir force-app --test-level NoTestRun
+sf project deploy validate --target-org donacionesSandbox --source-dir force-app --test-level RunSpecifiedTests --tests PublicDonationControllerTest --tests PublicDonationCommandServiceTest --tests PublicCampaignControllerTest --tests DonationProjectionServiceTest --tests DonationManagementServiceTest --tests DonationExpirationServiceTest --tests CampaignImageServiceTest --tests PortalContactControllerTest
+sf project deploy start --target-org donacionesSandbox --source-dir force-app --test-level RunSpecifiedTests --tests PublicDonationControllerTest --tests PublicDonationCommandServiceTest --tests PublicCampaignControllerTest --tests DonationProjectionServiceTest --tests DonationManagementServiceTest --tests DonationExpirationServiceTest --tests CampaignImageServiceTest --tests PortalContactControllerTest
 ```
 
-`NoTestRun` se usó para el primer despliegue del Sandbox porque dos pruebas heredadas de correo en la org fallan por su configuración de deliverability. Ejecuta las pruebas propias del portal antes de promover cambios.
+La corrección de la alerta de `Case` y el ajuste de disponibilidad de correo permitieron validar 24 pruebas Apex dirigidas tras integrar los cambios recientes de `entrega-2`. El despliegue final de esta restauración fue `0AfVC00000PJsvx0AD` (81 componentes, sin errores). ESLint y las 18 pruebas LWC también pasaron. No se ha validado un pago real con Stripe Test ni el recorrido visual como visitante anónimo.
 
 ### (6) Bitácoras y registros
 
@@ -106,7 +107,7 @@ flowchart LR
     end
 
     subgraph APEX["2. Capa Logica Apex y Automatizacion"]
-        CTRL["Controladores Publicos AuraEnabled<br/>PublicCampaignController (with sharing)<br/>PublicDonationController (without sharing)<br/>ContactController (with sharing)"]
+        CTRL["Controladores Publicos AuraEnabled<br/>PublicCampaignController (with sharing)<br/>PublicDonationController (without sharing)<br/>PortalContactController (with sharing)"]
         SVC["Servicios Privilegiados SYSTEM_MODE<br/>PublicCampaignReadService<br/>PublicDonationCommandService<br/>ContactCommandService"]
         AUTO["Automatizacion y Staff<br/>DonationProjectionTrigger + Service<br/>CampaignImageService (USER_MODE)<br/>DonationManagementService<br/>StripeCheckoutService (Callout HTTP)"]
     end
@@ -120,7 +121,7 @@ flowchart LR
     end
 
     subgraph STRIPE["4. Seguridad M3 y Pasarela Externa"]
-        CRED["Named Credential: Stripe_Test<br/>External Credential: Stripe_Test_External<br/>Secret sk_test_... cifrado en Org"]
+        CRED["Named Credential: Stripe_Test<br/>Clave de prueba pendiente de configurar en la sandbox"]
         API["Stripe Checkout API (Externa)<br/>https://api.stripe.com<br/>POST /v1/checkout/sessions<br/>Pago hospedado PCI-DSS<br/>Retorno a /thank-you?session_id=..."]
     end
 
@@ -151,7 +152,7 @@ salesforce/
       PublicCampaignReadService      Lectura SYSTEM_MODE para catálogo y muro
       PublicDonationController       Creación de donaciones (>= $10 MXN) y sesión Stripe
       PublicDonationCommandService   Registro Pending, privacidad e imagen vía ContentDistribution
-      ContactController              Validación del formulario Contáctanos
+      PortalContactController        Validación del formulario Contáctanos
       ContactCommandService          Inserción SYSTEM_MODE de Case (Origin = Web)
       CampaignImageService           Publicación de portada de campaña (staff)
       DonationProjectionService      Recálculo de Campaign__c y proyección Donor_Recognition__c
@@ -200,7 +201,7 @@ scripts/
 ## Requisitos y ejecución
 
 - Salesforce CLI (`sf`), Node.js LTS.
-- Org autorizada localmente: `sf org login web --alias jDiaz`.
+- Sandbox autorizada localmente: `sf org login web --alias donacionesSandbox --instance-url https://test.salesforce.com`.
 - My Domain y Digital Experiences habilitados en la org.
 - Named Credential `Stripe_Test` apuntando a `https://api.stripe.com` con la clave `sk_test_...` guardada solo en la org, nunca en Git.
 
@@ -210,7 +211,7 @@ npm install
 npm run lint
 npm run code-analyzer
 npm test
-sf project deploy start --target-org jDiaz --source-dir force-app
+sf project deploy start --target-org donacionesSandbox --source-dir force-app
 ```
 
 Tras el despliegue, sigue [docs/seguridad.md](docs/seguridad.md) para publicar el sitio Experience Cloud, colocar los LWC y aplicar el mínimo privilegio de Guest User.

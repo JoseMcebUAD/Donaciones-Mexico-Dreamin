@@ -4,5 +4,5 @@
     <description>Minimum access for the Experience Cloud guest user: public campaigns and controlled donation initiation through Apex only.</description>
 <classAccesses><apexClass>PublicCampaignController</apexClass><enabled>true</enabled></classAccesses>
     <classAccesses><apexClass>PublicDonationController</apexClass><enabled>true</enabled></classAccesses>
-    <classAccesses><apexClass>ContactController</apexClass><enabled>true</enabled></classAccesses>
+    <classAccesses><apexClass>PortalContactController</apexClass><enabled>true</enabled></classAccesses>
 </PermissionSet>

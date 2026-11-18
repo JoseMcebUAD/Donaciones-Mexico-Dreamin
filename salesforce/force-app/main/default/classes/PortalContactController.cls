@@ -1,4 +1,4 @@
-public with sharing class ContactController {
+public with sharing class PortalContactController {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
         '^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$'
     );
