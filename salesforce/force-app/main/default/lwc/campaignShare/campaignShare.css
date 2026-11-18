@@ -5,7 +5,7 @@
 .share-button:hover, .share-button:focus { background: #fff8ec; outline: 2px solid #e7a943; outline-offset: 2px; }
 .share-button span { font-size: 1rem; line-height: 1; }
 
-/* --- Backdrop fijo (centra el panel sin transform anidado) --- */
+/* --- Backdrop fijo --- */
 .share-backdrop { align-items: center; background: rgba(16, 28, 56, .55); display: flex; inset: 0; justify-content: center; padding: 1rem; position: fixed; z-index: 9998; }
 
 /* --- Panel del popup --- */
@@ -24,18 +24,41 @@
 .share-copy-button { background: #e7a943; border: 0; border-radius: 7px; color: #17233d; cursor: pointer; flex-shrink: 0; font-size: .82rem; font-weight: 700; padding: .45rem .85rem; transition: background .2s ease; white-space: nowrap; }
 .share-copy-button:hover { background: #f4bd60; }
 
-/* --- Botones sociales --- */
-.share-social-row { display: flex; flex-wrap: wrap; gap: .6rem; }
-.share-social-btn { border-radius: 9px; color: #fff; display: inline-block; font-size: .82rem; font-weight: 700; padding: .55rem .9rem; text-decoration: none; transition: opacity .15s ease; }
-.share-social-btn:hover { opacity: .88; }
-.share-fb   { background: #1877f2; }
-.share-wa   { background: #25d366; }
-.share-x    { background: #000; }
-.share-li   { background: #0a66c2; }
-.share-email { background: #17233d; border: 1.5px solid #3a4f70; }
+/* --- Grid de redes sociales --- */
+.share-social-row { display: grid; gap: .75rem; grid-template-columns: repeat(2, 1fr); }
 
+.share-social-btn { align-items: center; border-radius: 14px; color: #17233d; cursor: pointer; display: flex; flex-direction: column; gap: .55rem; padding: 1rem .75rem; text-align: center; text-decoration: none; transition: background .15s ease; }
+.share-social-btn:hover { background: #f4f6fa; }
+
+.share-email-btn { grid-column: 1 / -1; }
+
+.share-icon-circle { align-items: center; border-radius: 50%; display: flex; flex-shrink: 0; height: 3.5rem; justify-content: center; width: 3.5rem; }
+.share-icon-label { color: #17233d; font-size: .88rem; font-weight: 600; line-height: 1.2; }
+
+.share-fb    { background: #1877f2; }
+.share-wa    { background: #25d366; }
+.share-x     { background: #000; }
+.share-li    { background: #0a66c2; }
+.share-email { background: #667085; }
+
+/* --- Pantallas medianas (600px+) --- */
+@media (min-width: 600px) {
+    .share-popup { max-width: 560px; padding: 2.5rem; }
+    .share-icon-circle { height: 4rem; width: 4rem; }
+    .share-icon-label { font-size: .92rem; }
+}
+
+/* --- Pantallas grandes (768px+): 4 columnas, email en posición normal --- */
+@media (min-width: 768px) {
+    .share-popup { max-width: 640px; }
+    .share-social-row { grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    .share-email-btn { grid-column: auto; }
+}
+
+/* --- Móvil pequeño --- */
 @media (max-width: 520px) {
     .share-popup { border-radius: 16px; padding: 1.5rem; }
     .share-social-row { gap: .5rem; }
-    .share-social-btn { font-size: .78rem; padding: .5rem .75rem; }
+    .share-icon-circle { height: 3rem; width: 3rem; }
+    .share-icon-label { font-size: .78rem; }
 }
