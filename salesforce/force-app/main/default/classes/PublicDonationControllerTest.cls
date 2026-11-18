@@ -35,31 +35,37 @@ private class PublicDonationControllerTest {
 
     @IsTest
     static void createsPendingDonationAndStripeCheckout() {
-        Campaign__c campaign = new Campaign__c(Name = 'Public campaign', Goal_Amount__c = 500, Is_Active__c = true);
-        insert campaign;
-        Test.setMock(HttpCalloutMock.class, new StripeMock());
-        Test.startTest();
-        PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(validRequest(campaign.Id));
-        Test.stopTest();
-        Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c FROM Donation__c WHERE Id = :response.donationId];
-        System.assertEquals('Pending', donation.Payment_Status__c);
-        System.assertEquals('cs_test_123', donation.Stripe_Session_Id__c);
-        System.assertEquals('XAXX010101000', donation.RFC__c);
-        System.assert(donation.Checkout_Reference__c.startsWith('MD-'));
-        System.assertEquals('Ana Example', donation.Recognition_Name__c);
-        System.assertEquals('https://checkout.stripe.test/session', response.checkoutUrl);
+        User testUser = DonationTestDataFactory.createTestUser();
+        System.runAs(testUser) {
+            Campaign__c campaign = new Campaign__c(Name = 'Public campaign', Goal_Amount__c = 500, Is_Active__c = true);
+            insert campaign;
+            Test.setMock(HttpCalloutMock.class, new StripeMock());
+            Test.startTest();
+            PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(validRequest(campaign.Id));
+            Test.stopTest();
+            Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c FROM Donation__c WHERE Id = :response.donationId];
+            System.assertEquals('Pending', donation.Payment_Status__c);
+            System.assertEquals('cs_test_123', donation.Stripe_Session_Id__c);
+            System.assertEquals('XAXX010101000', donation.RFC__c);
+            System.assert(donation.Checkout_Reference__c.startsWith('MD-'));
+            System.assertEquals('Ana Example', donation.Recognition_Name__c);
+            System.assertEquals('https://checkout.stripe.test/session', response.checkoutUrl);
+        }
     }
 
     @IsTest
     static void rejectsInvalidFiscalData() {
-        Campaign__c campaign = new Campaign__c(Name = 'Validation campaign', Goal_Amount__c = 500, Is_Active__c = true);
-        insert campaign;
-        PublicDonationController.DonationRequest invalidRfc = validRequest(campaign.Id);
-        invalidRfc.rfc = 'BAD';
-        try {
-            PublicDonationController.startDonation(invalidRfc);
-            System.assert(false, 'Invalid RFC must be rejected.');
-        } catch (AuraHandledException expected) { }
+        User testUser = DonationTestDataFactory.createTestUser();
+        System.runAs(testUser) {
+            Campaign__c campaign = new Campaign__c(Name = 'Validation campaign', Goal_Amount__c = 500, Is_Active__c = true);
+            insert campaign;
+            PublicDonationController.DonationRequest invalidRfc = validRequest(campaign.Id);
+            invalidRfc.rfc = 'BAD';
+            try {
+                PublicDonationController.startDonation(invalidRfc);
+                System.assert(false, 'Invalid RFC must be rejected.');
+            } catch (AuraHandledException expected) { }
+        }
     }
 
     @IsTest
@@ -73,28 +79,34 @@ private class PublicDonationControllerTest {
     }
     @IsTest
     static void rejectsAmountBelowStripeMinimum() {
-        Campaign__c campaign = new Campaign__c(Name = 'Min amount campaign', Goal_Amount__c = 500, Is_Active__c = true);
-        insert campaign;
-        PublicDonationController.DonationRequest lowAmount = validRequest(campaign.Id);
-        lowAmount.amount = 9.99;
-        try {
-            PublicDonationController.startDonation(lowAmount);
-            System.assert(false, 'Amount below 10 MXN must be rejected.');
-        } catch (AuraHandledException expected) { }
+        User testUser = DonationTestDataFactory.createTestUser();
+        System.runAs(testUser) {
+            Campaign__c campaign = new Campaign__c(Name = 'Min amount campaign', Goal_Amount__c = 500, Is_Active__c = true);
+            insert campaign;
+            PublicDonationController.DonationRequest lowAmount = validRequest(campaign.Id);
+            lowAmount.amount = 9.99;
+            try {
+                PublicDonationController.startDonation(lowAmount);
+                System.assert(false, 'Amount below 10 MXN must be rejected.');
+            } catch (AuraHandledException expected) { }
+        }
     }
 
     @IsTest
     static void acceptsCustomAmountAtStripeMinimum() {
-        Campaign__c campaign = new Campaign__c(Name = 'Exact min campaign', Goal_Amount__c = 500, Is_Active__c = true);
-        insert campaign;
-        PublicDonationController.DonationRequest minRequest = validRequest(campaign.Id);
-        minRequest.amount = 10.00;
-        Test.setMock(HttpCalloutMock.class, new StripeMock());
-        Test.startTest();
-        PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(minRequest);
-        Test.stopTest();
-        Donation__c donation = [SELECT Amount__c, Payment_Status__c FROM Donation__c WHERE Id = :response.donationId];
-        System.assertEquals(10.00, donation.Amount__c);
-        System.assertEquals('Pending', donation.Payment_Status__c);
+        User testUser = DonationTestDataFactory.createTestUser();
+        System.runAs(testUser) {
+            Campaign__c campaign = new Campaign__c(Name = 'Exact min campaign', Goal_Amount__c = 500, Is_Active__c = true);
+            insert campaign;
+            PublicDonationController.DonationRequest minRequest = validRequest(campaign.Id);
+            minRequest.amount = 10.00;
+            Test.setMock(HttpCalloutMock.class, new StripeMock());
+            Test.startTest();
+            PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(minRequest);
+            Test.stopTest();
+            Donation__c donation = [SELECT Amount__c, Payment_Status__c FROM Donation__c WHERE Id = :response.donationId];
+            System.assertEquals(10.00, donation.Amount__c);
+            System.assertEquals('Pending', donation.Payment_Status__c);
+        }
     }
 }
