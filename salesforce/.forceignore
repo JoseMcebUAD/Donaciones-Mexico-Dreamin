@@ -12,3 +12,6 @@ package.xml
 **/__tests__/**
 
 node_modules/
+
+# Sandbox bootstrap: these require site-specific / org-provisioned references.
+force-app/main/default/sharingRules/**
