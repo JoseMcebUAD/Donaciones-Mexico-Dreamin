@@ -194,7 +194,7 @@ docs/
   qa-us-d1.md                        Plan y reporte QA de US-D1c
   code_analyzer.md                   Reporte de Salesforce Code Analyzer y justificación (S14 / C6)
   stripe-test-setup.md               Guía de configuración segura de Stripe Test
-  bitacora_ia.md                     Bitácora cronológica de uso de IA (Entradas 01–16)
+  bitacora_ia.md                     Bitácora cronológica de uso de IA (Entradas 01–18)
   index.html                         Página estática para GitHub Pages
 scripts/
   create_issues.ps1                  Crea los issues del backlog en GitHub

@@ -622,3 +622,85 @@ Se corrigieron las suites de pruebas locales y de Apex, logrando un despliegue e
 * **Ahorro estimado:** ~95% en análisis estático, remediación de seguridad y documentación `S14`.
 
 ---
+
+### Entrada 17: Bugfix del modal de compartir (`US-D1c`), datos QA y validación de imagen de donante (`US-R2`) en `mi-org`
+
+* **Fecha:** 18 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** `US-D1c`, `US-R2`, `US-D1`, `US-S1`, `US-S2`, `US-S3`, `US-C1`, `US-F1`
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Puedes crear campañas para poder hacer las pruebas de QA necesarias?"*  
+> *"Corrige un bug y agrega el commit de bugfix. Al darle click a compartir, se abre un modal, sin embargo, hace que se quede parpadeando a lo loco tras darle click a whatsapp para compartir y volver a la pagina"*  
+> *"Y necesito otra cosa, como pruebo si me deja subir imagenes si no puedo iniciar el checkout?"*  
+> *"Haz la prueba que mencionas en el punto 3. Agrega también el registro a la `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* **Corrección del bug de parpadeo en modal de compartir (`9a85966`):**
+  * `campaignCatalog.css`: eliminación de `transform: translateY(-3px)` y de la transición de `transform` en `.campaign-card` / `.campaign-card:hover` (conservando `box-shadow` y `border-color`), evitando que `.campaign-card` generara un *containing block* sobre `position: fixed` y recortara el modal con `overflow: hidden` al volver de la pestaña de WhatsApp.
+  * `campaignShare.css`, `campaignShare.html`, `campaignShare.js`, `campaignShare.test.js`: centrado del diálogo vía Flexbox en `.share-backdrop` (sin `position: fixed` ni `transform` anidados), foco inicial y cierre accesible con tecla `Escape` + nuevo test unitario Jest.
+* **Siembra de datos QA ficticios en `mi-org`:**
+  * 5 campañas (`Viaje Mexico Dreamin 2026 - Estudiantes UADY`, `Becas Ingenieria & Ciencia 2026`, `Fondo Cerrado por Fecha`, `Fondo Meta Alcanzada 100%` y `Campana Oculta Inactiva`) y 4 donaciones iniciales (`Paid`, anónima con CFDI 4.0 `EKU9003173C9`, `Pending` y meta al 100%).
+* **Diagnóstico de bloqueo de Checkout en `mi-org` y prueba directa de `US-R2`:**
+  * Se identificó que `mi-org` cuenta con `ExternalCredential` `Stripe_Test_External` (`0ptbm000001Hei1AAC`), pero carece aún de la `NamedCredential` `Stripe_Test`, de `ExternalCredentialPrincipalAccess` en `Donation_Public_Guest` y de la actualización de `Donation_Portal_Base_URL`.
+  * Se probó el flujo backend de `US-R2` ejecutando `PublicDonationCommandService.createPendingDonation` con un PNG de `64x64` en Base64 (`qa-donor-avatar.png`) sobre `Becas Ingenieria & Ciencia 2026` (`a00bm00003REvv0AAD`) y pasándola a `Paid`.
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (`salesforce/`): **PASS** (`0` errores).
+* `npm run test:unit` (`salesforce/`): **PASS** (`3/3` suites, **`18/18` tests** pasando en `2.748 s`).
+* Despliegue LWC en `mi-org` (`0Afbm00000ogPV3CAM`) y republicación de `Donaciones_Mexico_Dreamin` (`08Pbm00001D2rYXEAZ`): **Succeeded** / **`Complete`**.
+* **Prueba `US-R2` en `mi-org` (`sf apex run`):**
+  * Donación creada: `a01bm00003K0fNtAAJ` (`DON-00004`, `$750.00 MXN`).
+  * Imagen publicada vía `ContentVersion` + `ContentDistribution` (`ContentDownloadUrl` generado en `orgfarm-4b855452bf-dev-ed.develop.file.force.com`).
+  * Proyección automática por `DonationProjectionTrigger`: `Donor_Recognition__c` `a02bm00000gNmlJAAS` (`REC-00002`, `Display_Name__c = 'Donante Con Foto QA'`).
+  * Verificación del endpoint público `PublicCampaignController.getActiveCampaigns()`: retorna la entrada `{"displayName":"Donante Con Foto QA","amount":750.00,"imageUrl":"..."}` lista para renderizarse en `donorWall`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* En el primer intento de la prueba anónima en `mi-org`, la consulta directa sobre `Donor_Recognition__c WHERE Source_Donation__c = :donationId` falló por falta de FLS de lectura del usuario administrador en `Source_Donation__c`; se ajustó la consulta de verificación a `Campaign__c` y se confirmó igualmente la salida pública vía `PublicCampaignController.getActiveCampaigns()` (`WITH SYSTEM_MODE`).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 2 a 2.5 horas depurando el bug CSS de `transform` + `position: fixed`, sembrando escenarios QA en org, diagnosticando `NamedCredential` y validando `ContentDistribution`.
+* **Tiempo real con IA:** Aproximadamente 10 minutos.
+* **Ahorro estimado:** ~92% en resolución de bug UI, preparación de entorno QA y validación de carga de imágenes.
+
+---
+
+### Entrada 18: Alineación de tarjetas en `campaignCatalog`, porcentaje a 1 decimal y diagnóstico de vistas internas en `mi-org`
+
+* **Fecha:** 18 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** `US-D1`, `US-D1c`, `US-S1`
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Da formato a el listado de campañas. Se ve medio chueco y descuadrado. Así también, en los porcentajes, limita a un decimal"*  
+> *"Pero no me sale ninguna campaña en mi salesforce, pero en la pagina sí"*  
+> *"Perfecto, genera el commit y agrega el registro a `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* **Alineación visual del catálogo de campañas (`campaignCatalog.html`, `campaignCatalog.css`, `campaignShare.css`):**
+  * Eliminación de `margin-top: auto` heredado en `.donate-button` (que empujaba botones, montos y barra hacia abajo en tarjetas más altas) y ajuste de `margin-top: 0` en `.share-button`.
+  * Contenedor `.card-actions` (`min-height: 5.85rem`), títulos `h3` (`min-height: 3.55rem`) y `height: 100%` en `.campaign-card` sobre un grid `repeat(auto-fit, minmax(300px, 1fr))`, más retiro del `border-top` vacío de `.campaign-wall`.
+* **Límite de 1 decimal en porcentajes (`PublicCampaignController.cls`, `PublicCampaignControllerTest.cls`, `campaignCatalog.html`):**
+  * Redondeo en Apex con `.setScale(1, System.RoundingMode.HALF_UP)` (evitando cadenas de 32 decimales como `33.3333...`) y renderizado en UI mediante `<lightning-formatted-number value={campaign.progressPercent} maximum-fraction-digits="1"></lightning-formatted-number>`.
+* **Diagnóstico de visibilidad en Salesforce interno (`mi-org`):**
+  * Verificación por SOQL de `5` registros en `Campaign__c` vs `0` en el objeto estándar `Campaign`, más `PermissionSetAssignment` (`Donation_Coordination` activo), explicando el uso de `/lightning/o/Campaign__c/list` con cambio de vista de `Recently Viewed` a `All`.
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (`salesforce/`): **PASS** (`0` errores).
+* `npm run test:unit` (`salesforce/`): **PASS** (`3/3` suites, `18/18` tests en `2.783 s`).
+* `sf project deploy start --test-level RunLocalTests --target-org mi-org --source-dir force-app` (Deploy ID `0Afbm00000ogS1VCAU`): **Succeeded** — **`49/49` pruebas Apex aprobadas** (`18758 ms`).
+* `sf community publish --name "Donaciones_Mexico_Dreamin" --target-org mi-org` (`08Pbm00001D2QyWEAV`): **`Complete`**.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* Sin errores: se corrigió el desfase de diseño dejado por la reubicación previa del botón `Apoyar esta causa` (`margin-top: auto` residual en CSS) y se actualizó `PublicCampaignControllerTest` para validar explícitamente el redondeo a `33.3` sobre `500 / 1500`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 45 a 60 minutos depurando CSS grid/flex, ajustando Apex + tests, desplegando, republicando el sitio y consultando objetos estándar vs custom en org.
+* **Tiempo real con IA:** Aproximadamente 4 minutos.
+* **Ahorro estimado:** ~92% en corrección UI/Apex y soporte operativo en org.
+
+---

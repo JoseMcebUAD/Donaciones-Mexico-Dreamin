@@ -30,7 +30,9 @@ public with sharing class PublicCampaignController {
             item.name = campaign.Name;
             item.goalAmount = campaign.Goal_Amount__c;
             item.raisedAmount = campaign.Raised_Amount__c == null ? 0 : campaign.Raised_Amount__c;
-            item.progressPercent = item.goalAmount > 0 ? (item.raisedAmount / item.goalAmount) * 100 : 0;
+            item.progressPercent = item.goalAmount > 0
+                ? ((item.raisedAmount / item.goalAmount) * 100).setScale(1, System.RoundingMode.HALF_UP)
+                : 0;
             Boolean isExpired = campaign.Expiration_Date__c != null && campaign.Expiration_Date__c < today;
             Boolean isFull = item.progressPercent >= 100 && !campaign.Allow_Additional_Donations__c;
             item.isDonationBlocked = isExpired || isFull;
