@@ -13,6 +13,6 @@ package.xml
 
 node_modules/
 
-# Metadata que requiere configuración manual en la org antes de deployar
-**/sharingRules/**
+# Sandbox bootstrap: these require site-specific / org-provisioned references.
+force-app/main/default/sharingRules/**
 **/assignmentRules/**

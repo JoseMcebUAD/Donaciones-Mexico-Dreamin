@@ -49,9 +49,10 @@ describe('c-donation-form', () => {
         element.campaign = { id: 'a001', name: 'Education fund' };
         document.body.appendChild(element);
         await flushPromises();
-        const inputs = element.shadowRoot.querySelectorAll('lightning-input');
-        const amountInput = inputs[0];
-        expect(amountInput).toBeDefined();
-        expect(amountInput.min).toBe('10');
+        const amountInput = [...element.shadowRoot.querySelectorAll('lightning-input')].find(
+            (input) => input.name === 'amount'
+        );
+        expect(amountInput).not.toBeUndefined();
+        expect(String(amountInput.min)).toBe('10');
     });
 });
