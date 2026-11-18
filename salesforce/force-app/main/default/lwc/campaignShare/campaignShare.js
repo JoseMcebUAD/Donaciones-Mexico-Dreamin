@@ -50,6 +50,12 @@ export default class CampaignShare extends LightningElement {
     openPopup() {
         this.isOpen = true;
         this.copied = false;
+        Promise.resolve().then(() => {
+            const popup = this.template.querySelector('.share-popup');
+            if (popup && typeof popup.focus === 'function') {
+                popup.focus();
+            }
+        });
     }
 
     closePopup() {
@@ -63,6 +69,12 @@ export default class CampaignShare extends LightningElement {
 
     handleBackdropClick(event) {
         if (event.target === event.currentTarget) {
+            this.closePopup();
+        }
+    }
+
+    handleKeyDown(event) {
+        if (event.key === 'Escape') {
             this.closePopup();
         }
     }
