@@ -42,6 +42,8 @@ export default class DonationForm extends LightningElement {
     recognitionType = 'Individual';
     isLoading = false;
     error;
+    privacyAccepted = false;
+    showPrivacyText = false;
 
     get nameRequired() {
         return !this.isAnonymous;
@@ -63,6 +65,14 @@ export default class DonationForm extends LightningElement {
         return this.recognitionType === 'Organization'
             ? 'Nombre de la empresa u organización'
             : 'Nombre para mostrar';
+    }
+
+    get privacyLinkLabel() {
+        return this.showPrivacyText ? 'Ocultar aviso' : 'Ver aviso de privacidad';
+    }
+
+    togglePrivacyText() {
+        this.showPrivacyText = !this.showPrivacyText;
     }
 
     handleChange(event) {
@@ -91,6 +101,10 @@ export default class DonationForm extends LightningElement {
         if (!fields.every((f) => f.checkValidity()) || !combos.every((c) => c.checkValidity())) {
             fields.forEach((f) => f.reportValidity());
             combos.forEach((c) => c.reportValidity());
+            return;
+        }
+        if (!this.privacyAccepted) {
+            this.error = 'Debes aceptar el aviso de privacidad para continuar.';
             return;
         }
         this.error = undefined;
