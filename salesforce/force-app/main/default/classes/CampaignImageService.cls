@@ -14,7 +14,6 @@ public with sharing class CampaignImageService {
         ContentDistribution dist = new ContentDistribution();
         dist.Name = 'CampaignCover-' + campaignId;
         dist.ContentVersionId = cv.Id;
-        dist.PreferencesAllowOriginalRelatedEntityDownload = true;
         dist.PreferencesLinkLatestVersion = true;
         dist.PreferencesNotifyOnVisit = false;
         dist.PreferencesPasswordRequired = false;
@@ -46,8 +45,7 @@ public with sharing class CampaignImageService {
         List<ImageView> result = new List<ImageView>();
         for (ContentDocumentLink link : [
             SELECT ContentDocumentId,
-                   ContentDocument.Title,
-                   ContentDocument.LatestPublishedVersion.ContentDownloadUrl
+                   ContentDocument.Title
             FROM ContentDocumentLink
             WHERE LinkedEntityId = :campaignId
             WITH USER_MODE

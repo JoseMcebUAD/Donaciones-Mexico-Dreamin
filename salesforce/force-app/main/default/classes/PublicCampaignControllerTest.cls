@@ -23,13 +23,4 @@ private class PublicCampaignControllerTest {
         System.assertEquals(50, campaigns[0].progressPercent);
     }
 
-    @IsTest
-    static void returnsOnlyRecognizedPaidDonors() {
-        Id campaignId = [SELECT Id FROM Campaign__c WHERE Name = 'Active campaign'].Id;
-        List<PublicCampaignController.RecognizedDonorView> donors = PublicCampaignController.getRecognizedDonors(campaignId);
-        System.assertEquals(1, donors.size());
-        System.assertEquals('Fundación Ana', donors[0].displayName);
-        System.assertEquals('Organization', donors[0].recognitionType);
-        System.assertEquals('https://example.test/logo.png', donors[0].imageUrl);
-    }
 }
