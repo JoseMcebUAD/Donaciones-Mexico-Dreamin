@@ -16,6 +16,7 @@ private class PublicDonationCommandServiceTest {
         r.needsInvoice = false;
         r.donorName = 'Test Donor';
         r.donorEmail = 'test@example.test';
+        r.privacyAccepted = true;
         return r;
     }
 
@@ -30,10 +31,11 @@ private class PublicDonationCommandServiceTest {
         Id donationId = PublicDonationCommandService.createPendingDonation(request, campaign.Id, 'MD-001', 'sess_001');
         Test.stopTest();
 
-        Donation__c donation = [SELECT Recognition_Image_URL__c, Recognition_Type__c FROM Donation__c WHERE Id = :donationId];
+        Donation__c donation = [SELECT Recognition_Image_URL__c, Recognition_Type__c, Privacy_Accepted__c FROM Donation__c WHERE Id = :donationId];
         System.assertNotEquals(null, donationId, 'Donation should be created.');
         System.assertEquals(null, donation.Recognition_Image_URL__c, 'No image URL should be set when no file is uploaded.');
         System.assertEquals('Individual', donation.Recognition_Type__c, 'Recognition_Type__c should default to Individual.');
+        System.assertEquals(true, donation.Privacy_Accepted__c, 'Privacy_Accepted__c should be persisted.');
     }
 
     @IsTest

@@ -55,16 +55,6 @@ export default class DonationForm extends LightningElement {
         return CFDI_USE_OPTIONS;
     }
 
-    get recognitionTypeOptions() {
-        return RECOGNITION_TYPE_OPTIONS;
-    }
-
-    get recognitionNameLabel() {
-        return this.recognitionType === 'Organization'
-            ? 'Nombre de la empresa u organización'
-            : 'Nombre para mostrar';
-    }
-
     get privacyLinkLabel() {
         return this.showPrivacyText ? 'Ocultar aviso' : 'Ver aviso de privacidad';
     }
@@ -139,7 +129,8 @@ export default class DonationForm extends LightningElement {
                 rfc: this.template.querySelector('[name="rfc"]')?.value,
                 postalCode: this.template.querySelector('[name="postalCode"]')?.value,
                 taxRegime: this.taxRegime,
-                cfdiUse: this.cfdiUse
+                cfdiUse: this.cfdiUse,
+                privacyAccepted: this.privacyAccepted
             });
             window.location.assign(response.checkoutUrl);
         } catch (error) {

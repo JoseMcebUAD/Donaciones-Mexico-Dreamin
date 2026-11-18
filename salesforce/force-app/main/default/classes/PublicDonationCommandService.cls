@@ -38,7 +38,8 @@ public without sharing class PublicDonationCommandService {
             Tax_Regime__c = request.taxRegime,
             CFDI_Use__c = request.cfdiUse,
             Checkout_Reference__c = checkoutReference,
-            Stripe_Session_Id__c = stripeSessionId
+            Stripe_Session_Id__c = stripeSessionId,
+            Privacy_Accepted__c = request.privacyAccepted == true
         );
         Database.SaveResult saveResult = Database.insert(donation, AccessLevel.SYSTEM_MODE);
         if (!saveResult.isSuccess()) {

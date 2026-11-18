@@ -226,44 +226,11 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 
 ---
 
-### Entrada 07: Plan de QA, ejecución automatizada y matriz de pruebas para `feat/US-D1` (`US-D1c`)
-### Entrada 07: Validación QA, pruebas automatizadas y corrección de test en `refactor/post-feedback` (`US-R1`, `US-R2`)
+### Entrada 07: Pruebas previas al despliegue en sandbox `mi-org` (LWC Jest, ESLint y Apex `RunLocalTests`)
+
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
-* **Historia(s) Relacionada(s):** US-R1, US-R2
-* **Hito:** Entrega 2 (Post-feedback)
-
-#### 1. Qué se pidió
-> *"Cambié de HU, válida esta nueva y ejecuta las pruebas automatizadas. Agrega también los resultados a `docs/bitacora_ia.md`"*
-
-#### 2. Qué se obtuvo
-* Revisión de los cambios de la rama `refactor/post-feedback` (`8fe6427..HEAD`):
-  * `US-R1` (`f8d766e`): eliminación de `recognitionType` en `donationForm`, `donorWall`, `PublicCampaignController` y `PublicDonationController` (fijando `'Individual'` en `PublicDonationCommandService`).
-  * `US-R2` (`8977d67`): reemplazo de URL de imagen por carga directa de archivo (`<= 2 MB`, Base64) en `donationForm` y publicación vía `ContentVersion` + `ContentDistribution` (`ContentDownloadUrl`) en `PublicDonationCommandService.publishDonorImage()`.
-* Corrección en `salesforce/force-app/main/default/lwc/donationForm/__tests__/donationForm.test.js` del test preexistente `enforces the Stripe minimum amount of 10 MXN on the amount input`, cambiando `querySelector('lightning-input[name="amount"]')` por `querySelectorAll('lightning-input')[0]` tras `await flushPromises()`.
-
-#### 3. Qué se verificó y cómo
-* `npm run lint` (en `salesforce/`): **PASS** (`0` errores, `0` warnings).
-* `npm run test:unit` (en `salesforce/`):
-  * Antes del fix: `1` suite en verde (`campaignCatalog.test.js`) y `1` fallo preexistente en `donationForm.test.js` (`amountInput` era `null` porque el stub de `lightning-input` no refleja `name` como atributo HTML).
-  * Después del fix: **PASS** — `2/2` suites (`campaignCatalog.test.js`, `donationForm.test.js`) y `4/4` tests en verde (`1.637 s`).
-* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000oeoHTCAY` contra `mi-org` / `jsvela111.cfef96266380@agentforce.com`): **FAIL en compilación (9 componentes)**, por lo que las pruebas Apex no llegaron a ejecutarse (`Passing: 0, Failing: 0, Total: 0`):
-  * **Fallo en `US-R2` (`PublicDonationCommandService.cls:71:14`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload` (bloquea en cascada `PublicDonationCommandServiceTest`, `PublicDonationController` y `PublicDonationControllerTest`).
-  * **Fallos preexistentes de `US-S5` (`CampaignImageService.cls`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload (17:14)` y `No such column 'ContentDownloadUrl' on entity 'ContentVersion' (47:41)` (bloquea `CampaignImageServiceTest` y `campaignImageUpload`).
-  * **Fallo preexistente de configuración (`Donation_Public_Guest`):** `Unable to find ExternalCredentialPrincipal: Stripe_Test_External-Stripe_Org_Principal`.
-
-#### 4. Qué se corrigió / Errores detectados de la IA
-* **Ajuste aplicado:** Se mantuvo sin cambios `handleImageChange` en `donationForm.js` al no presentar fallos en las pruebas y se corrigió únicamente el selector del stub en `donationForm.test.js`.
-
-#### 5. Aceleración estimada
-* **Estimación sin IA:** 30 a 45 minutos analizando el diff, ejecutando Jest/ESLint, corrigiendo el test y documentando en bitácora.
-* **Tiempo real con IA:** Aproximadamente 4 minutos.
-* **Ahorro estimado:** ~88% en validación QA y documentación.
-
----
-
-### Entrada 08: Bugfix de `ContentDistribution` / SOQL y despliegue validado en `mi-org` (`refactor/post-feedback`)
 * **Historia(s) Relacionada(s):** US-01 a US-10, US-D1b (validación integral pre-despliegue)
 * **Hito:** Entrega 1 / Entrega 2
 
@@ -305,67 +272,6 @@ Se ejecutaron las pruebas locales de frontend y la validación con pruebas Apex 
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
-* **Historia(s) Relacionada(s):** US-D1, US-D1c
-* **Hito:** Entrega 2
-
-#### 1. Qué se pidió
-> *"Genera un plan de QA para validar que la HU está correctamente implementada. Revisa cuál es el nombre de la rama, esa es la HU."*
-> *"agrega esto a la bitacora en `docs/bitacora_ia.md`. También si quieres genera el md con las pruebas automatizadas y manuales tal cual la compartes acá"*
-
-#### 2. Qué se obtuvo
-* Inspección de la rama `feat/US-D1` (`8fe6427..HEAD`), identificando la implementación de `US-D1c` (`c-campaign-share`, integración en `c-campaign-catalog`, auto-selección por `?campaign=<id>`, refactor UI del botón `Apoyar esta causa` y pruebas Jest).
-* Generación del documento `docs/qa-us-d1.md` con:
-  * Resultados reales de la **Fase 1 (Pruebas Automatizadas Locales)**.
-  * Matriz de pruebas manuales funcionales para **Fase 2 (`US-D1c`)**, **Fase 3 (Regresión `US-D1`)** y **Fase 4 (UI / Responsividad / Navegadores)**.
-
-#### 3. Qué se verificó y cómo
-* `npx sfdx-lwc-jest -- --verbose campaignShare` (en `salesforce/`): **PASS** (`10/10` pruebas unitarias en verde).
-* `npm run test:unit` (en `salesforce/`): **FAIL** (código de salida `1`). `campaignCatalog.test.js` provoca un rechazo no controlado `TypeError: anchor.scrollIntoView is not a function` en `campaignCatalog.js:68:16` porque JSDOM no implementa `Element.prototype.scrollIntoView` ni existe guarda/mock en el test.
-* `npm run lint` (en `salesforce/`): **FAIL** (código de salida `1`, `4` problemas: `3` errores y `1` warning):
-  * `campaignCatalog.js:19:18` (`no-unused-vars`: `'_'`) y `52:9` (directiva `eslint-disable` sin uso).
-  * `campaignShare.js:88:27` (`@lwc/lwc/no-async-operation`: `setTimeout`) y `106:18` (`no-unused-vars`: `'_'`).
-* `npm run prettier:verify` (en `salesforce/`): **FAIL** (código de salida `1`, `118` archivos con diferencias de formato en el repositorio, incluidos los archivos nuevos/modificados de `US-D1c`).
-
-#### 4. Qué se corrigió / Errores detectados por QA
-* **Hallazgos reportados (sin modificar código fuente en esta sesión de QA):**
-  1. **Bloqueante en Jest (`campaignCatalog.js:68`):** `anchor.scrollIntoView(...)` rompe la ejecución de `npm run test:unit` en JSDOM; requiere guarda (`if (typeof anchor.scrollIntoView === 'function')`) o mock en `campaignCatalog.test.js`.
-  2. **Errores de ESLint:** Uso de `setTimeout` sin directiva en `campaignShare.js` y variables `catch (_)` no permitidas por `no-unused-vars` en `campaignCatalog.js` y `campaignShare.js`.
-  3. **Accesibilidad pendiente de validar:** `campaignShare` implementa `role="dialog"` y `aria-modal="true"`, pero no cierra con la tecla `Escape`.
-
-#### 5. Aceleración estimada
-* **Estimación sin IA:** 40 a 60 minutos revisando el diff de la rama, ejecutando suites locales y redactando la matriz de pruebas QA + bitácora.
-* **Tiempo real con IA:** Aproximadamente 5 minutos.
-* **Ahorro estimado:** ~90% en análisis, ejecución automatizada y documentación QA.
-
----
-
-### Entrada 08: Bugfix de ESLint y `scrollIntoView` en JSDOM para `feat/US-D1` (`US-D1c`)
-* **Historia(s) Relacionada(s):** US-R1, US-R2, US-S5
-* **Hito:** Entrega 2 (Post-feedback)
-
-#### 1. Qué se pidió
-> *"Realiza los cambios necesarios en el código y en mi org. Valida bien antes de todo y si funciona, genera el commit como bugfix y agrega a la `docs/bitacora_ia.md`"*
-
-#### 2. Qué se obtuvo
-* Corrección en `salesforce/force-app/main/default/classes/PublicDonationCommandService.cls` (línea 71): reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload` en `ContentDistribution`.
-* Corrección en `salesforce/force-app/main/default/classes/CampaignImageService.cls`:
-  * Línea 17: reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload`.
-  * Líneas 47–50: eliminación de `ContentDocument.LatestPublishedVersion.ContentDownloadUrl` en el SOQL de `getCoverImages()` (campo no existente en `ContentVersion` y no utilizado en `ImageView`).
-* Configuración en `mi-org` (`jsvela111.cfef96266380@agentforce.com`): creación de la `ExternalCredential` `Stripe_Test_External` con el principal `Stripe_Org_Principal` (Deploy ID `0Afbm00000ofdS1CAI`) para habilitar el despliegue de `Donation_Public_Guest`, seguida del despliegue de `force-app` (Deploy ID `0Afbm00000oeSwuCAE`).
-
-#### 3. Qué se verificó y cómo
-* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000ofFpWCAU`): **PASS** — `45/45` pruebas Apex locales en verde (`0` fallos).
-* `sf project deploy start -o mi-org --source-dir force-app` (Deploy ID `0Afbm00000oeSwuCAE`): **Succeeded** (`100%`).
-* `sf apex run test -o mi-org -n PublicDonationCommandServiceTest -n PublicCampaignControllerTest -n PublicDonationControllerTest -r human -w 10` (Test Run ID `707bm00001XCGHg`): **PASS** — `11/11` pruebas (`100%`).
-* `npm run test:unit` y `npm run lint` (en `salesforce/`): **PASS** — `2/2` suites (`4/4` tests LWC Jest) y `0` errores de ESLint.
-
-#### 4. Qué se corrigió / Errores detectados de la IA
-* **Hallazgos corregidos:** `PreferencesAllowOriginalRelatedEntityDownload` no existe en `ContentDistribution` (el campo correcto es `PreferencesAllowOriginalDownload`) y `ContentDownloadUrl` pertenece a `ContentDistribution`, no a `ContentVersion`.
-
-#### 5. Aceleración estimada
-* **Estimación sin IA:** 40 a 60 minutos diagnosticando errores de metadata/SOQL, creando la External Credential en la org, desplegando y ejecutando todas las suites Apex y LWC.
-* **Tiempo real con IA:** Aproximadamente 5 minutos.
-* **Ahorro estimado:** ~90% en corrección, despliegue y validación integral.
 * **Historia(s) Relacionada(s):** US-01 a US-10, US-D1b (despliegue integral y suite de pruebas)
 * **Hito:** Entrega 1 / Entrega 2
 
@@ -410,34 +316,6 @@ Se corrigieron las suites de pruebas locales y de Apex, logrando un despliegue e
 * **Fecha:** 17 de noviembre de 2026
 * **Autor:** Jesús Méndez
 * **Herramienta:** Antigravity (Gemini)
-* **Historia(s) Relacionada(s):** US-D1, US-D1c
-* **Hito:** Entrega 2
-
-#### 1. Qué se pidió
-> *"Haz los cambios y genera un commit con el bugfix. ¿Estás 100% seguro de que no es cosa de mi org? Si sí, procede y entonces agrega la entrada a `docs/bitacora_ia.md` del bugfix"*
-
-#### 2. Qué se obtuvo
-* Corrección en `salesforce/force-app/main/default/lwc/campaignCatalog/campaignCatalog.js`:
-  * Guarda defensiva `if (anchor && typeof anchor.scrollIntoView === 'function')` en `_scrollToDonationForm()` para evitar `TypeError` en JSDOM (`sfdx-lwc-jest`) donde `Element.prototype.scrollIntoView` no existe.
-  * Cambio de `catch (_)` a `catch` y eliminación de la directiva `// eslint-disable-next-line @lwc/lwc/no-async-operation` sin uso.
-* Corrección en `salesforce/force-app/main/default/lwc/campaignShare/campaignShare.js`:
-  * Cambio de `catch (_)` a `catch` en `_fallbackCopy()`.
-  * Directiva `// eslint-disable-next-line @lwc/lwc/no-async-operation` sobre `setTimeout` en `_showCopied()` (el temporizador ya se limpia en `closePopup()` y `disconnectedCallback()`).
-
-#### 3. Qué se verificó y cómo
-* `npm run lint` (en `salesforce/`): **PASS** (código de salida `0`, `0` errores y `0` warnings).
-* `npm run test:unit` (en `salesforce/`):
-  * `campaignCatalog.test.js`: **PASS**
-  * `campaignShare.test.js`: **PASS**
-  * `donationForm.test.js`: **FAIL** (`1` test fallido preexistente fuera de `US-D1c`: `enforces the Stripe minimum amount of 10 MXN on the amount input`, `amountInput` es `null`). Total: `2/3` suites en verde, `16/17` tests en verde.
-
-#### 4. Qué se corrigió / Errores detectados de la IA
-* **Confirmación de entorno:** Los fallos no provenían de la org de Salesforce sino del entorno local de pruebas/linting (`JSDOM` sin `scrollIntoView` y reglas estrictas de `@salesforce/eslint-config-lwc`).
-
-#### 5. Aceleración estimada
-* **Estimación sin IA:** 20 a 30 minutos diagnosticando, corrigiendo y re-ejecutando Jest/ESLint.
-* **Tiempo real con IA:** Aproximadamente 3 minutos.
-* **Ahorro estimado:** ~88% en corrección y verificación.
 * **Historia(s) Relacionada(s):** US-D1, US-V2 (RF-D1a, RF-V1, RF-V2, M2)
 * **Hito:** Entrega 1 / Entrega 2
 
@@ -468,5 +346,200 @@ Se corrigieron las suites de pruebas locales y de Apex, logrando un despliegue e
 * **Estimación sin IA:** 20 a 30 minutos buscando IDs de sitios/Guest Users, asignando permisos y publicando por CLI.
 * **Tiempo real con IA:** Aproximadamente 2 minutos.
 * **Ahorro estimado:** ~90% en configuración post-despliegue.
+
+---
+
+### Entrada 10: Plan de QA, ejecución automatizada y matriz de pruebas para `feat/US-D1` (`US-D1c`)
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1, US-D1c
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Genera un plan de QA para validar que la HU está correctamente implementada. Revisa cuál es el nombre de la rama, esa es la HU."*
+> *"agrega esto a la bitacora en `docs/bitacora_ia.md`. También si quieres genera el md con las pruebas automatizadas y manuales tal cual la compartes acá"*
+
+#### 2. Qué se obtuvo
+* Inspección de la rama `feat/US-D1` (`8fe6427..HEAD`), identificando la implementación de `US-D1c` (`c-campaign-share`, integración en `c-campaign-catalog`, auto-selección por `?campaign=<id>`, refactor UI del botón `Apoyar esta causa` y pruebas Jest).
+* Generación del documento `docs/qa-us-d1.md` con:
+  * Resultados reales de la **Fase 1 (Pruebas Automatizadas Locales)**.
+  * Matriz de pruebas manuales funcionales para **Fase 2 (`US-D1c`)**, **Fase 3 (Regresión `US-D1`)** y **Fase 4 (UI / Responsividad / Navegadores)**.
+
+#### 3. Qué se verificó y cómo
+* `npx sfdx-lwc-jest -- --verbose campaignShare` (en `salesforce/`): **PASS** (`10/10` pruebas unitarias en verde).
+* `npm run test:unit` (en `salesforce/`): **FAIL** (código de salida `1`). `campaignCatalog.test.js` provoca un rechazo no controlado `TypeError: anchor.scrollIntoView is not a function` en `campaignCatalog.js:68:16` porque JSDOM no implementa `Element.prototype.scrollIntoView` ni existe guarda/mock en el test.
+* `npm run lint` (en `salesforce/`): **FAIL** (código de salida `1`, `4` problemas: `3` errores y `1` warning):
+  * `campaignCatalog.js:19:18` (`no-unused-vars`: `'_'`) y `52:9` (directiva `eslint-disable` sin uso).
+  * `campaignShare.js:88:27` (`@lwc/lwc/no-async-operation`: `setTimeout`) y `106:18` (`no-unused-vars`: `'_'`).
+* `npm run prettier:verify` (en `salesforce/`): **FAIL** (código de salida `1`, `118` archivos con diferencias de formato en el repositorio, incluidos los archivos nuevos/modificados de `US-D1c`).
+
+#### 4. Qué se corrigió / Errores detectados por QA
+* **Hallazgos reportados (sin modificar código fuente en esta sesión de QA):**
+  1. **Bloqueante en Jest (`campaignCatalog.js:68`):** `anchor.scrollIntoView(...)` rompe la ejecución de `npm run test:unit` en JSDOM; requiere guarda (`if (typeof anchor.scrollIntoView === 'function')`) o mock en `campaignCatalog.test.js`.
+  2. **Errores de ESLint:** Uso de `setTimeout` sin directiva en `campaignShare.js` y variables `catch (_)` no permitidas por `no-unused-vars` en `campaignCatalog.js` y `campaignShare.js`.
+  3. **Accesibilidad pendiente de validar:** `campaignShare` implementa `role="dialog"` y `aria-modal="true"`, pero no cierra con la tecla `Escape`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 40 a 60 minutos revisando el diff de la rama, ejecutando suites locales y redactando la matriz de pruebas QA + bitácora.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~90% en análisis, ejecución automatizada y documentación QA.
+
+---
+
+### Entrada 11: Bugfix de ESLint y `scrollIntoView` en JSDOM para `feat/US-D1` (`US-D1c`)
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-D1, US-D1c
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"Haz los cambios y genera un commit con el bugfix. ¿Estás 100% seguro de que no es cosa de mi org? Si sí, procede y entonces agrega la entrada a `docs/bitacora_ia.md` del bugfix"*
+
+#### 2. Qué se obtuvo
+* Corrección en `salesforce/force-app/main/default/lwc/campaignCatalog/campaignCatalog.js`:
+  * Guarda defensiva `if (anchor && typeof anchor.scrollIntoView === 'function')` en `_scrollToDonationForm()` para evitar `TypeError` en JSDOM (`sfdx-lwc-jest`) donde `Element.prototype.scrollIntoView` no existe.
+  * Cambio de `catch (_)` a `catch` y eliminación de la directiva `// eslint-disable-next-line @lwc/lwc/no-async-operation` sin uso.
+* Corrección en `salesforce/force-app/main/default/lwc/campaignShare/campaignShare.js`:
+  * Cambio de `catch (_)` a `catch` en `_fallbackCopy()`.
+  * Directiva `// eslint-disable-next-line @lwc/lwc/no-async-operation` sobre `setTimeout` en `_showCopied()` (el temporizador ya se limpia en `closePopup()` y `disconnectedCallback()`).
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (en `salesforce/`): **PASS** (código de salida `0`, `0` errores y `0` warnings).
+* `npm run test:unit` (en `salesforce/`):
+  * `campaignCatalog.test.js`: **PASS**
+  * `campaignShare.test.js`: **PASS**
+  * `donationForm.test.js`: **FAIL** (`1` test fallido preexistente fuera de `US-D1c`: `enforces the Stripe minimum amount of 10 MXN on the amount input`, `amountInput` es `null`). Total: `2/3` suites en verde, `16/17` tests en verde.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Confirmación de entorno:** Los fallos no provenían de la org de Salesforce sino del entorno local de pruebas/linting (`JSDOM` sin `scrollIntoView` y reglas estrictas de `@salesforce/eslint-config-lwc`).
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 20 a 30 minutos diagnosticando, corrigiendo y re-ejecutando Jest/ESLint.
+* **Tiempo real con IA:** Aproximadamente 3 minutos.
+* **Ahorro estimado:** ~88% en corrección y verificación.
+
+---
+
+### Entrada 12: Validación QA, pruebas automatizadas y corrección de test en `refactor/post-feedback` (`US-R1`, `US-R2`)
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-R1, US-R2
+* **Hito:** Entrega 2 (Post-feedback)
+
+#### 1. Qué se pidió
+> *"Cambié de HU, válida esta nueva y ejecuta las pruebas automatizadas. Agrega también los resultados a `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* Revisión de los cambios de la rama `refactor/post-feedback` (`8fe6427..HEAD`):
+  * `US-R1` (`f8d766e`): eliminación de `recognitionType` en `donationForm`, `donorWall`, `PublicCampaignController` y `PublicDonationController` (fijando `'Individual'` en `PublicDonationCommandService`).
+  * `US-R2` (`8977d67`): reemplazo de URL de imagen por carga directa de archivo (`<= 2 MB`, Base64) en `donationForm` y publicación vía `ContentVersion` + `ContentDistribution` (`ContentDownloadUrl`) en `PublicDonationCommandService.publishDonorImage()`.
+* Corrección en `salesforce/force-app/main/default/lwc/donationForm/__tests__/donationForm.test.js` del test preexistente `enforces the Stripe minimum amount of 10 MXN on the amount input`, cambiando `querySelector('lightning-input[name="amount"]')` por `querySelectorAll('lightning-input')[0]` tras `await flushPromises()`.
+
+#### 3. Qué se verificó y cómo
+* `npm run lint` (en `salesforce/`): **PASS** (`0` errores, `0` warnings).
+* `npm run test:unit` (en `salesforce/`):
+  * Antes del fix: `1` suite en verde (`campaignCatalog.test.js`) y `1` fallo preexistente en `donationForm.test.js` (`amountInput` era `null` porque el stub de `lightning-input` no refleja `name` como atributo HTML).
+  * Después del fix: **PASS** — `2/2` suites (`campaignCatalog.test.js`, `donationForm.test.js`) y `4/4` tests en verde (`1.637 s`).
+* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000oeoHTCAY` contra `mi-org` / `jsvela111.cfef96266380@agentforce.com`): **FAIL en compilación (9 componentes)**, por lo que las pruebas Apex no llegaron a ejecutarse (`Passing: 0, Failing: 0, Total: 0`):
+  * **Fallo en `US-R2` (`PublicDonationCommandService.cls:71:14`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload` (bloquea en cascada `PublicDonationCommandServiceTest`, `PublicDonationController` y `PublicDonationControllerTest`).
+  * **Fallos preexistentes de `US-S5` (`CampaignImageService.cls`):** `Variable does not exist: PreferencesAllowOriginalRelatedEntityDownload (17:14)` y `No such column 'ContentDownloadUrl' on entity 'ContentVersion' (47:41)` (bloquea `CampaignImageServiceTest` y `campaignImageUpload`).
+  * **Fallo preexistente de configuración (`Donation_Public_Guest`):** `Unable to find ExternalCredentialPrincipal: Stripe_Test_External-Stripe_Org_Principal`.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Ajuste aplicado:** Se mantuvo sin cambios `handleImageChange` en `donationForm.js` al no presentar fallos en las pruebas y se corrigió únicamente el selector del stub en `donationForm.test.js`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 30 a 45 minutos analizando el diff, ejecutando Jest/ESLint, corrigiendo el test y documentando en bitácora.
+* **Tiempo real con IA:** Aproximadamente 4 minutos.
+* **Ahorro estimado:** ~88% en validación QA y documentación.
+
+---
+
+### Entrada 13: Bugfix de `ContentDistribution` / SOQL y despliegue validado en `mi-org` (`refactor/post-feedback`)
+
+* **Fecha:** 17 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini)
+* **Historia(s) Relacionada(s):** US-R1, US-R2, US-S5
+* **Hito:** Entrega 2 (Post-feedback)
+
+#### 1. Qué se pidió
+> *"Realiza los cambios necesarios en el código y en mi org. Valida bien antes de todo y si funciona, genera el commit como bugfix y agrega a la `docs/bitacora_ia.md`"*
+
+#### 2. Qué se obtuvo
+* Corrección en `salesforce/force-app/main/default/classes/PublicDonationCommandService.cls` (línea 71): reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload` en `ContentDistribution`.
+* Corrección en `salesforce/force-app/main/default/classes/CampaignImageService.cls`:
+  * Línea 17: reemplazo de `PreferencesAllowOriginalRelatedEntityDownload` por `PreferencesAllowOriginalDownload`.
+  * Líneas 47–50: eliminación de `ContentDocument.LatestPublishedVersion.ContentDownloadUrl` en el SOQL de `getCoverImages()` (campo no existente en `ContentVersion` y no utilizado en `ImageView`).
+* Configuración en `mi-org` (`jsvela111.cfef96266380@agentforce.com`): creación de la `ExternalCredential` `Stripe_Test_External` con el principal `Stripe_Org_Principal` (Deploy ID `0Afbm00000ofdS1CAI`) para habilitar el despliegue de `Donation_Public_Guest`, seguida del despliegue de `force-app` (Deploy ID `0Afbm00000oeSwuCAE`).
+
+#### 3. Qué se verificó y cómo
+* `sf project deploy start -o mi-org --dry-run --test-level RunLocalTests --source-dir force-app` (Deploy ID `0Afbm00000ofFpWCAU`): **PASS** — `45/45` pruebas Apex locales en verde (`0` fallos).
+* `sf project deploy start -o mi-org --source-dir force-app` (Deploy ID `0Afbm00000oeSwuCAE`): **Succeeded** (`100%`).
+* `sf apex run test -o mi-org -n PublicDonationCommandServiceTest -n PublicCampaignControllerTest -n PublicDonationControllerTest -r human -w 10` (Test Run ID `707bm00001XCGHg`): **PASS** — `11/11` pruebas (`100%`).
+* `npm run test:unit` y `npm run lint` (en `salesforce/`): **PASS** — `2/2` suites (`4/4` tests LWC Jest) y `0` errores de ESLint.
+
+#### 4. Qué se corrigió / Errores detectados de la IA
+* **Hallazgos corregidos:** `PreferencesAllowOriginalRelatedEntityDownload` no existe en `ContentDistribution` (el campo correcto es `PreferencesAllowOriginalDownload`) y `ContentDownloadUrl` pertenece a `ContentDistribution`, no a `ContentVersion`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 40 a 60 minutos diagnosticando errores de metadata/SOQL, creando la External Credential en la org, desplegando y ejecutando todas las suites Apex y LWC.
+* **Tiempo real con IA:** Aproximadamente 5 minutos.
+* **Ahorro estimado:** ~90% en corrección, despliegue y validación integral.
+
+---
+
+### Entrada 14: Auditoría documental, diagrama ER, remediación de merge y corrida integral de QA (`feat-FAQ`)
+
+* **Fecha:** 18 de noviembre de 2026
+* **Autor:** Jesús Méndez
+* **Herramienta:** Antigravity (Gemini + subagentes `sf-qa-validator` y `doc-er-auditor`)
+* **Historia(s) Relacionada(s):** Todas (E1 y E2: `US-D1`–`US-S4`, `US-S5`, `US-D1c`, `US-R1`, `US-R2`, `US-UX1`, `US-UX2`, `issue-45`)
+* **Hito:** Entrega 2
+
+#### 1. Qué se pidió
+> *"/plan Valida que toda la documentación sea correcta `docs/backlog.md`, `docs/seguridad.md`, `docs/bitacora_ia.md` y `docs/contribucion.md`. Así también realiza una vez más las pruebas de QA y mantén registro de ello en la `docs/bitacora_ia.md`. Así también analiza el proyecto y genera un diagrama ER. Si necesitas subagentes o skills para completar las tareas, genera la propuesta en el plan."*
+
+#### 2. Qué se obtuvo
+* **Remediación de regresiones post-merge y estabilización Apex/LWC en `feat-FAQ`:**
+  * `salesforce/force-app/main/default/lwc/campaignCatalog/campaignCatalog.html`: corrección de etiquetas `<template>` / `<div>` / `<article>` duplicadas/desbalanceadas tras el merge `19c2f32` y restauración del estado vacío y `<c-donation-form>` junto con portada (`US-S5`), botón/popup `c-campaign-share` (`US-D1c`) y navegación `HOME`/`FAQ` (`US-UX1`).
+  * `salesforce/force-app/main/default/lwc/donationForm/donationForm.js`: eliminación de los getters huérfanos `recognitionTypeOptions()` y `recognitionNameLabel()` (`RECOGNITION_TYPE_OPTIONS` eliminado en `US-R1`) y envío de `privacyAccepted` en `startDonation()`.
+  * `salesforce/force-app/main/default/classes/PublicCampaignControllerTest.cls`: restauración de `Cover_Image_URL__c = 'https://example.test/cover.jpg'` en `@TestSetup`.
+  * `salesforce/force-app/main/default/classes/ContactController.cls`: incorporación de helper `throwAuraException` con `ex.setMessage(message)` para que `AuraHandledException` exponga el mensaje exacto en pruebas unitarias Apex.
+  * Persistencia completa de `Privacy_Accepted__c` (`issue-45`): agregado en `PublicDonationController.DonationRequest` / `validate()`, `PublicDonationCommandService.createPendingDonation()`, `Donation_Coordination.permissionset-meta.xml`, `PublicDonationControllerTest` (`rejectsMissingPrivacyAcceptance`) y `PublicDonationCommandServiceTest`.
+* **Diagrama ER y diccionario de datos:** creación de `docs/modelo_datos_er.md` con diagrama Mermaid `erDiagram` verificado 1:1 contra los metadatos XML (`Campaign__c`, `Donation__c`, `Donor_Recognition__c`, `Case`, `ContentDocument`, `ContentVersion`, `ContentDocumentLink`, `ContentDistribution`), reglas de validación, trigger `DonationProjectionTrigger` y matriz OWD/Sharing.
+* **Auditoría y alineación documental:**
+  * `docs/backlog.md`: actualización de fecha, evidencias de `US-D1b`, confirmación de `US-D5`/`US-V3`/`US-S4` como pendientes (`11/14 = 79%` base RF) e incorporación de sección aparte (`3.1`) para funcionalidades adicionales implementadas en E2 (`US-S5`, `US-D1c`, `US-R1`, `US-R2`, `US-UX1`, `US-UX2`, `issue-45`).
+  * `docs/seguridad.md`: corrección del patrón `with sharing` vs `without sharing` (`PublicDonationController`), corrección de permisos de `Donation_Public_Guest` (0 CRUD/FLS, 3 clases Apex incluyendo `ContactController`), inclusión de `Case`, `ContentDistribution` (`US-R2`), `CampaignImageService`, `DonationProjectionService`, `Privacy_Accepted__c` y exclusiones de `.forceignore`.
+  * `docs/contribucion.md`: actualización a 8 clases Apex de prueba + `DonationTestDataFactory`, consolidación de cambios recientes bajo Entrega 2 y atribución correcta (`JoseMcebUAD` en `feat/US-D1` y `refactor/post-feedback`; `Jsvela749` en QA, bugfixes, merges `#46`/`#49`, `US-D1b`, documentación y diagrama ER).
+  * `docs/bitacora_ia.md`: reconstrucción cronológica y renumeración completa de Entradas 07–14 eliminando los empalmes de merge previos.
+
+#### 3. Qué se verificó y cómo
+* **Línea base previa a los fixes (sobre `19c2f32`):**
+  * `npm run lint` (`salesforce/`): **FAIL** (`donationForm.js:59:16` — `'RECOGNITION_TYPE_OPTIONS' is not defined`, `no-undef`).
+  * `npm run test:unit` (`salesforce/`): **FAIL** (`campaignCatalog.test.js` no compiló por `LWC1058: Invalid HTML syntax`; `2/3` suites y `12/12` tests en las dos restantes).
+  * `sf project deploy start --dry-run --test-level RunLocalTests --target-org mi-org --source-dir force-app` (Deploy ID `0Afbm00000ofs1FCAQ`): **FAIL** (`78/78` metadatos compilados; `44/48` pruebas Apex, `85.1%` cobertura — 4 fallos preexistentes en `PublicCampaignControllerTest` y `ContactControllerTest`).
+* **Ejecución QA final y despliegue real en `mi-org` (post-fix):**
+  * `npm run lint` (`salesforce/`): **PASS** (exit code `0`, `0` errores).
+  * `npm run test:unit` (`salesforce/`): **PASS** — `3/3` suites (`campaignShare.test.js`, `donationForm.test.js`, `campaignCatalog.test.js`), `17/17` tests pasando (`1.916 s`).
+  * `npm run prettier:verify` (`salesforce/`): **FAIL** (exit code `1`, `134` archivos con diferencias de formato preexistentes en el repositorio).
+  * `sf project deploy start --dry-run --test-level RunLocalTests --target-org mi-org --source-dir force-app` (Deploy ID `0Afbm00000ofvK6CAI`): **PASS** — `78/78` componentes validados, **`49/49` pruebas Apex aprobadas** (`0` fallos, `30274 ms`).
+  * `sf project deploy start --test-level RunLocalTests --target-org mi-org --source-dir force-app` (Deploy ID `0Afbm00000ofchGCAQ`, `2026-11-18T06:40:17.000Z`): **Succeeded** — `78/78` componentes desplegados (`97` archivos, `0` errores de componente), **`49/49` pruebas Apex aprobadas** (`22966 ms`), **cobertura global `85.25%`** (clases del proyecto entre `79.31%` y `100%`).
+  * **Auditoría de secretos:** `git grep -i -E "sk_test_|sk_live_|whsec_"` y `git log -S "sk_test_" --oneline` → **PASS** (`0` claves reales expuestas; únicamente placeholders `sk_test_...` en documentación).
+
+#### 4. Qué se corrigió / Errores detectados por QA
+* Se repararon los bloqueantes de LWC (`campaignCatalog.html`, `donationForm.js`), los 4 fallos de Apex tests (`PublicCampaignControllerTest`, `ContactController`) y la persistencia de `Privacy_Accepted__c`, logrando validación y despliegue real exitoso al 100% en `mi-org`.
+* Quedan únicamente como entregables funcionales/documentales de cierre E2: la creación de `docs/preguntas_y_reportes.md` y la implementación de `US-D5`, `US-V3` y `US-S4`.
+
+#### 5. Aceleración estimada
+* **Estimación sin IA:** 4 a 5 horas auditando metadatos, reparando merges en LWC/bitácora, ejecutando suites locales + SFDX dry-run, generando el diagrama ER y alineando 4 documentos.
+* **Tiempo real con IA:** Aproximadamente 10 minutos (mediante orquestación paralela con 2 subagentes).
+* **Ahorro estimado:** ~96% en auditoría documental, modelado ER y validación QA integral.
 
 ---

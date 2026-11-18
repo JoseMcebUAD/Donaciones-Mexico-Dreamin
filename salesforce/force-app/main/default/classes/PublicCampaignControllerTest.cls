@@ -2,7 +2,7 @@
 private class PublicCampaignControllerTest {
     @TestSetup
     static void makeData() {
-        Campaign__c activeCampaign = new Campaign__c(Name = 'Active campaign', Goal_Amount__c = 1000, Is_Active__c = true);
+        Campaign__c activeCampaign = new Campaign__c(Name = 'Active campaign', Goal_Amount__c = 1000, Is_Active__c = true, Cover_Image_URL__c = 'https://example.test/cover.jpg');
         Campaign__c inactiveCampaign = new Campaign__c(Name = 'Inactive campaign', Goal_Amount__c = 500, Is_Active__c = false);
         insert new List<Campaign__c>{ activeCampaign, inactiveCampaign };
         insert new List<Donation__c>{

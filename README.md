@@ -44,10 +44,11 @@
 
 <!-- BACKLOG-END -->
 
-### (4) Seguridad y datos personales
+### (4) Seguridad, modelo ER y datos personales
 
 - [Seguridad, Stripe y Experience Cloud](docs/seguridad.md)
 - [Clasificación y tratamiento de datos personales (OA6)](docs/seguridad.md#4-clasificaci%C3%B3n-y-tratamiento-de-datos-personales-oa6)
+- [Modelo de datos y Diagrama ER](docs/modelo_datos_er.md)
 
 ### (5) Metadata respaldada
 
@@ -85,7 +86,7 @@ Portal público de donaciones para Mexico Dreamin. Permite consultar campañas a
 | [#28](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/28) | US-S3 — Confirmación manual de pago y envío de comprobante |
 | [#29](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/29) | US-V2 — Auditoría y prueba de seguridad para Guest User |
 
-**Entrega 2** — issues [#30](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30)–[#33](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/33): monto libre, confirmación automática vía webhook, validación de firma e idempotencia, auditoría de eventos rechazados.
+**Entrega 2** — issues [#30](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/30)–[#33](https://github.com/JoseMcebUAD/Donaciones-Mexico-Dreamin/issues/33) + mejoras post-feedback/UX: monto libre (`US-D1b`), portada de campaña (`US-S5`), compartir y deep-link (`US-D1c`), refactor de reconocimiento e imagen vía Files (`US-R1`/`US-R2`), FAQ y contacto vía `Case` (`US-UX1`/`US-UX2`), aviso de privacidad (`issue-45`), y pendientes de cierre E2 (`US-D5` webhook, `US-V3` HMAC/idempotencia, `US-S4` auditoría).
 
 ## Estructura
 
@@ -93,32 +94,49 @@ Portal público de donaciones para Mexico Dreamin. Permite consultar campañas a
 salesforce/
   force-app/main/default/
     classes/
-      PublicCampaignController       Campañas activas para el sitio público
-      PublicDonationController       Creación de donaciones y sesión Stripe
-      DonationManagementService      Confirmación de pago, comprobante, muro
-      DonationExpirationService      Batch que expira donaciones abandonadas
+      PublicCampaignController       Campañas activas y muro para el sitio público
+      PublicCampaignReadService      Lectura SYSTEM_MODE para catálogo y muro
+      PublicDonationController       Creación de donaciones (>= $10 MXN) y sesión Stripe
+      PublicDonationCommandService   Registro Pending, privacidad e imagen vía ContentDistribution
+      ContactController              Validación del formulario Contáctanos
+      ContactCommandService          Inserción SYSTEM_MODE de Case (Origin = Web)
+      CampaignImageService           Publicación de portada de campaña (staff)
+      DonationProjectionService      Recálculo de Campaign__c y proyección Donor_Recognition__c
+      DonationManagementService      Confirmación manual de pago y comprobante por correo
+      DonationExpirationService      Batch/Schedulable que expira donaciones abandonadas
       StripeCheckoutService          Callout a Stripe Test Checkout API
-      *Test.cls                      Pruebas Apex (6/6 aprobadas, 92% cobertura)
+      *Test.cls                      8 clases de prueba Apex + DonationTestDataFactory
     lwc/
-      campaignCatalog                Catálogo público con auto-redirect
-      donationForm                   Formulario: anónimo, crédito, factura CFDI 4.0
+      campaignCatalog                Catálogo público, navegación HOME/FAQ y deep-link
+      campaignShare                  Popup de compartir campaña en redes y enlace
+      campaignImageUpload            Carga de imagen de portada en Campaign__c (staff)
+      donationForm                   Formulario: anónimo, crédito, factura CFDI 4.0, privacidad
       donationConfirmation           Acción de Tesorería — Confirm Payment
       donationThankYou               Página de agradecimiento segura
       donorWall                      Muro de reconocimiento público
+      faqSection                     Preguntas frecuentes y formulario Contáctanos
     objects/
-      Campaign__c                    Meta, fecha de expiración, donaciones adicionales
-      Donation__c                    Estado, modalidad, campos fiscales RFC/CFDI 4.0
+      Campaign__c                    Meta, fecha de expiración, portada, donaciones adicionales
+      Donation__c                    Estado, modalidad, campos CFDI 4.0, privacidad
+      Donor_Recognition__c           Proyección pública de donantes con consentimiento
     permissionsets/
       Donation_Coordination          Acceso de coordinación
       Donation_Treasury              Acceso de tesorería
-      Donation_Public_Guest          Mínimo privilegio para Guest User
+      Donation_Public_Guest          Mínimo privilegio para Guest User (0 CRUD/FLS, 3 clases Apex)
+    triggers/
+      DonationProjectionTrigger      Sincronización de Campaign__c y Donor_Recognition__c
     tabs/                            Tabs de Campaign__c y Donation__c
-    sharingRules/                    Reglas de compartición de Campaign__c
+    sharingRules/                    Reglas de compartición (excluidas en .forceignore hasta configurar sitio)
+    assignmentRules/                 Regla de asignación de Case (excluida en .forceignore hasta configurar org)
 docs/
-  backlog.md                         Historias de usuario y criterios de aceptación
-  seguridad.md                       Configuración Experience Cloud y pruebas Guest User
-  e1-implementation-status.md        IDs de deploy y resultados de verificación
-  bitacora_ia.md                     Bitácora de uso de IA
+  backlog.md                         Historias de usuario, criterios Gherkin y alcance adicional E2
+  seguridad.md                       Configuración Experience Cloud, permisos Guest User y OA6
+  modelo_datos_er.md                 Diagrama ER Mermaid, diccionario de datos y reglas
+  contribucion.md                    Registro de contribuciones del equipo (E1 y E2)
+  e1-implementation-status.md        IDs de deploy y resultados de verificación E1
+  qa-us-d1.md                        Plan y reporte QA de US-D1c
+  stripe-test-setup.md               Guía de configuración segura de Stripe Test
+  bitacora_ia.md                     Bitácora cronológica de uso de IA (Entradas 01–14)
 scripts/
   create_issues.ps1                  Crea los issues del backlog en GitHub
   update_backlog.ps1                 Actualiza subtareas y % de avance en README
@@ -143,4 +161,5 @@ Tras el despliegue, sigue [docs/seguridad.md](docs/seguridad.md) para publicar e
 
 ## Pruebas
 
-6/6 clases Apex aprobadas con 92% de cobertura global. Cubren: campañas activas/inactivas, suma solo de pagadas, muro con consentimiento, validación RFC, desacoplamiento anónimo/factura, registro pendiente con `HttpCalloutMock`, expiración de donaciones abandonadas y bloqueo de confirmación duplicada. Jest cubre catálogo, estado vacío y cambio a anónimo. Ver IDs de verificación en [docs/e1-implementation-status.md](docs/e1-implementation-status.md).
+- **Entrega 1 (snapshot):** 6/6 pruebas dirigidas aprobadas con 92% de cobertura en `jDiaz` (ver [docs/e1-implementation-status.md](docs/e1-implementation-status.md)).
+- **Estado actual (Entrega 2 en `feat-FAQ`, desplegado en `mi-org`):** ESLint `0` errores, LWC Jest `3/3` suites (`17/17` tests pasando), y `RunLocalTests` en `mi-org` (`0Afbm00000ofchGCAQ`) con **49/49 pruebas Apex aprobadas** y **85.25% de cobertura global** (`78/78` componentes desplegados). Ver detalle en [docs/bitacora_ia.md](docs/bitacora_ia.md).

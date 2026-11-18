@@ -17,6 +17,7 @@ public without sharing class PublicDonationController {
         @AuraEnabled public String postalCode;
         @AuraEnabled public String taxRegime;
         @AuraEnabled public String cfdiUse;
+        @AuraEnabled public Boolean privacyAccepted;
     }
 
     public class CheckoutResponse {
@@ -88,6 +89,9 @@ public without sharing class PublicDonationController {
             String.isBlank(request.postalCode) || String.isBlank(request.taxRegime) || String.isBlank(request.cfdiUse)
         )) {
             throw new AuraHandledException('Provide a valid legal name, RFC, postal code, tax regime, and CFDI use.');
+        }
+        if (request.privacyAccepted != true) {
+            throw new AuraHandledException('Debes aceptar el aviso de privacidad para continuar.');
         }
     }
 

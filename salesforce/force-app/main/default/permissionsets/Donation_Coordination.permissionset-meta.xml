@@ -25,6 +25,7 @@
     <fieldPermissions><editable>false</editable><field>Donation__c.Recognition_Name__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Recognition_Type__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donation__c.Recognition_Image_URL__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Donation__c.Privacy_Accepted__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Amount__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Image_URL__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Is_Public__c</field><readable>true</readable></fieldPermissions>

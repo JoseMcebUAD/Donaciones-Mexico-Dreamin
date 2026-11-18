@@ -30,6 +30,7 @@ private class PublicDonationControllerTest {
         request.postalCode = '97000';
         request.taxRegime = '601';
         request.cfdiUse = 'D04';
+        request.privacyAccepted = true;
         return request;
     }
 
@@ -43,12 +44,13 @@ private class PublicDonationControllerTest {
             Test.startTest();
             PublicDonationController.CheckoutResponse response = PublicDonationController.startDonation(validRequest(campaign.Id));
             Test.stopTest();
-            Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c FROM Donation__c WHERE Id = :response.donationId];
+            Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c, Privacy_Accepted__c FROM Donation__c WHERE Id = :response.donationId];
             System.assertEquals('Pending', donation.Payment_Status__c);
             System.assertEquals('cs_test_123', donation.Stripe_Session_Id__c);
             System.assertEquals('XAXX010101000', donation.RFC__c);
             System.assert(donation.Checkout_Reference__c.startsWith('MD-'));
             System.assertEquals('Ana Example', donation.Recognition_Name__c);
+            System.assertEquals(true, donation.Privacy_Accepted__c);
             System.assertEquals('https://checkout.stripe.test/session', response.checkoutUrl);
         }
     }
@@ -107,6 +109,21 @@ private class PublicDonationControllerTest {
             Donation__c donation = [SELECT Amount__c, Payment_Status__c FROM Donation__c WHERE Id = :response.donationId];
             System.assertEquals(10.00, donation.Amount__c);
             System.assertEquals('Pending', donation.Payment_Status__c);
+        }
+    }
+
+    @IsTest
+    static void rejectsMissingPrivacyAcceptance() {
+        User testUser = DonationTestDataFactory.createTestUser();
+        System.runAs(testUser) {
+            Campaign__c campaign = new Campaign__c(Name = 'Privacy campaign', Goal_Amount__c = 500, Is_Active__c = true);
+            insert campaign;
+            PublicDonationController.DonationRequest noPrivacy = validRequest(campaign.Id);
+            noPrivacy.privacyAccepted = false;
+            try {
+                PublicDonationController.startDonation(noPrivacy);
+                System.assert(false, 'Donations without privacy acceptance must be rejected.');
+            } catch (AuraHandledException expected) { }
         }
     }
 }

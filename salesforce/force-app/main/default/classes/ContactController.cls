@@ -6,14 +6,20 @@ public with sharing class ContactController {
     @AuraEnabled
     public static void createCase(String name, String email, String message) {
         if (String.isBlank(name)) {
-            throw new AuraHandledException('El nombre es obligatorio.');
+            throwAuraException('El nombre es obligatorio.');
         }
         if (String.isBlank(email) || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new AuraHandledException('Ingresa un correo electrónico válido.');
+            throwAuraException('Ingresa un correo electrónico válido.');
         }
         if (String.isBlank(message)) {
-            throw new AuraHandledException('El mensaje no puede estar vacío.');
+            throwAuraException('El mensaje no puede estar vacío.');
         }
         ContactCommandService.insertCase(name.trim(), email.trim(), message.trim());
+    }
+
+    private static void throwAuraException(String message) {
+        AuraHandledException ex = new AuraHandledException(message);
+        ex.setMessage(message);
+        throw ex;
     }
 }
