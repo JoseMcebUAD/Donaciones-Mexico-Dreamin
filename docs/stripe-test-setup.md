@@ -10,8 +10,8 @@ Cada intento usa una referencia `MD-...` en `client_reference_id` y `metadata[sa
 
 1. Configura `Stripe_Test` con URL `https://api.stripe.com` y la External Credential `Stripe_Test_External`.
 2. Usa un principal de Named Principal con el encabezado Basic requerido por Stripe, construido desde el secreto almacenado en Salesforce.
-3. Asigna `Stripe_Test_External-Stripe_Org_Principal` en el permission set `Donation Public Guest`.
-4. Asigna ese permission set al Guest User del sitio y al usuario interno que prueba Checkout. Este permission set no concede acceso directo a objetos de campaña, reconocimiento o donación.
+3. Vincula manualmente en Setup el principal `Stripe_Test_External-Stripe_Org_Principal` al perfil/Guest User o Permission Set correspondiente para `callout:Stripe_Test` (retirado de `Donation_Public_Guest.permissionset-meta.xml` en E2 para permitir despliegues en sandboxes limpias).
+4. Asigna `Donation Public Guest` al Guest User del sitio y al usuario interno que prueba Checkout. Este permission set no concede acceso directo a objetos de campaña, reconocimiento o donación (`0` CRUD/FLS; habilita únicamente `PublicCampaignController`, `PublicDonationController` y `ContactController`).
 5. Configura `Donation_Portal_Base_URL` a `https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones`.
 
 El servidor, y no el navegador, genera estas rutas:
@@ -29,6 +29,6 @@ El servidor, y no el navegador, genera estas rutas:
 
 ## Wall of Fame
 
-Sólo donaciones `Paid`, no anónimas y con consentimiento generan `Donor_Recognition__c`. El portal recibe únicamente nombre de reconocimiento, tipo, monto y URL HTTPS opcional de logo/foto; nunca RFC, correo, datos fiscales ni identificadores de donación.
+Sólo donaciones `Paid`, no anónimas y con consentimiento generan `Donor_Recognition__c` (proyectado por `DonationProjectionTrigger` / `DonationProjectionService`). El portal recibe únicamente nombre de reconocimiento, monto y URL pública generada internamente por `ContentDistribution` cuando el donante adjunta imagen (`<= 2 MB`, `US-R2`); nunca RFC, correo, datos fiscales ni identificadores de donación.
 
 El Payment Link compartido de Stripe puede servir para comprobar la cuenta Test, pero no es el flujo principal porque no conserva el monto ni la referencia única por intento de Salesforce.

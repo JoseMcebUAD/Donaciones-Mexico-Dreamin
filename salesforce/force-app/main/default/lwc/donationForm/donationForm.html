@@ -16,10 +16,14 @@
             <template if:true={wantsRecognition}>
                 <div class="recognition-fields">
                     <p>Wall of Fame</p>
-                    <lightning-radio-group name="recognitionType" label="¿Cómo deseas aparecer?" options={recognitionTypeOptions} value={recognitionType} type="button" onchange={handleRecognitionTypeChange} required></lightning-radio-group>
-                    <lightning-input name="recognitionName" label={recognitionNameLabel} maxlength="100" onchange={handleChange} required></lightning-input>
-                    <lightning-input name="recognitionImageUrl" label="URL pública de tu logo o foto (opcional)" type="url" maxlength="255" placeholder="https://ejemplo.com/logo.png" onchange={handleChange}></lightning-input>
-                    <p class="recognition-help">Usa sólo una URL HTTPS pública. No subas documentos personales ni imágenes que no tengas derecho a publicar.</p>
+                    <lightning-input name="recognitionName" label="Nombre para mostrar" maxlength="100" onchange={handleChange} required></lightning-input>
+                    <div class="recognition-image-upload">
+                        <label class="slds-form-element__label">Foto o logo (opcional)</label>
+                        <input type="file" accept=".jpg,.jpeg,.png,.gif,.webp" onchange={handleImageChange} />
+                        <template if:true={recognitionImageFileName}>
+                            <p class="recognition-image-name">{recognitionImageFileName}</p>
+                        </template>
+                    </div>
                 </div>
             </template>
             <template if:true={needsInvoice}>
@@ -34,6 +38,20 @@
             </template>
             <template if:true={error}><p class="form-error">{error}</p></template>
             <template if:true={isLoading}><lightning-spinner alternative-text="Creando pago seguro" size="small"></lightning-spinner></template>
+            <div class="privacy-block">
+                <lightning-input name="privacyAccepted" label="He leído y acepto el aviso de privacidad" type="checkbox" checked={privacyAccepted} onchange={handleChange}></lightning-input>
+                <button type="button" class="privacy-link" onclick={togglePrivacyText}>{privacyLinkLabel}</button>
+                <template if:true={showPrivacyText}>
+                    <div class="privacy-text">
+                        <p><strong>AVISO DE PRIVACIDAD — Mexico Dreamin</strong></p>
+                        <p><strong>Responsable:</strong> Mexico Dreamin A.C.</p>
+                        <p><strong>Finalidad:</strong> procesar tu donativo, emitir CFDI si aplica, y mostrarte en el muro de reconocimiento si lo autorizas.</p>
+                        <p><strong>Datos recabados:</strong> nombre, correo electrónico y datos fiscales (si solicitas factura).</p>
+                        <p><strong>Derechos ARCO:</strong> contactanos@mexicodreamin.com</p>
+                        <p>No compartimos tus datos con terceros salvo los requeridos por la Ley para el procesamiento del pago (Stripe). Aviso completo en cumplimiento de la LFPDPPP.</p>
+                    </div>
+                </template>
+            </div>
             <button class="checkout-button" type="button" onclick={submit} disabled={isLoading}>Continuar al pago seguro <span aria-hidden="true">→</span></button>
             <p class="secure-note"><lightning-icon icon-name="utility:lock" size="xx-small"></lightning-icon> Serás redirigido a Stripe para completar el pago.</p>
         </div>

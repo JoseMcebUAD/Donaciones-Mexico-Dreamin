@@ -48,31 +48,45 @@ describe('c-donation-form', () => {
         const element = createElement('c-donation-form', { is: DonationForm });
         element.campaign = { id: 'a001', name: 'Education fund' };
         document.body.appendChild(element);
-        await flushPromises();
 
-        const inputs = element.shadowRoot.querySelectorAll('lightning-input');
-        const recognition = inputs[4];
-        recognition.name = 'wantsRecognition';
-        recognition.type = 'checkbox';
-        recognition.checked = true;
-        recognition.dispatchEvent(new CustomEvent('change'));
-        await flushPromises();
+        const findInput = (name) =>
+            [...element.shadowRoot.querySelectorAll('lightning-input')].find(
+                (input) => input.name === name
+            );
 
-        const anonymous = inputs[3];
-        anonymous.name = 'isAnonymous';
-        anonymous.type = 'checkbox';
-        anonymous.checked = true;
-        anonymous.dispatchEvent(new CustomEvent('change'));
-        await flushPromises();
+        const wantsRecognitionInput = findInput('wantsRecognition');
+        const needsInvoiceInput = findInput('needsInvoice');
+        const isAnonymousInput = findInput('isAnonymous');
 
-        expect(inputs[4].checked).toBe(false);
+        wantsRecognitionInput.checked = true;
+        wantsRecognitionInput.dispatchEvent(new CustomEvent('change'));
+        needsInvoiceInput.checked = true;
+        needsInvoiceInput.dispatchEvent(new CustomEvent('change'));
+        await Promise.resolve();
+
+        expect(element.shadowRoot.querySelector('.recognition-fields')).not.toBeNull();
+        expect(element.shadowRoot.querySelector('.invoice-fields')).not.toBeNull();
+
+        isAnonymousInput.checked = true;
+        isAnonymousInput.dispatchEvent(new CustomEvent('change'));
+        await Promise.resolve();
+
+        expect(wantsRecognitionInput.checked).toBe(false);
+        expect(wantsRecognitionInput.disabled).toBe(true);
+        expect(needsInvoiceInput.checked).toBe(true);
         expect(element.shadowRoot.querySelector('.recognition-fields')).toBeNull();
+        expect(element.shadowRoot.querySelector('.invoice-fields')).not.toBeNull();
     });
 
-    it('enforces the Stripe minimum amount of 10 MXN on the amount input', () => {
+    it('enforces the Stripe minimum amount of 10 MXN on the amount input', async () => {
         const element = createElement('c-donation-form', { is: DonationForm });
         element.campaign = { id: 'a001', name: 'Education fund' };
         document.body.appendChild(element);
+        await flushPromises();
+        const inputs = element.shadowRoot.querySelectorAll('lightning-input');
+        const amountInput = inputs[0];
+        expect(amountInput).toBeDefined();
+        expect(amountInput.min).toBe('10');
         const amountInput = [...element.shadowRoot.querySelectorAll('lightning-input')].find(
             (input) => input.name === 'amount'
         );

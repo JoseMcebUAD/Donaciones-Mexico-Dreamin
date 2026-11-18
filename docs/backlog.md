@@ -2,18 +2,19 @@
 
 **Programa:** SF Vibe Lab (UADY - Salesforce, Mérida)  
 **Equipo:** Consultoría e Implementación SF Vibe Lab  
-**Hitos del Proyecto:** Entrega 1 (E1: 10 de noviembre de 2026) y Entrega 2 (E2: 17 de noviembre de 2026)  
-**Última actualización:** 10 de noviembre de 2026 (cierre de Entrega 1 e incorporación de acuerdos con cliente de sesiones del 3 y 6 de noviembre)
+**Hitos del Proyecto:** Entrega 1 (E1: 10 de noviembre de 2026) y Entrega 2 (E2: 17–18 de noviembre de 2026)  
+**Última actualización:** 18 de noviembre de 2026 (validación técnica de Entrega 2, alcance adicional post-feedback/UX/seguridad y enlace al modelo ER)  
+**Artefactos relacionados:** [Modelo de Datos y ER](modelo_datos_er.md) · [Seguridad](seguridad.md) · [Contribución](contribucion.md) · [QA US-D1c](qa-us-d1.md)
 
 ---
 
 ## 1. Resumen y Estado de Avance
 
-| Métrica | Entrega 1 (E1) | Entrega 2 (E2) |
+| Métrica (Backlog Base RF) | Entrega 1 (E1) | Entrega 2 (E2) |
 | :--- | :---: | :---: |
-| **Historias comprometidas** | 10 | 14 (10 de E1 + 4 de E2) |
-| **Historias cumplidas** | 10 | 11 |
-| **% de Avance** | **100%** | **79%** |
+| **Historias base comprometidas** | 10 | 14 (10 de E1 + 4 de E2) |
+| **Historias base cumplidas** | 10 | 11 (10/10 E1 · 1/4 E2 base = 25%) |
+| **% de Avance (Backlog Base RF)** | **100%** | **79%** |
 
 > **Fórmulas de cálculo de avance:**
 >
@@ -21,7 +22,7 @@
 >
 > $$\text{Avance E2} = \left(\frac{\text{Historias cumplidas totales}}{\text{Total historias backlog (14)}}\right) \times 100$$
 >
-> *Nota:* Una historia cuenta como cumplida únicamente cuando se demuestran todos sus acceptance criteria con evidencia verificable (demo/video/capturas) en modo de prueba sin violar los mínimos obligatorios M1-M3.
+> *Nota:* Una historia cuenta como cumplida únicamente cuando se demuestran todos sus acceptance criteria con evidencia verificable (demo/video/capturas/pruebas) en modo de prueba sin violar los mínimos obligatorios M1-M3. Las métricas anteriores corresponden exclusivamente a las 14 historias base derivadas de los Requerimientos Funcionales (RF). Las mejoras e historias adicionales implementadas en Entrega 2 (post-feedback, UX y privacidad) se documentan por separado en la [Sección 3.1](#31-alcance-adicional-implementado-en-entrega-2-post-feedback-ux-y-seguridad).
 
 ---
 
@@ -39,10 +40,10 @@
 | **US-S2** | RF-S2, RF-F2 | E1 | Monitoreo y filtro de facturas (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
 | **US-S3** | RF-S3 | E1 | Confirmación manual y comprobante (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
 | **US-V2** | RF-V2, M2 | E1 | Prueba de seguridad de Guest User (Staff Coordinación) | Cumplida | [docs/seguridad.md](seguridad.md) · [Video demo E1](https://youtu.be/_o0NqD-dlAc) |
-| **US-D1b** | RF-D1b | E2 | Donación con monto libre $\ge \$10.00\text{ MXN}$ (Donante) | Cumplida | Pendiente (implementado en commit `a35a447`) |
-| **US-D5** | RF-D5, RF-V3a | E2 | Confirmación automática vía webhook (Donante) | Pendiente | `[Enlace a demo/captura]` |
-| **US-V3** | RF-V3b, M3 | E2 | Validación de firma e idempotencia (Staff Tesorería) | Pendiente | `[Enlace a demo/captura]` |
-| **US-S4** | RF-S4 | E2 | Auditoría de webhook y avisos descartados (Staff Tesorería) | Pendiente | `[Enlace a demo/captura]` |
+| **US-D1b** | RF-D1b | E2 | Donación con monto libre $\ge \$10.00\text{ MXN}$ (Donante) | Cumplida | Commit `a35a447` · `PublicDonationControllerTest` y `donationForm.test.js` (`8700165`, `b0da3ea`) |
+| **US-D5** | RF-D5, RF-V3a | E2 | Confirmación automática vía webhook (Donante) | Pendiente | Sin endpoint `@RestResource` implementado en código |
+| **US-V3** | RF-V3b, M3 | E2 | Validación de firma e idempotencia (Staff Tesorería) | Pendiente | Sin verificación HMAC `Stripe-Signature` ni idempotencia en código |
+| **US-S4** | RF-S4 | E2 | Auditoría de webhook y avisos descartados (Staff Tesorería) | Pendiente | Sin log de auditoría/avisos rechazados en metadata |
 
 ---
 
@@ -259,7 +260,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA1 (Criterio mínimo):** Dado que seleccioné una campaña activa, cuando capturo en el formulario un monto personalizado válido mayor o igual al mínimo de Stripe ($\ge \$10.00\text{ MXN}$ o $\ge \$0.50\text{ USD}$), entonces la pasarela de prueba me cobra exactamente esa cantidad y la donación en Salesforce registra idéntico importe.
   * **CA2 (Criterio propio / Negativo - Validación de umbral mínimo de Stripe):** Dado que un donante captura un valor numérico menor a $\$10.00\text{ MXN}$ (o $\$0.50\text{ USD}$ si opera en dicha divisa), un número negativo o cero, cuando intenta avanzar, entonces el formulario bloquea la transición a Stripe y muestra una advertencia indicando el monto mínimo procesable por la pasarela.
 * **Estado:** Cumplida
-* **Evidencia:** Pendiente (implementado en commit `a35a447`)
+* **Evidencia:** Commit `a35a447` (`PublicDonationController.MIN_DONATION_AMOUNT_MXN = 10.00`, atributo `min="10"` en `donationForm.html`), pruebas Apex `PublicDonationControllerTest.rejectsAmountBelowStripeMinimum` y `acceptsCustomAmountAtStripeMinimum`, y prueba Jest `enforces the Stripe minimum amount of 10 MXN on the amount input` en `donationForm.test.js` (estabilizada en `8700165` / `b0da3ea`, 17/17 pruebas LWC Jest en verde).
 
 ---
 
@@ -276,7 +277,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo):** Dado que la donación pasó a pagada de forma automática, cuando reviso mi bandeja de entrada, entonces recibo de inmediato el comprobante con los identificadores de la donación, campaña, monto, fecha, desglose fiscal (si aplica) y correo de soporte institucional.
   * **CA3 (Criterio propio / Negativo - Manejo de webhook por sesión expirada):** Dado que un usuario cerró la pasarela y Stripe emite un webhook de expiración (`checkout.session.expired`), cuando Salesforce procesa el evento, entonces actualiza la donación a estado "Cancelada / Expirada" sin detonar comprobante ni sumar a la campaña.
 * **Estado:** Pendiente
-* **Evidencia:** `[Enlace a video demo / captura]`
+* **Evidencia / Verificación en código:** Auditoría sobre `salesforce/force-app/main/default/` al commit `19c2f32` confirma que aún **no existe** ninguna clase `@RestResource` / `RestContext` para recepción de webhooks de Stripe.
 
 ---
 
@@ -293,7 +294,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo - Idempotencia ante reintentos):** Dado que Stripe retransmite el mismo evento de pago en dos ocasiones por reintentos de red, cuando ambos mensajes son recibidos en el endpoint, entonces el sistema procesa el primero y detecta el segundo como duplicado, manteniendo una sola donación pagada y emitiendo un único comprobante.
   * **CA3 (Criterio propio - Resguardo de secretos M3):** Dado que se verifica la firma mediante el `Signing Secret`, cuando se audita el código Apex, componentes y el repositorio público de GitHub, entonces se demuestra que la clave no se encuentra expuesta en texto plano ni en el historial de commits, residiendo únicamente en Custom Metadata o Named Credentials protegidas.
 * **Estado:** Pendiente
-* **Evidencia:** `[Enlace a video demo / captura]`
+* **Evidencia / Verificación en código:** Auditoría sobre `salesforce/force-app/main/default/` confirma que aún **no existe** verificación HMAC SHA-256 de `Stripe-Signature` ni campo/mecanismo de idempotencia de eventos webhook (`Stripe_Event_Id__c`).
 
 ---
 
@@ -310,13 +311,30 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo):** Dado que un aviso fue descartado (por firma apócrifa, referencia inexistente o error en payload), cuando staff ingresa al registro de avisos rechazados, entonces visualiza la fecha/hora de recepción y el motivo exacto del descarte.
   * **CA3 (Criterio propio - Protección de datos en bitácora):** Dado que se genera un registro de auditoría de integración, cuando staff consulta el log de error, entonces se verifica que la bitácora no almacena datos confidenciales de tarjetas ni secretos de la pasarela.
 * **Estado:** Pendiente
-* **Evidencia:** `[Enlace a video demo / captura]`
+* **Evidencia / Verificación en código:** Auditoría sobre `salesforce/force-app/main/default/objects/` confirma que aún **no existe** campo de origen de confirmación ni objeto/bitácora de avisos webhook rechazados.
+
+---
+
+## 3.1 Alcance Adicional Implementado en Entrega 2 (Post-Feedback, UX y Seguridad)
+
+Además del backlog base de RF (`US-D1`–`US-V2` y `US-D1b`–`US-S4`), durante la Entrega 2 se implementaron las siguientes historias derivadas de retroalimentación del producto, experiencia de usuario y cumplimiento de privacidad:
+
+| ID | Título / Alcance | Estado | Artefactos principales | Evidencia (commits / pruebas) |
+| :--- | :--- | :---: | :--- | :--- |
+| **US-S5** | Carga y visualización de imagen de portada por campaña | Implementada | `Campaign__c.Cover_Image_URL__c`, `CampaignImageService` (`with sharing`, `WITH USER_MODE`), `campaignImageUpload` (`lightning__RecordPage` en `Campaign__c`), renderizado en `campaignCatalog` | Commits `d67bf7e`, `9d2b047`, `b0da3ea`, `f9a3282` (PR `#38` `8fe6427`) · `CampaignImageServiceTest` (3 métodos) |
+| **US-D1c** | Botón de compartir campaña en redes/enlace y auto-selección por URL (`?campaign=<id>`) | Implementada | LWC `campaignShare`, reubicación del botón `Apoyar esta causa →` en `.card-body` e integración de `?campaign=` con scroll suave en `campaignCatalog` | Commits `37dcad3`, `771a3d0`, `0d74a21`, `12ee8cd`, `36c12d5`, `9d4fe27` (PR `#46` `19c2f32`) · 10 tests Jest (`campaignShare.test.js`) + 3 tests Jest (`campaignCatalog.test.js`) · [Reporte QA](qa-us-d1.md) |
+| **US-R1** | Eliminación del selector `Recognition_Type__c` en el formulario público y muro | Implementada | Simplificación de `donationForm`, `donorWall`, `PublicCampaignController` y `PublicDonationController`; `PublicDonationCommandService` fija `'Individual'` internamente | Commit `f8d766e` (PR `#49` `3e1fd12`) |
+| **US-R2** | Carga directa de imagen de reconocimiento (`<= 2 MB`) vía Salesforce Files | Implementada | Selector de archivo Base64 en `donationForm` y publicación en `PublicDonationCommandService.publishDonorImage()` mediante `ContentVersion` + `ContentDistribution` (`ContentDownloadUrl`) | Commits `8977d67`, `b0da3ea` (PR `#49` `3e1fd12`) · `PublicDonationCommandServiceTest` (3 métodos) |
+| **US-UX1** | Sección de Preguntas Frecuentes (FAQ) con navegación `HOME` / `FAQ` | Implementada | LWC `faqSection` (acordeón de 3 preguntas frecuentes) y barra de navegación sin recarga en `campaignCatalog` | Commit `b814314` |
+| **US-UX2** | Formulario de contacto público (**Contáctanos**) que crea `Case` en Salesforce | Implementada *(con asignación diferida)* | Formulario en `faqSection`, `ContactController` (`with sharing`), `ContactCommandService` (`without sharing`, `AccessLevel.SYSTEM_MODE`), habilitación en `Donation_Public_Guest`, `Case.assignmentRules-meta.xml` | Commits `7d55eb2`, `5920f4f` · `ContactControllerTest` (4 métodos) · *Nota:* `Case.assignmentRules-meta.xml` está excluido temporalmente en `salesforce/.forceignore` (ver `PENDING_IMPLEMENTATIONS.md`) |
+| **issue-45** | Aceptación explícita del Aviso de Privacidad (LFPDPPP) en formulario de donación | Implementada | Campo `Donation__c.Privacy_Accepted__c` (`Checkbox`), checkbox obligatorio y aviso LFPDPPP en `donationForm`, validación y persistencia en `PublicDonationController` / `PublicDonationCommandService`, FLS lectura en `Donation_Coordination` | Commit `300f806` + cierre de persistencia en `PublicDonationControllerTest` (`rejectsMissingPrivacyAcceptance` / `createsPendingDonationAndStripeCheckout`) y `PublicDonationCommandServiceTest` |
 
 ---
 
 ## 4. Registro de Acuerdos y Decisiones con el Cliente
 
-*Documentación de trazabilidad para el cumplimiento de los Criterios C4 y C7 (enlazada con `docs/preguntas_y_reportes.md` y `docs/bitacora_ia.md`).*
+*Documentación de trazabilidad para el cumplimiento de los Criterios C4 y C7 (enlazada con [Modelo de Datos y ER](modelo_datos_er.md) y [Bitácora de IA](bitacora_ia.md)).*  
+> **Nota:** El archivo `docs/preguntas_y_reportes.md` (requerido como entregable independiente para preguntas al cliente y reportes) **sigue pendiente de creación** en `docs/`.
 
 | Fecha | Origen / Dudas Planteadas | Respuesta del Cliente / Decisión Acordada | Historias Impactadas |
 | :--- | :--- | :--- | :--- |

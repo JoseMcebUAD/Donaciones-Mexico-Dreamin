@@ -19,9 +19,9 @@ private class PublicDonationControllerTest {
         request.amount = 250;
         request.isAnonymous = false;
         request.wantsRecognition = true;
-        request.recognitionType = 'Individual';
         request.recognitionName = 'Ana Example';
-        request.recognitionImageUrl = 'https://example.test/ana.png';
+        request.recognitionImageBase64 = null;
+        request.recognitionImageFileName = null;
         request.needsInvoice = true;
         request.donorName = 'Ana Example';
         request.donorEmail = 'ana@example.test';
@@ -30,6 +30,7 @@ private class PublicDonationControllerTest {
         request.postalCode = '97000';
         request.taxRegime = '601';
         request.cfdiUse = 'D04';
+        request.privacyAccepted = true;
         return request;
     }
 

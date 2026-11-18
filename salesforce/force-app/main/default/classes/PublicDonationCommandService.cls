@@ -26,11 +26,9 @@ public without sharing class PublicDonationCommandService {
             Payment_Status__c = 'Pending',
             Is_Anonymous__c = request.isAnonymous,
             Wants_Recognition__c = request.isAnonymous ? false : request.wantsRecognition,
-            Recognition_Type__c = request.wantsRecognition ? request.recognitionType : null,
+            Recognition_Type__c = request.wantsRecognition ? 'Individual' : null,
             Recognition_Name__c = request.wantsRecognition ? request.recognitionName.trim() : null,
-            Recognition_Image_URL__c = request.wantsRecognition && !String.isBlank(request.recognitionImageUrl)
-                ? request.recognitionImageUrl.trim()
-                : null,
+            Recognition_Image_URL__c = null,
             Needs_Invoice__c = request.needsInvoice,
             Donor_Name__c = request.isAnonymous ? null : request.donorName,
             Donor_Email__c = request.donorEmail,
@@ -40,12 +38,44 @@ public without sharing class PublicDonationCommandService {
             Tax_Regime__c = request.taxRegime,
             CFDI_Use__c = request.cfdiUse,
             Checkout_Reference__c = checkoutReference,
-            Stripe_Session_Id__c = stripeSessionId
+            Stripe_Session_Id__c = stripeSessionId,
+            Privacy_Accepted__c = request.privacyAccepted == true
         );
         Database.SaveResult saveResult = Database.insert(donation, AccessLevel.SYSTEM_MODE);
         if (!saveResult.isSuccess()) {
             throw new AuraHandledException('Checkout could not be recorded. Please try again later.');
         }
-        return saveResult.getId();
+        Id donationId = saveResult.getId();
+        if (request.wantsRecognition && !String.isBlank(request.recognitionImageBase64)) {
+            String imageUrl = publishDonorImage(donationId, request.recognitionImageBase64, request.recognitionImageFileName);
+            Database.update(new Donation__c(Id = donationId, Recognition_Image_URL__c = imageUrl), AccessLevel.SYSTEM_MODE);
+        }
+        return donationId;
+    }
+
+    private static String publishDonorImage(Id donationId, String base64Data, String fileName) {
+        String rawBase64 = base64Data.contains(',') ? base64Data.substringAfter(',') : base64Data;
+        String safeFileName = String.isBlank(fileName) ? 'donor-image.jpg' : fileName;
+
+        ContentVersion cv = new ContentVersion();
+        cv.Title = safeFileName;
+        cv.PathOnClient = safeFileName;
+        cv.VersionData = EncodingUtil.base64Decode(rawBase64);
+        cv.FirstPublishLocationId = donationId;
+        Database.insert(cv, AccessLevel.SYSTEM_MODE);
+
+        cv = [SELECT Id FROM ContentVersion WHERE Id = :cv.Id WITH SYSTEM_MODE LIMIT 1];
+
+        ContentDistribution dist = new ContentDistribution();
+        dist.Name = 'DonorImage-' + donationId;
+        dist.ContentVersionId = cv.Id;
+        dist.PreferencesAllowOriginalDownload = true;
+        dist.PreferencesLinkLatestVersion = true;
+        dist.PreferencesNotifyOnVisit = false;
+        dist.PreferencesPasswordRequired = false;
+        Database.insert(dist, AccessLevel.SYSTEM_MODE);
+
+        dist = [SELECT DistributionPublicUrl, ContentDownloadUrl FROM ContentDistribution WHERE Id = :dist.Id WITH SYSTEM_MODE LIMIT 1];
+        return dist.ContentDownloadUrl != null ? dist.ContentDownloadUrl : dist.DistributionPublicUrl;
     }
 }

@@ -1,0 +1,34 @@
+<template>
+    <button class="share-button" type="button" onclick={openPopup}>
+        Compartir <span aria-hidden="true">↗</span>
+    </button>
+
+    <template if:true={isOpen}>
+        <div class="share-backdrop" onclick={handleBackdropClick}>
+            <div class="share-popup" role="dialog" aria-modal="true" aria-labelledby="share-popup-title" onclick={stopPropagation}>
+                <div class="share-popup-header">
+                    <h2 id="share-popup-title" class="share-popup-title">{campaign.name}</h2>
+                    <button class="share-close" type="button" onclick={closePopup} aria-label="Cerrar">×</button>
+                </div>
+
+                <p class="share-popup-label">Comparte esta campaña</p>
+
+                <div class="share-url-row">
+                    <span class="share-url-display">{shareUrl}</span>
+                    <button class="share-copy-button" type="button" onclick={copyLink}>
+                        <template if:false={copied}>Copiar enlace</template>
+                        <template if:true={copied}>¡Copiado!</template>
+                    </button>
+                </div>
+
+                <div class="share-social-row">
+                    <a class="share-social-btn share-fb" href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Compartir en Facebook">Facebook</a>
+                    <a class="share-social-btn share-wa" href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label="Compartir en WhatsApp">WhatsApp</a>
+                    <a class="share-social-btn share-x" href={xUrl} target="_blank" rel="noopener noreferrer" aria-label="Compartir en X">X</a>
+                    <a class="share-social-btn share-li" href={linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label="Compartir en LinkedIn">LinkedIn</a>
+                    <a class="share-social-btn share-email" href={emailUrl} aria-label="Compartir por correo">Email</a>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

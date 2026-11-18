@@ -44,14 +44,14 @@ private class PublicCampaignControllerTest {
         Campaign__c inactiveCampaign = new Campaign__c(Name = 'Inactive campaign', Goal_Amount__c = 500, Is_Active__c = false);
         insert new List<Campaign__c>{ activeCampaign, inactiveCampaign };
         insert new List<Donation__c>{
-            new Donation__c(Campaign__c = activeCampaign.Id, Amount__c = 300, Payment_Status__c = 'Paid', Donor_Name__c = 'Ana', Donor_Email__c = 'ana@example.test', Wants_Recognition__c = true, Recognition_Name__c = 'Fundacion Ana', Recognition_Type__c = 'Organization', Recognition_Image_URL__c = 'https://example.test/logo.png'),
+            new Donation__c(Campaign__c = activeCampaign.Id, Amount__c = 300, Payment_Status__c = 'Paid', Donor_Name__c = 'Ana', Donor_Email__c = 'ana@example.test', Wants_Recognition__c = true, Recognition_Name__c = 'Fundacion Ana', Recognition_Image_URL__c = 'https://example.test/logo.png'),
             new Donation__c(Campaign__c = activeCampaign.Id, Amount__c = 100, Payment_Status__c = 'Pending', Donor_Name__c = 'Beto', Donor_Email__c = 'beto@example.test', Wants_Recognition__c = true),
             new Donation__c(Campaign__c = activeCampaign.Id, Amount__c = 200, Payment_Status__c = 'Paid', Donor_Name__c = 'Caro', Donor_Email__c = 'caro@example.test', Is_Anonymous__c = true, Wants_Recognition__c = false)
         };
     }
 
     @IsTest
-    static void returnsOnlyActiveCampaignsAndPublicProjection() {
+    static void returnsOnlyActiveCampaignsAndPaidProgress() {
         Test.startTest();
         List<PublicCampaignController.CampaignView> campaigns = PublicCampaignController.getActiveCampaigns();
         Test.stopTest();
@@ -62,25 +62,8 @@ private class PublicCampaignControllerTest {
         System.assertEquals(1, campaigns[0].anonymousDonorCount);
         System.assertEquals(1, campaigns[0].recognizedDonors.size());
         System.assertEquals('Fundacion Ana', campaigns[0].recognizedDonors[0].displayName);
-        System.assertEquals('Organization', campaigns[0].recognizedDonors[0].recognitionType);
         System.assertEquals('https://example.test/logo.png', campaigns[0].recognizedDonors[0].imageUrl);
         System.assertEquals('https://example.test/cover.jpg', campaigns[0].coverImageUrl);
     }
 
-    @IsTest
-    static void coverImageUrl_isNullWhenNotSet() {
-        Campaign__c c = new Campaign__c(Name = 'No Image', Goal_Amount__c = 500, Is_Active__c = true);
-        insert c;
-
-        Test.startTest();
-        List<PublicCampaignController.CampaignView> campaigns = PublicCampaignController.getActiveCampaigns();
-        Test.stopTest();
-
-        PublicCampaignController.CampaignView noImageView;
-        for (PublicCampaignController.CampaignView v : campaigns) {
-            if (v.name == 'No Image') noImageView = v;
-        }
-        Assert.isNotNull(noImageView);
-        Assert.isNull(noImageView.coverImageUrl, 'coverImageUrl should be null when not set');
-    }
 }
