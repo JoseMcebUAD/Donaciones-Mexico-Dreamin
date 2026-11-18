@@ -28,6 +28,7 @@ salesforce/                         Proyecto Salesforce DX
     objects/                         Campaign__c y Donation__c
     permissionsets/                  Permission Sets de operación
 docs/
+  index.html                         Página estática para GitHub Pages
   backlog.md                         Historias de usuario
   seguridad.md                       Configuración manual y pruebas Guest User
   bitacora_ia.md                     Registro de IA
