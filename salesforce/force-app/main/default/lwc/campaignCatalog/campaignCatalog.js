@@ -83,9 +83,11 @@ export default class CampaignCatalog extends LightningElement {
     }
 
     selectCampaign(event) {
-        this.selectedCampaign = this.campaigns.find(
-            (campaign) => campaign.campaignId === event.currentTarget.dataset.id
-        );
+        const dataId = event.currentTarget.dataset.id;
+        console.log('[catalog] data-id from button:', dataId);
+        const found = this.campaigns.find((campaign) => campaign.campaignId === dataId);
+        console.log('[catalog] campaign found:', JSON.stringify(found));
+        this.selectedCampaign = found;
         this._scrollToDonationForm();
     }
 }

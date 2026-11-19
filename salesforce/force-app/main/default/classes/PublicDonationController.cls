@@ -26,7 +26,8 @@ public without sharing class PublicDonationController {
     }
 
     @AuraEnabled
-    public static CheckoutResponse prepareDonation(DonationRequest request) {
+    public static CheckoutResponse prepareDonation(String requestJson) {
+        DonationRequest request = (DonationRequest) JSON.deserialize(requestJson, DonationRequest.class);
         validate(request);
         Campaign__c campaign = PublicDonationCommandService.findActiveCampaign(request.campaignId);
         validateCampaignCapacity(campaign);

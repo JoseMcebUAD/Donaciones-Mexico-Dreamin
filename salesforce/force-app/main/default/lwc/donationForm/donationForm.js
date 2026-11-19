@@ -104,7 +104,9 @@ export default class DonationForm extends LightningElement {
     }
 
     async submit() {
-const fields = [...this.template.querySelectorAll('lightning-input')];
+        console.log('[form] campaign recibido:', JSON.stringify(this.campaign));
+        console.log('[form] campaignId a enviar:', this.campaign?.campaignId, typeof this.campaign?.campaignId);
+        const fields = [...this.template.querySelectorAll('lightning-input')];
         const combos = [...this.template.querySelectorAll('lightning-combobox')];
         if (!fields.every((f) => f.checkValidity()) || !combos.every((c) => c.checkValidity())) {
             fields.forEach((f) => f.reportValidity());
@@ -118,7 +120,7 @@ const fields = [...this.template.querySelectorAll('lightning-input')];
         this.error = undefined;
         this.isLoading = true;
         try {
-            const prepared = await prepareDonation({ request: {
+            const prepared = await prepareDonation({ requestJson: JSON.stringify({
                 campaignId: this.campaign.campaignId,
                 amount: Number(this.amount),
                 isAnonymous: this.isAnonymous,
@@ -135,7 +137,7 @@ const fields = [...this.template.querySelectorAll('lightning-input')];
                 taxRegime: this.taxRegime,
                 cfdiUse: this.cfdiUse,
                 privacyAccepted: this.privacyAccepted
-            }});
+            }) });
             const checkout = await openCheckout({ checkoutReference: prepared.checkoutReference });
             window.location.assign(checkout.checkoutUrl);
         } catch (error) {
