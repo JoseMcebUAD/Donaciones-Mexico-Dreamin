@@ -1,7 +1,7 @@
 // Public AuraEnabled boundary. It exposes only immutable, non-sensitive DTOs.
 public with sharing class PublicCampaignController {
     public class CampaignView {
-        @AuraEnabled public Id id;
+        @AuraEnabled public String campaignId;
         @AuraEnabled public String name;
         @AuraEnabled public Decimal goalAmount;
         @AuraEnabled public Decimal raisedAmount;
@@ -27,7 +27,7 @@ public with sharing class PublicCampaignController {
         for (PublicCampaignReadService.CampaignSnapshot snapshot : PublicCampaignReadService.fetchActiveCampaigns()) {
             Campaign__c campaign = snapshot.campaign;
             CampaignView item = new CampaignView();
-            item.id = campaign.Id;
+            item.campaignId = campaign.Id;
             item.name = campaign.Name;
             item.goalAmount = campaign.Goal_Amount__c;
             item.raisedAmount = campaign.Raised_Amount__c == null ? 0 : campaign.Raised_Amount__c;

@@ -31,6 +31,8 @@ const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 export default class DonationForm extends LightningElement {
     @api campaign;
     amount = 500;
+    donorName = '';
+    donorEmail = '';
     isAnonymous = false;
     wantsRecognition = false;
     needsInvoice = false;
@@ -102,7 +104,7 @@ export default class DonationForm extends LightningElement {
     }
 
     async submit() {
-        const fields = [...this.template.querySelectorAll('lightning-input')];
+const fields = [...this.template.querySelectorAll('lightning-input')];
         const combos = [...this.template.querySelectorAll('lightning-combobox')];
         if (!fields.every((f) => f.checkValidity()) || !combos.every((c) => c.checkValidity())) {
             fields.forEach((f) => f.reportValidity());
@@ -117,7 +119,7 @@ export default class DonationForm extends LightningElement {
         this.isLoading = true;
         try {
             const prepared = await prepareDonation({ request: {
-                campaignId: this.campaign.id,
+                campaignId: this.campaign.campaignId,
                 amount: Number(this.amount),
                 isAnonymous: this.isAnonymous,
                 wantsRecognition: this.wantsRecognition,
@@ -125,8 +127,8 @@ export default class DonationForm extends LightningElement {
                 recognitionImageBase64: this.recognitionImageBase64,
                 recognitionImageFileName: this.recognitionImageFileName,
                 needsInvoice: this.needsInvoice,
-                donorName: this.template.querySelector('[name="donorName"]').value,
-                donorEmail: this.template.querySelector('[name="donorEmail"]').value,
+                donorName: this.donorName,
+                donorEmail: this.donorEmail,
                 legalName: this.template.querySelector('[name="legalName"]')?.value,
                 rfc: this.template.querySelector('[name="rfc"]')?.value,
                 postalCode: this.template.querySelector('[name="postalCode"]')?.value,
@@ -137,7 +139,7 @@ export default class DonationForm extends LightningElement {
             const checkout = await openCheckout({ checkoutReference: prepared.checkoutReference });
             window.location.assign(checkout.checkoutUrl);
         } catch (error) {
-            this.error = error.body?.message || 'Unable to start checkout.';
+            this.error = error.body?.message || error.message || 'Unable to start checkout.';
         } finally {
             this.isLoading = false;
         }

@@ -2,7 +2,7 @@ public without sharing class PublicDonationController {
     private static final Decimal MIN_DONATION_AMOUNT_MXN = 10.00;
 
     public class DonationRequest {
-        @AuraEnabled public Id campaignId;
+        @AuraEnabled public String campaignId;
         @AuraEnabled public Decimal amount;
         @AuraEnabled public Boolean isAnonymous;
         @AuraEnabled public Boolean wantsRecognition;
@@ -69,7 +69,7 @@ public without sharing class PublicDonationController {
     }
 
     private static void validate(DonationRequest request) {
-        if (request == null || request.campaignId == null) {
+        if (request == null || String.isBlank(request.campaignId)) {
             throw new AuraHandledException('Selecciona una campaña activa.');
         }
         if (request.amount == null || request.amount < MIN_DONATION_AMOUNT_MXN) {
