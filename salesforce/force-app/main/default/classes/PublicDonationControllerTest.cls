@@ -52,7 +52,7 @@ private class PublicDonationControllerTest {
             Campaign__c campaign = new Campaign__c(Name = 'Public campaign', Goal_Amount__c = 500, Is_Active__c = true);
             insert campaign;
             Test.startTest();
-            PublicDonationController.CheckoutResponse response = PublicDonationController.prepareDonation(validRequest(campaign.Id));
+            PublicDonationController.CheckoutResponse response = PublicDonationController.prepareDonation(JSON.serialize(validRequest(campaign.Id)));
             Test.stopTest();
             Donation__c donation = [SELECT Payment_Status__c, Stripe_Session_Id__c, RFC__c, Checkout_Reference__c, Recognition_Name__c, Privacy_Accepted__c FROM Donation__c WHERE Checkout_Reference__c = :response.checkoutReference];
             System.assertEquals('Pending', donation.Payment_Status__c);
@@ -74,7 +74,7 @@ private class PublicDonationControllerTest {
             PublicDonationController.DonationRequest invalidRfc = validRequest(campaign.Id);
             invalidRfc.rfc = 'BAD';
             try {
-                PublicDonationController.prepareDonation(invalidRfc);
+                PublicDonationController.prepareDonation(JSON.serialize(invalidRfc));
                 System.assert(false, 'Invalid RFC must be rejected.');
             } catch (AuraHandledException expected) { }
         }
@@ -85,7 +85,7 @@ private class PublicDonationControllerTest {
         Campaign__c campaign = new Campaign__c(Name = 'Inactive campaign', Goal_Amount__c = 500, Is_Active__c = false);
         insert campaign;
         try {
-            PublicDonationController.prepareDonation(validRequest(campaign.Id));
+            PublicDonationController.prepareDonation(JSON.serialize(validRequest(campaign.Id)));
             System.assert(false, 'Inactive campaigns must never create a Checkout Session.');
         } catch (AuraHandledException expected) { }
     }
@@ -98,7 +98,7 @@ private class PublicDonationControllerTest {
             PublicDonationController.DonationRequest lowAmount = validRequest(campaign.Id);
             lowAmount.amount = 9.99;
             try {
-                PublicDonationController.prepareDonation(lowAmount);
+                PublicDonationController.prepareDonation(JSON.serialize(lowAmount));
                 System.assert(false, 'Amount below 10 MXN must be rejected.');
             } catch (AuraHandledException expected) { }
         }
@@ -113,7 +113,7 @@ private class PublicDonationControllerTest {
             PublicDonationController.DonationRequest minRequest = validRequest(campaign.Id);
             minRequest.amount = 10.00;
             Test.startTest();
-            PublicDonationController.CheckoutResponse response = PublicDonationController.prepareDonation(minRequest);
+            PublicDonationController.CheckoutResponse response = PublicDonationController.prepareDonation(JSON.serialize(minRequest));
             Test.stopTest();
             Donation__c donation = [SELECT Amount__c, Payment_Status__c FROM Donation__c WHERE Checkout_Reference__c = :response.checkoutReference];
             System.assertEquals(10.00, donation.Amount__c);
@@ -148,7 +148,7 @@ private class PublicDonationControllerTest {
         PublicDonationController.DonationRequest noPrivacy = validRequest(campaign.Id);
         noPrivacy.privacyAccepted = false;
         try {
-            PublicDonationController.prepareDonation(noPrivacy);
+            PublicDonationController.prepareDonation(JSON.serialize(noPrivacy));
             System.assert(false, 'Donations without privacy acceptance must be rejected.');
         } catch (AuraHandledException expected) { }
     }
