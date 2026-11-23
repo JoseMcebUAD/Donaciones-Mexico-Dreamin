@@ -1,5 +1,6 @@
 .sf/
 .sfdx/
+.claude/
 *.key
 *.crt
 *.pem
