@@ -1,17 +1,27 @@
 <template>
-    <lightning-card title="¡Gracias por tu apoyo!" icon-name="utility:success">
-        <div class="slds-p-around_medium">
-            <p>Gracias por apoyar la causa. Tu generosidad hace la diferencia.</p>
-            <template if:true={hasCheckoutReference}>
-                <p>Tu pago se recibió correctamente en la pasarela. La confirmación interna se procesa por separado; esta página no certifica que el pago haya sido conciliado aún.</p>
-            </template>
-            <template if:false={hasCheckoutReference}>
-                <p>Puedes regresar al catálogo de campañas para elegir una causa o iniciar una nueva donación.</p>
-            </template>
-            <div class="slds-box slds-m-top_medium slds-theme_shade">
-                <p class="slds-text-heading_small">¿Tienes dudas o no recibiste tu comprobante?</p>
-                <p>Escríbenos a <a href="mailto:soporte@mexicodreamin.com">soporte@mexicodreamin.com</a> indicando tu nombre y el número de referencia de tu donación.</p>
+    <div class="ty-shell">
+        <div class="ty-icon-wrap">
+            <div class="ty-icon-circle">
+                <lightning-icon icon-name="utility:check" size="large"></lightning-icon>
             </div>
         </div>
-    </lightning-card>
+        <p class="ty-eyebrow">Mexico Dreamin · Donaciones</p>
+        <h1 class="ty-heading">¡Gracias por tu apoyo!</h1>
+        <template if:true={hasCheckoutReference}>
+            <p class="ty-body">Tu donación fue procesada con éxito. En breve recibirás una confirmación en tu correo. Tu generosidad hace posible Mexico Dreamin.</p>
+        </template>
+        <template if:false={hasCheckoutReference}>
+            <p class="ty-body">Tu generosidad hace posible Mexico Dreamin. Cada contribución impulsa a la comunidad Salesforce en México.</p>
+        </template>
+        <hr class="ty-divider" />
+        <div class="ty-support">
+            ¿No recibiste tu confirmación? Escríbenos a
+            <a href="mailto:soporte@mexicodreamin.com">soporte@mexicodreamin.com</a>
+            indicando tu nombre y correo de registro.
+        </div>
+        <button type="button" class="ty-back-btn" onclick={goBack}>
+            <lightning-icon icon-name="utility:chevronleft" size="x-small"></lightning-icon>
+            Volver al portal
+        </button>
+    </div>
 </template>
