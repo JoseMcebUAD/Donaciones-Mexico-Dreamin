@@ -26,6 +26,7 @@ private class StripeWebhookControllerTest {
 
     @IsTest
     static void doPost_validRequest_returns200() {
+        StripeWebhookController.webhookSecretOverride = TEST_SECRET;
         Campaign__c campaign = new Campaign__c(Name = 'Ctrl Test', Goal_Amount__c = 1000, Is_Active__c = true);
         insert campaign;
         insert new Donation__c(
@@ -45,6 +46,9 @@ private class StripeWebhookControllerTest {
         Test.stopTest();
 
         System.assertEquals(200, RestContext.response.statusCode, 'Valid request should return 200.');
+        List<Webhook_Audit_Log__c> logs = [SELECT Outcome__c FROM Webhook_Audit_Log__c];
+        System.assertEquals(1, logs.size());
+        System.assertEquals('Accepted', logs[0].Outcome__c, 'Debe registrar log Accepted.');
     }
 
     @IsTest
@@ -58,6 +62,9 @@ private class StripeWebhookControllerTest {
         Test.stopTest();
 
         System.assertEquals(400, RestContext.response.statusCode, 'Invalid signature should return 400.');
+        List<Webhook_Audit_Log__c> logs = [SELECT Outcome__c FROM Webhook_Audit_Log__c];
+        System.assertEquals(1, logs.size());
+        System.assertEquals('Rejected_Signature', logs[0].Outcome__c, 'Debe registrar log Rejected_Signature.');
     }
 
     @IsTest
@@ -69,5 +76,63 @@ private class StripeWebhookControllerTest {
         Test.stopTest();
 
         System.assertEquals(400, RestContext.response.statusCode, 'Empty body should return 400.');
+    }
+
+    @IsTest
+    static void doPost_invalidSignature_createsAuditLog() {
+        String body = '{"id":"evt_3","type":"checkout.session.completed","data":{"object":{"id":"cs_x","client_reference_id":"' + CHECKOUT_REF + '"}}}';
+        Long ts = DateTime.now().getTime() / 1000;
+        setupRestContext(body, 't=' + ts + ',v1=0000000000000000000000000000000000000000000000000000000000000000');
+
+        Test.startTest();
+        StripeWebhookController.doPost();
+        Test.stopTest();
+
+        Webhook_Audit_Log__c entry = [SELECT Outcome__c, Rejection_Reason__c FROM Webhook_Audit_Log__c LIMIT 1];
+        System.assertEquals('Rejected_Signature', entry.Outcome__c);
+        System.assert(String.isNotBlank(entry.Rejection_Reason__c), 'El motivo de rechazo debe estar registrado.');
+    }
+
+    @IsTest
+    static void doPost_unknownCheckoutRef_createsRejectedReferenceLog() {
+        StripeWebhookController.webhookSecretOverride = TEST_SECRET;
+        String unknownRef = 'MD-nonexistent00000000000000000000';
+        String body = '{"id":"evt_4","type":"checkout.session.completed","data":{"object":{"id":"cs_y","client_reference_id":"' + unknownRef + '"}}}';
+        Long ts = DateTime.now().getTime() / 1000;
+        setupRestContext(body, buildSignatureHeader(body, ts));
+
+        Test.startTest();
+        StripeWebhookController.doPost();
+        Test.stopTest();
+
+        System.assertEquals(400, RestContext.response.statusCode);
+        Webhook_Audit_Log__c entry = [SELECT Outcome__c, Checkout_Reference__c FROM Webhook_Audit_Log__c LIMIT 1];
+        System.assertEquals('Rejected_Reference', entry.Outcome__c);
+        System.assertEquals(unknownRef, entry.Checkout_Reference__c);
+    }
+
+    @IsTest
+    static void doPost_validRequest_createsAcceptedAuditLog() {
+        StripeWebhookController.webhookSecretOverride = TEST_SECRET;
+        Campaign__c campaign = new Campaign__c(Name = 'Audit Test', Goal_Amount__c = 500, Is_Active__c = true);
+        insert campaign;
+        insert new Donation__c(
+            Campaign__c = campaign.Id,
+            Amount__c = 100,
+            Payment_Status__c = 'Pending',
+            Checkout_Reference__c = CHECKOUT_REF
+        );
+
+        String body = '{"id":"evt_5","type":"checkout.session.completed","data":{"object":{"id":"cs_z","client_reference_id":"' + CHECKOUT_REF + '"}}}';
+        Long ts = DateTime.now().getTime() / 1000;
+        setupRestContext(body, buildSignatureHeader(body, ts));
+
+        Test.startTest();
+        StripeWebhookController.doPost();
+        Test.stopTest();
+
+        System.assertEquals(200, RestContext.response.statusCode);
+        Webhook_Audit_Log__c entry = [SELECT Outcome__c FROM Webhook_Audit_Log__c LIMIT 1];
+        System.assertEquals('Accepted', entry.Outcome__c);
     }
 }
