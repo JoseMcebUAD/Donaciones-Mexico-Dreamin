@@ -138,4 +138,67 @@ private class StripeWebhookServiceTest {
         Donation__c updated = [SELECT Payment_Status__c FROM Donation__c WHERE Id = :donation.Id];
         System.assertEquals('Paid', updated.Payment_Status__c, 'Duplicate event should be idempotent.');
     }
+
+    @IsTest
+    static void handle_completedEvent_sendsReceiptEmail() {
+        Campaign__c campaign = makeActiveCampaign();
+        Donation__c donation = makePendingDonation(campaign.Id);
+        String body = buildEventBody('checkout.session.completed', CHECKOUT_REF);
+
+        Test.startTest();
+        StripeWebhookService.processEvent(body);
+        System.assert(Limits.getEmailInvocations() > 0, 'Se debio enviar correo de comprobante al confirmar pago.');
+        Test.stopTest();
+
+        Donation__c updated = [SELECT Payment_Status__c FROM Donation__c WHERE Id = :donation.Id];
+        System.assertEquals('Paid', updated.Payment_Status__c);
+    }
+
+    @IsTest
+    static void handle_completedEvent_noEmail_doesNotFail() {
+        Campaign__c campaign = makeActiveCampaign();
+        Donation__c donation = new Donation__c(
+            Campaign__c = campaign.Id, Amount__c = 300,
+            Payment_Status__c = 'Pending',
+            Checkout_Reference__c = CHECKOUT_REF
+        );
+        insert donation;
+        String body = buildEventBody('checkout.session.completed', CHECKOUT_REF);
+
+        Test.startTest();
+        StripeWebhookService.processEvent(body);
+        Test.stopTest();
+
+        Donation__c updated = [SELECT Payment_Status__c FROM Donation__c WHERE Id = :donation.Id];
+        System.assertEquals('Paid', updated.Payment_Status__c, 'Debe quedar Paid aunque no haya email.');
+        System.assertEquals(0, Limits.getEmailInvocations(), 'Sin email no se debe intentar envio.');
+    }
+
+    @IsTest
+    static void handle_expiredEvent_doesNotSendEmail() {
+        Campaign__c campaign = makeActiveCampaign();
+        Donation__c donation = makePendingDonation(campaign.Id);
+        String body = buildEventBody('checkout.session.expired', CHECKOUT_REF);
+
+        Test.startTest();
+        StripeWebhookService.processEvent(body);
+        Test.stopTest();
+
+        Donation__c updated = [SELECT Payment_Status__c FROM Donation__c WHERE Id = :donation.Id];
+        System.assertEquals('Cancelled', updated.Payment_Status__c);
+        System.assertEquals(0, Limits.getEmailInvocations(), 'Expiracion no debe enviar correo.');
+    }
+
+    @IsTest
+    static void handle_duplicateCompletedEvent_sendsEmailOnlyOnce() {
+        Campaign__c campaign = makeActiveCampaign();
+        Donation__c donation = makePendingDonation(campaign.Id);
+        String body = buildEventBody('checkout.session.completed', CHECKOUT_REF);
+
+        Test.startTest();
+        StripeWebhookService.processEvent(body);
+        StripeWebhookService.processEvent(body);
+        System.assertEquals(1, Limits.getEmailInvocations(), 'El correo solo se envia en el primer procesamiento.');
+        Test.stopTest();
+    }
 }

@@ -1,5 +1,6 @@
 public without sharing class StripeWebhookService {
     public class WebhookSecurityException extends Exception {}
+    public class WebhookReferenceException extends Exception {}
 
     private static final Integer TIMESTAMP_TOLERANCE_SECONDS = 300;
 
@@ -55,11 +56,27 @@ public without sharing class StripeWebhookService {
     private static void markDonation(String checkoutReference, String newStatus) {
         Donation__c donation = PublicDonationCommandService.findDonationByCheckoutReference(checkoutReference);
         if (donation == null) {
-            return;
+            // Distinguish duplicate (already processed) from unknown reference
+            List<Donation__c> existing = [
+                SELECT Id FROM Donation__c
+                WHERE Checkout_Reference__c = :checkoutReference
+                WITH SYSTEM_MODE LIMIT 1
+            ];
+            if (!existing.isEmpty()) {
+                return; // already processed — idempotent, no further action
+            }
+            throw new WebhookReferenceException('Checkout reference not found: ' + checkoutReference);
         }
         Database.update(
             new Donation__c(Id = donation.Id, Payment_Status__c = newStatus),
             AccessLevel.SYSTEM_MODE
         );
+        if (newStatus == 'Paid') {
+            try {
+                DonationManagementService.sendReceiptEmail(donation.Id);
+            } catch (Exception emailEx) {
+                System.debug(LoggingLevel.ERROR, 'Receipt email failed for donation ' + donation.Id + ': ' + emailEx.getMessage());
+            }
+        }
     }
 }
