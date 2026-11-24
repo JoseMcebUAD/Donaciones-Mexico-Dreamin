@@ -4,9 +4,7 @@ public with sharing class DonationManagementService {
     @AuraEnabled
     public static void confirmPayment(Id donationId) {
         Donation__c donation = [
-            SELECT Id, Name, Payment_Status__c, Donor_Email__c, Donor_Name__c, Amount__c,
-                   Needs_Invoice__c, Legal_Name__c, RFC__c, Postal_Code__c, Tax_Regime__c, CFDI_Use__c,
-                   Is_Anonymous__c, Campaign__r.Name
+            SELECT Id, Name, Payment_Status__c
             FROM Donation__c
             WHERE Id = :donationId
             WITH USER_MODE
@@ -17,13 +15,28 @@ public with sharing class DonationManagementService {
         }
         donation.Payment_Status__c = 'Paid';
         update as user donation;
-        if (!String.isBlank(donation.Donor_Email__c)) {
-            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
-            email.setToAddresses(new String[] { donation.Donor_Email__c });
-            email.setSubject('Comprobante de donación Mexico Dreamin — ' + donation.Name);
-            email.setPlainTextBody(buildReceiptBody(donation));
-            Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
+        sendReceiptEmail(donationId);
+    }
+
+    public static void sendReceiptEmail(Id donationId) {
+        List<Donation__c> results = [
+            SELECT Id, Name, Donor_Email__c, Donor_Name__c, Amount__c,
+                   Needs_Invoice__c, Legal_Name__c, RFC__c, Postal_Code__c, Tax_Regime__c, CFDI_Use__c,
+                   Is_Anonymous__c, Campaign__r.Name
+            FROM Donation__c
+            WHERE Id = :donationId
+            WITH SYSTEM_MODE
+            LIMIT 1
+        ];
+        if (results.isEmpty() || String.isBlank(results[0].Donor_Email__c)) {
+            return;
         }
+        Donation__c donation = results[0];
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        email.setToAddresses(new String[] { donation.Donor_Email__c });
+        email.setSubject('Comprobante de donación Mexico Dreamin — ' + donation.Name);
+        email.setPlainTextBody(buildReceiptBody(donation));
+        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { email });
     }
 
     private static String buildReceiptBody(Donation__c donation) {

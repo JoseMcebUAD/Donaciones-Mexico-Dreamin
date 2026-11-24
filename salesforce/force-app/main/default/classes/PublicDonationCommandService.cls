@@ -73,6 +73,22 @@ public without sharing class PublicDonationCommandService {
         return donations[0];
     }
 
+    public static Donation__c findDonationByCheckoutReference(String checkoutReference) {
+        if (String.isBlank(checkoutReference)) {
+            return null;
+        }
+        List<Donation__c> rows = [
+            SELECT Id, Payment_Status__c, Stripe_Session_Id__c, Amount__c
+            FROM Donation__c
+            WHERE Checkout_Reference__c = :checkoutReference
+              AND Payment_Status__c = 'Pending'
+            WITH SYSTEM_MODE
+            LIMIT 1
+            FOR UPDATE
+        ];
+        return rows.isEmpty() ? null : rows[0];
+    }
+
     public static void attachCheckoutSession(Id donationId, String stripeSessionId) {
         if (String.isBlank(stripeSessionId) || !stripeSessionId.startsWith('cs_test_')) {
             throw new AuraHandledException('La pasarela devolvió una sesión inválida.');

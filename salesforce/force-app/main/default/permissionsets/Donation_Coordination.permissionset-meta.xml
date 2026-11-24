@@ -3,6 +3,7 @@
     <label>Donation Coordination</label>
     <description>Least-privilege access to manage campaigns and review donation records.</description>
     <classAccesses><apexClass>DonationManagementService</apexClass><enabled>true</enabled></classAccesses>
+    <classAccesses><apexClass>WebhookAuditService</apexClass><enabled>true</enabled></classAccesses>
     <fieldPermissions><editable>true</editable><field>Campaign__c.Is_Active__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>Campaign__c.Allow_Additional_Donations__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>true</editable><field>Campaign__c.Expiration_Date__c</field><readable>true</readable></fieldPermissions>
@@ -30,7 +31,14 @@
     <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Image_URL__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Is_Public__c</field><readable>true</readable></fieldPermissions>
     <fieldPermissions><editable>false</editable><field>Donor_Recognition__c.Recognition_Type__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Webhook_Audit_Log__c.Checkout_Reference__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Webhook_Audit_Log__c.Event_Type__c</field><readable>true</readable></fieldPermissions>
+
+
+    <fieldPermissions><editable>false</editable><field>Webhook_Audit_Log__c.Rejection_Reason__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>Webhook_Audit_Log__c.Sanitized_Payload__c</field><readable>true</readable></fieldPermissions>
     <objectPermissions><allowCreate>true</allowCreate><allowDelete>false</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Campaign__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
     <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Donation__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
     <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Donor_Recognition__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><modifyAllRecords>false</modifyAllRecords><object>Webhook_Audit_Log__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
 </PermissionSet>

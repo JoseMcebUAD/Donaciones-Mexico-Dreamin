@@ -276,8 +276,8 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA1 (Criterio mínimo):** Dado que completé un pago exitoso con tarjeta de prueba en Stripe, cuando la pasarela emite su aviso de pago hacia Salesforce, entonces la donación correspondiente transiciona a estado "Pagada" de forma desatendida sin intervención de staff.
   * **CA2 (Criterio mínimo):** Dado que la donación pasó a pagada de forma automática, cuando reviso mi bandeja de entrada, entonces recibo de inmediato el comprobante con los identificadores de la donación, campaña, monto, fecha, desglose fiscal (si aplica) y correo de soporte institucional.
   * **CA3 (Criterio propio / Negativo - Manejo de webhook por sesión expirada):** Dado que un usuario cerró la pasarela y Stripe emite un webhook de expiración (`checkout.session.expired`), cuando Salesforce procesa el evento, entonces actualiza la donación a estado "Cancelada / Expirada" sin detonar comprobante ni sumar a la campaña.
-* **Estado:** Pendiente
-* **Evidencia / Verificación en código:** Auditoría sobre `salesforce/force-app/main/default/` al commit `19c2f32` confirma que aún **no existe** ninguna clase `@RestResource` / `RestContext` para recepción de webhooks de Stripe.
+* **Estado:** Implementada en código y desplegada en sandbox; pendiente prueba real de Stripe Test y entrega de correo.
+* **Evidencia / Verificación en código:** `StripeWebhookController` y `StripeWebhookService` procesan `checkout.session.completed`, `checkout.session.async_payment_succeeded` y `checkout.session.expired`; las pruebas Apex pasan. El registro privado `Stripe_Test` existe en la sandbox. Falta verificar una entrega real del destino Stripe Test y el cambio de estado de una donación.
 
 ---
 
@@ -293,8 +293,8 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA1 (Criterio mínimo / Negativo - Rechazo de avisos falsos):** Dado que un tercero envía un payload simulando un pago pero con firma HMAC inválida o ausente en el header `Stripe-Signature`, cuando la solicitud llega a Salesforce, entonces se rechaza con error HTTP 400/401, el estado de la donación no se altera y la incidencia queda visible para auditoría de staff.
   * **CA2 (Criterio mínimo - Idempotencia ante reintentos):** Dado que Stripe retransmite el mismo evento de pago en dos ocasiones por reintentos de red, cuando ambos mensajes son recibidos en el endpoint, entonces el sistema procesa el primero y detecta el segundo como duplicado, manteniendo una sola donación pagada y emitiendo un único comprobante.
   * **CA3 (Criterio propio - Resguardo de secretos M3):** Dado que se verifica la firma mediante el `Signing Secret`, cuando se audita el código Apex, componentes y el repositorio público de GitHub, entonces se demuestra que la clave no se encuentra expuesta en texto plano ni en el historial de commits, residiendo únicamente en Custom Metadata o Named Credentials protegidas.
-* **Estado:** Pendiente
-* **Evidencia / Verificación en código:** Auditoría sobre `salesforce/force-app/main/default/` confirma que aún **no existe** verificación HMAC SHA-256 de `Stripe-Signature` ni campo/mecanismo de idempotencia de eventos webhook (`Stripe_Event_Id__c`).
+* **Estado:** Implementada en código y desplegada en sandbox; pendiente prueba real de reenvío desde Stripe.
+* **Evidencia / Verificación en código:** HMAC SHA-256, tolerancia de tiempo, cotejo de sesión/referencia/monto/moneda/estado e idempotencia por transición `Pending` protegida con bloqueo de registro. El secreto se guarda en un campo cifrado de un objeto privado, alternativa a la ubicación nombrada en CA3; la configuración real sigue pendiente.
 
 ---
 
@@ -310,8 +310,8 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA1 (Criterio mínimo):** Dado que una donación fue confirmada por el webhook de Stripe, cuando staff consulta el registro en Salesforce, entonces distingue claramente que fue validada mediante confirmación automática y no manual.
   * **CA2 (Criterio mínimo):** Dado que un aviso fue descartado (por firma apócrifa, referencia inexistente o error en payload), cuando staff ingresa al registro de avisos rechazados, entonces visualiza la fecha/hora de recepción y el motivo exacto del descarte.
   * **CA3 (Criterio propio - Protección de datos en bitácora):** Dado que se genera un registro de auditoría de integración, cuando staff consulta el log de error, entonces se verifica que la bitácora no almacena datos confidenciales de tarjetas ni secretos de la pasarela.
-* **Estado:** Pendiente
-* **Evidencia / Verificación en código:** Auditoría sobre `salesforce/force-app/main/default/objects/` confirma que aún **no existe** campo de origen de confirmación ni objeto/bitácora de avisos webhook rechazados.
+* **Estado:** Parcial: bitácora desplegada; falta un campo que distinga confirmación automática de manual y la prueba operativa de staff.
+* **Evidencia / Verificación en código:** `Webhook_Audit_Log__c` registra recepción y rechazo con datos técnicos mínimos, sin correo, datos de tarjeta ni secreto. `Donation__c` todavía no identifica explícitamente el origen de confirmación.
 
 ---
 

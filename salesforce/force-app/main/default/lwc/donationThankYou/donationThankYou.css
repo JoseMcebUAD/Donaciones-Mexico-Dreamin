@@ -1,0 +1,14 @@
+:host { display: block; color: #17233d; font-family: "Salesforce Sans", Arial, sans-serif; }
+.ty-shell { max-width: 640px; margin: 3rem auto; padding: 1.5rem; text-align: center; }
+.ty-icon-wrap { display: flex; justify-content: center; margin-bottom: 1.75rem; }
+.ty-icon-circle { align-items: center; background: linear-gradient(135deg, #e7a943 0%, #f5bf62 100%); border-radius: 50%; box-shadow: 0 8px 28px rgba(231, 169, 67, .35); display: flex; height: 80px; justify-content: center; width: 80px; }
+.ty-icon-circle lightning-icon { --slds-c-icon-color-foreground-default: #17233d; }
+.ty-eyebrow { color: #e7a943; font-size: .72rem; font-weight: 700; letter-spacing: .13em; margin: 0 0 .6rem; text-transform: uppercase; }
+.ty-heading { color: #17233d; font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -.03em; line-height: 1.1; margin: 0 0 1.25rem; }
+.ty-body { color: #56647a; font-size: 1.05rem; line-height: 1.65; margin: 0 auto 2.25rem; max-width: 480px; }
+.ty-divider { background: #e4e8f0; border: none; height: 1px; margin: 0 auto 2rem; width: 60px; }
+.ty-support { background: #f7f9fc; border: 1px solid #e4e8f0; border-radius: 14px; color: #526177; font-size: .9rem; line-height: 1.55; margin: 0 auto 2.5rem; max-width: 460px; padding: 1.1rem 1.4rem; }
+.ty-support a { color: #2a7a7a; text-decoration: none; }.ty-support a:hover { text-decoration: underline; }
+.ty-back-btn { align-items: center; background: #e7a943; border: 0; border-radius: 10px; color: #17233d; cursor: pointer; display: inline-flex; font-size: .95rem; font-weight: 700; gap: .5rem; padding: .85rem 1.75rem; transition: background .2s ease; }
+.ty-back-btn:hover, .ty-back-btn:focus { background: #f5bf62; outline: none; }
+@media (max-width: 680px) { .ty-shell { margin: 1.5rem auto; padding: .85rem; } }
