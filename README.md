@@ -8,7 +8,7 @@ El sitio `Donaciones` está activo en el Sandbox `donacionesSandbox` (`uady--cla
 
 > **[https://uady--class2026a.sandbox.my.site.com/donaciones/s/](https://uady--class2026a.sandbox.my.site.com/donaciones/s/)**
 
-La Named Credential `Stripe_Test` existe en la sandbox. El webhook usa el sitio separado `/webhook` y requiere que un administrador guarde el signing secret `whsec_...` en **Stripe Webhook Configs**, nunca en Git ni en un Custom Label. Consulta el [paso a paso de Stripe Test](docs/stripe-test-setup.md). El pago de extremo a extremo sigue pendiente hasta configurar ese secreto y completar una donación de prueba.
+La Named Credential `Stripe_Test` existe en la sandbox. El webhook usa el sitio separado `/webhook`. El registro privado **Stripe Webhook Configs** llamado `Stripe_Test` ya existe con el secreto de firma cifrado; nunca se guarda en Git ni en un Custom Label. Consulta el [paso a paso de Stripe Test](docs/stripe-test-setup.md). La confirmación de extremo a extremo sigue pendiente de una donación de prueba y una entrega real del webhook.
 
 ### (2) Video demo
 
@@ -64,7 +64,7 @@ sf project deploy validate --target-org donacionesSandbox --source-dir force-app
 sf project deploy start --target-org donacionesSandbox --source-dir force-app --test-level RunLocalTests
 ```
 
-El webhook seguro se desplegó a `donacionesSandbox` el 23 de noviembre de 2026 (`0AfVC00000PPRTF0A5`, 193 pruebas Apex, sin fallas). Un despliegue adicional (`0AfVC00000PPRuf0AH`) redujo el registro de auditoría a datos técnicos mínimos. Una solicitud firmada con un secreto sintético confirmó que el Guest User puede verificar la firma; se eliminaron los datos de esa prueba. Falta configurar el secreto real del destino Snapshot y realizar el pago de extremo a extremo en Stripe Test.
+El webhook seguro se desplegó a `donacionesSandbox` el 23 de noviembre de 2026 (`0AfVC00000PPRTF0A5`, 193 pruebas Apex, sin fallas). Un despliegue adicional (`0AfVC00000PPRuf0AH`) redujo el registro de auditoría a datos técnicos mínimos. Una solicitud firmada con un secreto sintético confirmó que el Guest User puede verificar la firma; se eliminaron los datos de esa prueba. El 24 de noviembre se verificó la existencia del registro `Stripe_Test` en la sandbox. Aún falta comprobar una entrega real de Stripe Test y que la donación cambie a `Paid`.
 
 ### (6) Bitácoras y registros
 

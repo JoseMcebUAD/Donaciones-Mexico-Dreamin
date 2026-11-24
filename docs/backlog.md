@@ -277,7 +277,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo):** Dado que la donación pasó a pagada de forma automática, cuando reviso mi bandeja de entrada, entonces recibo de inmediato el comprobante con los identificadores de la donación, campaña, monto, fecha, desglose fiscal (si aplica) y correo de soporte institucional.
   * **CA3 (Criterio propio / Negativo - Manejo de webhook por sesión expirada):** Dado que un usuario cerró la pasarela y Stripe emite un webhook de expiración (`checkout.session.expired`), cuando Salesforce procesa el evento, entonces actualiza la donación a estado "Cancelada / Expirada" sin detonar comprobante ni sumar a la campaña.
 * **Estado:** Implementada en código y desplegada en sandbox; pendiente prueba real de Stripe Test y entrega de correo.
-* **Evidencia / Verificación en código:** `StripeWebhookController` y `StripeWebhookService` procesan `checkout.session.completed`, `checkout.session.async_payment_succeeded` y `checkout.session.expired`; las pruebas Apex pasan. Falta configurar el signing secret del destino Snapshot y verificar una entrega real.
+* **Evidencia / Verificación en código:** `StripeWebhookController` y `StripeWebhookService` procesan `checkout.session.completed`, `checkout.session.async_payment_succeeded` y `checkout.session.expired`; las pruebas Apex pasan. El registro privado `Stripe_Test` existe en la sandbox. Falta verificar una entrega real del destino Stripe Test y el cambio de estado de una donación.
 
 ---
 
