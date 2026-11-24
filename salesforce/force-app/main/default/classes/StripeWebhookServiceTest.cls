@@ -2,6 +2,7 @@
 private class StripeWebhookServiceTest {
     private static final String TEST_SECRET = 'test_webhook_secret';
     private static final String CHECKOUT_REF = 'MD-aabbccdd11223344aabbccdd11223344';
+    private static final String SESSION_ID = 'cs_test_webhook_service';
 
     private static String buildSignatureHeader(String rawBody, String secret, Long timestamp) {
         Blob mac = Crypto.generateMac(
@@ -13,7 +14,12 @@ private class StripeWebhookServiceTest {
     }
 
     private static String buildEventBody(String eventType, String clientReference) {
-        return '{"id":"evt_test","type":"' + eventType + '","data":{"object":{"id":"cs_test","client_reference_id":"' + clientReference + '"}}}';
+        String status = eventType == 'checkout.session.expired' ? 'expired' : 'complete';
+        String paymentStatus = eventType == 'checkout.session.expired' ? 'unpaid' : 'paid';
+        return '{"id":"evt_test","type":"' + eventType + '","data":{"object":{' +
+            '"id":"' + SESSION_ID + '","object":"checkout.session","client_reference_id":"' + clientReference + '",' +
+            '"mode":"payment","currency":"mxn","livemode":false,"amount_total":50000,' +
+            '"status":"' + status + '","payment_status":"' + paymentStatus + '"}}}';
     }
 
     private static Campaign__c makeActiveCampaign() {
@@ -28,7 +34,8 @@ private class StripeWebhookServiceTest {
             Amount__c = 500,
             Payment_Status__c = 'Pending',
             Donor_Email__c = 'donor@test.com',
-            Checkout_Reference__c = CHECKOUT_REF
+            Checkout_Reference__c = CHECKOUT_REF,
+            Stripe_Session_Id__c = SESSION_ID
         );
         insert d;
         return d;
@@ -158,9 +165,10 @@ private class StripeWebhookServiceTest {
     static void handle_completedEvent_noEmail_doesNotFail() {
         Campaign__c campaign = makeActiveCampaign();
         Donation__c donation = new Donation__c(
-            Campaign__c = campaign.Id, Amount__c = 300,
+            Campaign__c = campaign.Id, Amount__c = 500,
             Payment_Status__c = 'Pending',
-            Checkout_Reference__c = CHECKOUT_REF
+            Checkout_Reference__c = CHECKOUT_REF,
+            Stripe_Session_Id__c = SESSION_ID
         );
         insert donation;
         String body = buildEventBody('checkout.session.completed', CHECKOUT_REF);
@@ -200,5 +208,48 @@ private class StripeWebhookServiceTest {
         StripeWebhookService.processEvent(body);
         System.assertEquals(1, Limits.getEmailInvocations(), 'El correo solo se envia en el primer procesamiento.');
         Test.stopTest();
+    }
+
+    @IsTest
+    static void handle_completedEvent_withoutPaidStatus_doesNotConfirm() {
+        Campaign__c campaign = makeActiveCampaign();
+        Donation__c donation = makePendingDonation(campaign.Id);
+        String body = buildEventBody('checkout.session.completed', CHECKOUT_REF)
+            .replace('"payment_status":"paid"', '"payment_status":"unpaid"');
+
+        try {
+            StripeWebhookService.processEvent(body);
+            System.assert(false, 'Unpaid checkout must be rejected.');
+        } catch (StripeWebhookService.WebhookReferenceException expected) {
+            System.assert(expected.getMessage().contains('not confirmed'));
+        }
+        System.assertEquals('Pending', [SELECT Payment_Status__c FROM Donation__c WHERE Id = :donation.Id].Payment_Status__c);
+    }
+
+    @IsTest
+    static void handle_completedEvent_wrongAmountOrSession_doesNotConfirm() {
+        Campaign__c campaign = makeActiveCampaign();
+        Donation__c donation = makePendingDonation(campaign.Id);
+        List<String> invalidBodies = new List<String>{
+            buildEventBody('checkout.session.completed', CHECKOUT_REF).replace('"amount_total":50000', '"amount_total":10000'),
+            buildEventBody('checkout.session.completed', CHECKOUT_REF).replace(SESSION_ID, 'cs_test_other')
+        };
+        for (String body : invalidBodies) {
+            try {
+                StripeWebhookService.processEvent(body);
+                System.assert(false, 'Mismatched checkout must be rejected.');
+            } catch (StripeWebhookService.WebhookReferenceException expected) {
+                System.assert(expected.getMessage().contains('does not match'));
+            }
+        }
+        System.assertEquals('Pending', [SELECT Payment_Status__c FROM Donation__c WHERE Id = :donation.Id].Payment_Status__c);
+    }
+
+    @IsTest
+    static void handle_asyncPaymentSucceeded_marksPaid() {
+        Campaign__c campaign = makeActiveCampaign();
+        Donation__c donation = makePendingDonation(campaign.Id);
+        StripeWebhookService.processEvent(buildEventBody('checkout.session.async_payment_succeeded', CHECKOUT_REF));
+        System.assertEquals('Paid', [SELECT Payment_Status__c FROM Donation__c WHERE Id = :donation.Id].Payment_Status__c);
     }
 }

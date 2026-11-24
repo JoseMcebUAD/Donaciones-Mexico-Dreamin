@@ -1,11 +1,7 @@
 public without sharing class WebhookAuditService {
 
     private static final Integer MAX_REASON_LENGTH   = 1000;
-    private static final Integer MAX_PAYLOAD_LENGTH  = 32768;
-    private static final Integer MAX_RAW_FALLBACK    = 500;
-    private static final Set<String> SENSITIVE_TOKENS = new Set<String>{
-        'card', 'payment_method', 'secret', 'token', 'cvc', 'cvv', 'exp'
-    };
+    private static final Integer MAX_PAYLOAD_LENGTH = 2000;
 
     public static void log(String rawBody, String outcome, String rejectionReason) {
         try {
@@ -29,37 +25,28 @@ public without sharing class WebhookAuditService {
         }
         try {
             Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(rawBody);
-            Map<String, Object> sanitized = sanitizeMap(parsed);
-            return truncate(JSON.serialize(sanitized), MAX_PAYLOAD_LENGTH);
+            Map<String, Object> summary = new Map<String, Object>();
+            copyIfPresent(parsed, summary, 'id');
+            copyIfPresent(parsed, summary, 'type');
+            Map<String, Object> data = (Map<String, Object>) parsed.get('data');
+            Map<String, Object> session = data == null ? null : (Map<String, Object>) data.get('object');
+            if (session != null) {
+                Map<String, Object> publicSession = new Map<String, Object>();
+                for (String key : new List<String>{'id', 'client_reference_id', 'amount_total', 'currency', 'status', 'payment_status'}) {
+                    copyIfPresent(session, publicSession, key);
+                }
+                summary.put('session', publicSession);
+            }
+            return truncate(JSON.serialize(summary), MAX_PAYLOAD_LENGTH);
         } catch (Exception ex) {
-            return truncate(rawBody, MAX_RAW_FALLBACK);
+            return '';
         }
     }
 
-    private static Map<String, Object> sanitizeMap(Map<String, Object> input) {
-        Map<String, Object> result = new Map<String, Object>();
-        for (String key : input.keySet()) {
-            if (isSensitiveKey(key)) {
-                continue;
-            }
-            Object val = input.get(key);
-            if (val instanceof Map<String, Object>) {
-                result.put(key, sanitizeMap((Map<String, Object>) val));
-            } else {
-                result.put(key, val);
-            }
+    private static void copyIfPresent(Map<String, Object> source, Map<String, Object> destination, String key) {
+        if (source.containsKey(key)) {
+            destination.put(key, source.get(key));
         }
-        return result;
-    }
-
-    private static Boolean isSensitiveKey(String key) {
-        String lower = key.toLowerCase();
-        for (String token : SENSITIVE_TOKENS) {
-            if (lower.contains(token)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static String extractEventType(String rawBody) {

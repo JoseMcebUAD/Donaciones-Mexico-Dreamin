@@ -11,7 +11,9 @@ global without sharing class StripeWebhookController {
             : '';
         try {
             String sigHeader = RestContext.request.headers.get('Stripe-Signature');
-            String secret = webhookSecretOverride != null ? webhookSecretOverride : System.Label.Stripe_Webhook_Secret;
+            String secret = webhookSecretOverride != null
+                ? webhookSecretOverride
+                : StripeWebhookSecretProvider.getSigningSecret();
             StripeWebhookService.verifySignature(rawBody, sigHeader, secret);
             StripeWebhookService.processEvent(rawBody);
             WebhookAuditService.log(rawBody, 'Accepted', null);

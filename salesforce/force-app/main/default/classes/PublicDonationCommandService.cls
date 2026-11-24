@@ -78,12 +78,13 @@ public without sharing class PublicDonationCommandService {
             return null;
         }
         List<Donation__c> rows = [
-            SELECT Id, Payment_Status__c
+            SELECT Id, Payment_Status__c, Stripe_Session_Id__c, Amount__c
             FROM Donation__c
             WHERE Checkout_Reference__c = :checkoutReference
               AND Payment_Status__c = 'Pending'
             WITH SYSTEM_MODE
             LIMIT 1
+            FOR UPDATE
         ];
         return rows.isEmpty() ? null : rows[0];
     }

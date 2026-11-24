@@ -7,11 +7,4 @@
         <shortDescription>Public Mexico Dreamin donation portal base URL</shortDescription>
         <value>https://uady--class2026a.sandbox.my.site.com/donaciones/s</value>
     </labels>
-    <labels>
-        <fullName>Stripe_Webhook_Secret</fullName>
-        <language>en_US</language>
-        <protected>false</protected>
-        <shortDescription>Stripe webhook signing secret (whsec_...)</shortDescription>
-        <value>placeholder_configure_in_setup</value>
-    </labels>
 </CustomLabels>

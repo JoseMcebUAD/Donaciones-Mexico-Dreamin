@@ -1,34 +1,33 @@
-# Configuración segura de Stripe Test
+# Stripe Test en la sandbox
 
-## Flujo implementado
+## Checkout saliente
 
-`StripeCheckoutService` crea una Checkout Session mediante `callout:Stripe_Test/v1/checkout/sessions`. La clave `sk_test_...` vive exclusivamente en la External Credential de Salesforce; nunca aparece en Apex, LWC, Git, evidencias ni chat.
+`StripeCheckoutService` crea sesiones mediante `callout:Stripe_Test/v1/checkout/sessions`. La Named Credential `Stripe_Test` debe apuntar a `https://api.stripe.com` y obtener la clave `sk_test_...` de `Stripe_Test_External`. Ninguna clave se guarda en Git, Apex, Custom Labels ni capturas. El sitio público es `https://uady--class2026a.sandbox.my.site.com/donaciones/s/`.
 
-Cada intento usa una referencia `MD-...` en `client_reference_id` y `metadata[salesforce_reference]`. Salesforce crea el registro como `Pending` sólo después de recibir una sesión válida de Stripe.
+Cada intento registra una donación `Pending` y una referencia `MD-...`; la Checkout Session devuelve un ID `cs_test_...`. El retorno del navegador no confirma el pago.
 
-## Configuración
+## Webhook entrante
 
-1. Configura `Stripe_Test` con URL `https://api.stripe.com` y la External Credential `Stripe_Test_External`.
-2. Usa un principal de Named Principal con el encabezado Basic requerido por Stripe, construido desde el secreto almacenado en Salesforce.
-3. Vincula manualmente en Setup el principal `Stripe_Test_External-Stripe_Org_Principal` al perfil/Guest User o Permission Set correspondiente para `callout:Stripe_Test` (retirado de `Donation_Public_Guest.permissionset-meta.xml` en E2 para permitir despliegues en sandboxes limpias).
-4. Asigna `Donation Public Guest` al Guest User del sitio y al usuario interno que prueba Checkout. Este permission set no concede acceso directo a objetos de campaña, reconocimiento o donación (`0` CRUD/FLS; habilita únicamente `PublicCampaignController`, `PublicDonationController` y `ContactController`).
-5. Configura `Donation_Portal_Base_URL` a `https://empathetic-narwhal-9eroye-dev-ed.trailblaze.my.site.com/donaciones`.
+1. En el mismo entorno de prueba de Stripe al que pertenece `sk_test_...`, abre **Workbench → Webhooks → Create an event destination**.
+2. Elige **Your account** y formato **Snapshot**. Selecciona `checkout.session.completed`, `checkout.session.async_payment_succeeded` y `checkout.session.expired`.
+3. Usa esta URL HTTPS:
 
-El servidor, y no el navegador, genera estas rutas:
+   `https://uady--class2026a.sandbox.my.salesforce-sites.com/webhook/services/apexrest/stripe/webhook`
 
-- Éxito: `/donaciones/thank-you?session_id={CHECKOUT_SESSION_ID}`
-- Cancelación: `/donaciones/`
+4. Guarda el destino y revela su signing secret `whsec_...`. Es distinto de la clave `sk_test_...` y del secreto generado por Stripe CLI. No lo compartas por chat ni lo guardes en un archivo del repositorio.
+5. En la sandbox, abre **Stripe Webhook Configs** (`/lightning/o/Stripe_Webhook_Config__c/list`), crea un registro con **Configuration Name** `Stripe_Test` y pega `whsec_...` en **Signing Secret**. Es un campo de texto cifrado en un objeto privado; sólo administradores deben poder administrar estos registros. El antiguo Custom Label `Stripe_Webhook_Secret` ya no se usa.
+6. El sitio `Stripe_Webhook` con prefijo `/webhook` debe estar activo y su perfil Guest debe tener acceso Apex a `StripeWebhookController`. No concedas al Guest permisos CRUD/FLS sobre `Donation__c` ni `Stripe_Webhook_Config__c`.
 
-## Prueba esperada
+El controlador comprueba la firma HMAC-SHA256 del cuerpo original con tolerancia de cinco minutos. Antes de actualizar una donación, también coteja el ID de sesión, referencia, modo de pago, moneda MXN, entorno Test, importe y estado pagado/expirado. Los reintentos de un evento ya procesado devuelven éxito sin actualizar por segunda vez ni reenviar el comprobante.
 
-1. El visitante elige campaña, monto y preferencias de reconocimiento.
-2. Salesforce crea una Checkout Session Test y una donación `Pending`.
-3. Stripe recibe el correo, el monto y la referencia de Salesforce, y muestra Checkout Test.
-4. Stripe regresa a agradecimiento sin afirmar que el pago está confirmado.
-5. Tesorería confirma el pago de forma controlada en E1.
+## Prueba de extremo a extremo
 
-## Wall of Fame
+1. Abre el sitio en incógnito, inicia un donativo pequeño y comprueba que abre Stripe Test Checkout.
+2. Completa el pago con la tarjeta de prueba `4242 4242 4242 4242`, fecha futura y cualquier CVC.
+3. En Stripe **Workbench → Webhooks → Event deliveries**, comprueba una entrega `checkout.session.completed` con HTTP 200.
+4. En Salesforce comprueba que la donación correspondiente cambia de `Pending` a `Paid`, que el avance aumenta sólo por su importe y que el Wall of Fame respeta el consentimiento.
+5. Reenvía ese mismo evento desde Stripe: no debe duplicar monto ni correo. Una firma incorrecta debe responder HTTP 400 y registrar `Rejected_Signature` sin alterar la donación.
 
-Sólo donaciones `Paid`, no anónimas y con consentimiento generan `Donor_Recognition__c` (proyectado por `DonationProjectionTrigger` / `DonationProjectionService`). El portal recibe únicamente nombre de reconocimiento, monto y URL pública generada internamente por `ContentDistribution` cuando el donante adjunta imagen (`<= 2 MB`, `US-R2`); nunca RFC, correo, datos fiscales ni identificadores de donación.
+Abrir la URL del webhook en el navegador devuelve HTTP 405 porque sólo acepta POST. Un evento genérico de prueba puede devolver 400 si no contiene una sesión y referencia existentes en esta org; usa una sesión creada por el portal para la prueba final.
 
-El Payment Link compartido de Stripe puede servir para comprobar la cuenta Test, pero no es el flujo principal porque no conserva el monto ni la referencia única por intento de Salesforce.
+Fuentes: [Stripe Webhooks](https://docs.stripe.com/webhooks), [Stripe Checkout Session](https://docs.stripe.com/api/checkout/sessions/object), [Salesforce: secretos fuera de paquetes administrados](https://developer.salesforce.com/docs/platform/apex-dev/references/apex-dev/apex-customsettings.html).

@@ -181,7 +181,7 @@ En apego a las buenas prácticas de privacidad (LFPDPPP) y los lineamientos del 
    * **Interfaz interna de Staff — Lightning Record Page de `Campaign__c`:** colocar `campaignImageUpload` (`US-S5`).
    * **Interfaz interna de Staff — Lightning Record Page de `Donation__c`:** añadir la acción rápida `donationConfirmation` (**Confirm Payment**).
 3. **Configuración de External Credential y Named Credential `Stripe_Test`:**
-   * Crear `Stripe_Test_External` (con principal `Stripe_Org_Principal`) y la Named Credential `Stripe_Test` apuntando a `https://api.stripe.com` con cabecera `Authorization: Bearer {!$Credential.Password}` conteniendo la clave de prueba `sk_test_...` de Stripe.
+   * La sandbox usa `Stripe_Test_External` (principal `Stripe_Org_Principal`) y `Stripe_Test` apuntando a `https://api.stripe.com`. La clave de prueba `sk_test_...` vive en un parámetro protegido de la External Credential; su cabecera HTTP Basic se genera con una fórmula, nunca se escribe en Apex ni en un Custom Label. El webhook entrante usa una configuración cifrada independiente, descrita en [stripe-test-setup.md](stripe-test-setup.md).
 4. **Configuración del Guest User del Sitio (`Donation_Public_Guest`):**
    * Asignar el Permission Set `Donation_Public_Guest` al Guest User del sitio (sin permisos CRUD/FLS sobre objetos; habilita únicamente `PublicCampaignController`, `PublicDonationController` y `ContactController`).
    * Vincular manualmente en la org el principal de `Stripe_Test_External` al Permission Set o perfil necesario para invocar `callout:Stripe_Test`.

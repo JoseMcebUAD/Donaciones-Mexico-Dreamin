@@ -2,6 +2,14 @@
 private class StripeWebhookControllerTest {
     private static final String TEST_SECRET = 'test_controller_secret';
     private static final String CHECKOUT_REF = 'MD-aabbccdd11223344aabbccdd11223344';
+    private static final String SESSION_ID = 'cs_test_webhook_controller';
+
+    private static String buildEventBody(String eventId, String checkoutReference, Integer amount) {
+        return '{"id":"' + eventId + '","type":"checkout.session.completed","data":{"object":{' +
+            '"id":"' + SESSION_ID + '","object":"checkout.session","client_reference_id":"' + checkoutReference + '",' +
+            '"mode":"payment","currency":"mxn","livemode":false,"amount_total":' + amount + ',' +
+            '"status":"complete","payment_status":"paid"}}}';
+    }
 
     private static String buildSignatureHeader(String rawBody, Long timestamp) {
         Blob mac = Crypto.generateMac(
@@ -34,10 +42,11 @@ private class StripeWebhookControllerTest {
             Amount__c = 200,
             Payment_Status__c = 'Pending',
             Donor_Email__c = 'ctrl@test.com',
-            Checkout_Reference__c = CHECKOUT_REF
+            Checkout_Reference__c = CHECKOUT_REF,
+            Stripe_Session_Id__c = SESSION_ID
         );
 
-        String body = '{"id":"evt_1","type":"checkout.session.completed","data":{"object":{"id":"cs_test","client_reference_id":"' + CHECKOUT_REF + '"}}}';
+        String body = buildEventBody('evt_1', CHECKOUT_REF, 20000);
         Long ts = DateTime.now().getTime() / 1000;
         setupRestContext(body, buildSignatureHeader(body, ts));
 
@@ -53,7 +62,7 @@ private class StripeWebhookControllerTest {
 
     @IsTest
     static void doPost_invalidSignature_returns400() {
-        String body = '{"id":"evt_2","type":"checkout.session.completed","data":{"object":{"id":"cs_test","client_reference_id":"' + CHECKOUT_REF + '"}}}';
+        String body = buildEventBody('evt_2', CHECKOUT_REF, 20000);
         Long ts = DateTime.now().getTime() / 1000;
         setupRestContext(body, 't=' + ts + ',v1=badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadb');
 
@@ -80,7 +89,7 @@ private class StripeWebhookControllerTest {
 
     @IsTest
     static void doPost_invalidSignature_createsAuditLog() {
-        String body = '{"id":"evt_3","type":"checkout.session.completed","data":{"object":{"id":"cs_x","client_reference_id":"' + CHECKOUT_REF + '"}}}';
+        String body = buildEventBody('evt_3', CHECKOUT_REF, 20000);
         Long ts = DateTime.now().getTime() / 1000;
         setupRestContext(body, 't=' + ts + ',v1=0000000000000000000000000000000000000000000000000000000000000000');
 
@@ -97,7 +106,7 @@ private class StripeWebhookControllerTest {
     static void doPost_unknownCheckoutRef_createsRejectedReferenceLog() {
         StripeWebhookController.webhookSecretOverride = TEST_SECRET;
         String unknownRef = 'MD-nonexistent00000000000000000000';
-        String body = '{"id":"evt_4","type":"checkout.session.completed","data":{"object":{"id":"cs_y","client_reference_id":"' + unknownRef + '"}}}';
+        String body = buildEventBody('evt_4', unknownRef, 20000);
         Long ts = DateTime.now().getTime() / 1000;
         setupRestContext(body, buildSignatureHeader(body, ts));
 
@@ -120,10 +129,11 @@ private class StripeWebhookControllerTest {
             Campaign__c = campaign.Id,
             Amount__c = 100,
             Payment_Status__c = 'Pending',
-            Checkout_Reference__c = CHECKOUT_REF
+            Checkout_Reference__c = CHECKOUT_REF,
+            Stripe_Session_Id__c = SESSION_ID
         );
 
-        String body = '{"id":"evt_5","type":"checkout.session.completed","data":{"object":{"id":"cs_z","client_reference_id":"' + CHECKOUT_REF + '"}}}';
+        String body = buildEventBody('evt_5', CHECKOUT_REF, 10000);
         Long ts = DateTime.now().getTime() / 1000;
         setupRestContext(body, buildSignatureHeader(body, ts));
 

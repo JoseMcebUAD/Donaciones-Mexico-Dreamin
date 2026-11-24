@@ -32,26 +32,27 @@ private class WebhookAuditServiceTest {
     }
 
     @IsTest
-    static void log_invalidJson_storesTruncatedRaw() {
+    static void log_invalidJson_doesNotStoreRawBody() {
         String badBody = 'NOT_JSON {{{';
         Test.startTest();
         WebhookAuditService.log(badBody, 'Rejected_Payload', 'parse error');
         Test.stopTest();
 
         Webhook_Audit_Log__c entry = [SELECT Sanitized_Payload__c, Event_Type__c FROM Webhook_Audit_Log__c LIMIT 1];
-        System.assert(entry.Sanitized_Payload__c.startsWith('NOT_JSON'), 'Debe contener el raw body al fallar parseo.');
+        System.assertEquals(null, entry.Sanitized_Payload__c, 'No se debe guardar un cuerpo no validado.');
         System.assertEquals(null, entry.Event_Type__c, 'Event_Type debe ser null con JSON invalido.');
     }
 
     @IsTest
     static void log_sanitizesCardData() {
-        String body = '{"id":"evt_01","type":"checkout.session.completed","card_number":"4111111111111111","client_reference_id":"MD-ref003","data":{"object":{"client_reference_id":"MD-ref003"}}}';
+        String body = '{"id":"evt_01","type":"checkout.session.completed","card_number":"4111111111111111","data":{"object":{"client_reference_id":"MD-ref003","customer_email":"private@example.com","amount_total":1000}}}';
         Test.startTest();
         WebhookAuditService.log(body, 'Accepted', null);
         Test.stopTest();
 
         Webhook_Audit_Log__c entry = [SELECT Sanitized_Payload__c FROM Webhook_Audit_Log__c LIMIT 1];
         System.assert(!entry.Sanitized_Payload__c.contains('card_number'), 'card_number debe eliminarse del payload.');
+        System.assert(!entry.Sanitized_Payload__c.contains('private@example.com'), 'No se debe guardar correo del donante.');
         System.assert(entry.Sanitized_Payload__c.contains('client_reference_id'), 'client_reference_id debe preservarse.');
     }
 
