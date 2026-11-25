@@ -30,16 +30,16 @@
 
 | ID | RF Cubierto | Hito | Título / Rol | Estado | Evidencia |
 | :--- | :--- | :---: | :--- | :---: | :--- |
-| **US-D1** | RF-D1a, RF-V1 | E1 | Ver campañas y avance (Donante / Visitante) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-D2** | RF-D2, RF-D3, RF-D4 | E1 | Donar de forma anónima (Donante anónimo) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-D3** | RF-D3, RF-V1 | E1 | Registro previo y expiración (Donante) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-D4** | RF-D4 | E1 | Página de agradecimiento y soporte (Donante) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-C1** | RF-C1 | E1 | Reconocimiento público de aportaciones (Donante con crédito) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-F1** | RF-F1 | E1 | Datos fiscales CFDI 4.0 y visibilidad (Donante con factura) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-S1** | RF-S1 | E1 | Gestión de campañas y control al 100% (Staff Coordinación) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-S2** | RF-S2, RF-F2 | E1 | Monitoreo y filtro de facturas (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-S3** | RF-S3 | E1 | Confirmación manual y comprobante (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado E1](e1-implementation-status.md) |
-| **US-V2** | RF-V2, M2 | E1 | Prueba de seguridad de Guest User (Staff Coordinación) | Cumplida | [docs/seguridad.md](seguridad.md) · [Video demo E1](https://youtu.be/_o0NqD-dlAc) |
+| **US-D1** | RF-D1a, RF-V1 | E1 | Ver campañas y avance (Donante / Visitante) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-D2** | RF-D2, RF-D3, RF-D4 | E1 | Donar de forma anónima (Donante anónimo) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-D3** | RF-D3, RF-V1 | E1 | Registro previo y expiración (Donante) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-D4** | RF-D4 | E1 | Página de agradecimiento y soporte (Donante) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-C1** | RF-C1 | E1 | Reconocimiento público de aportaciones (Donante con crédito) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-F1** | RF-F1 | E1 | Datos fiscales CFDI 4.0 y visibilidad (Donante con factura) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-S1** | RF-S1 | E1 | Gestión de campañas y control al 100% (Staff Coordinación) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-S2** | RF-S2, RF-F2 | E1 | Monitoreo y filtro de facturas (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-S3** | RF-S3 | E1 | Confirmación manual y comprobante (Staff Tesorería) | Cumplida | [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado E1](e1-implementation-status.md) |
+| **US-V2** | RF-V2, M2 | E1 | Prueba de seguridad de Guest User (Staff Coordinación) | Cumplida | [docs/seguridad.md](seguridad.md) · [Video demo E1](https://youtu.be/L9RAdwRigyo) |
 | **US-D1b** | RF-D1b | E2 | Donación con monto libre $\ge \$10.00\text{ MXN}$ (Donante) | Cumplida | Commit `a35a447` · `PublicDonationControllerTest` y `donationForm.test.js` (`8700165`, `b0da3ea`) |
 | **US-D5** | RF-D5, RF-V3a | E2 | Confirmación automática vía webhook (Donante) | Pendiente | Sin endpoint `@RestResource` implementado en código |
 | **US-V3** | RF-V3b, M3 | E2 | Validación de firma e idempotencia (Staff Tesorería) | Pendiente | Sin verificación HMAC `Stripe-Signature` ni idempotencia en código |
@@ -85,7 +85,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA4 (Criterio propio - Salto con campaña única):** Dado que en la org existe únicamente una campaña activa, cuando un visitante entra al sitio público sin login, entonces el sitio omite la vista general de lista y presenta directamente la vista de detalle de esa campaña para donar de inmediato.
   * **CA5 (Criterio propio / Negativo - Campaña vencida o cerrada al 100%):** Dado que una campaña tiene su fecha límite vencida o alcanzó el 100% de su meta y está configurada para no admitir fondos adicionales, cuando un visitante intenta donar, entonces el sistema bloquea el formulario de donación y muestra un mensaje indicando que la campaña ya no recibe aportaciones.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -103,7 +103,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA3 (Criterio mínimo / Negativo - Desacoplamiento de factura):** Dado que elegí la modalidad puramente anónima sin capturar datos fiscales, cuando intento solicitar factura, entonces el sistema me impide proceder sin registrar RFC y datos tributarios; por el contrario, si selecciono factura pero marco la casilla independiente de no figurar en el muro público, mis datos fiscales se guardan únicamente para control interno de tesorería y mi nombre no se publica.
   * **CA4 (Criterio mínimo):** Dado que existe una donación anónima registrada en Salesforce, cuando el usuario de staff la consulta, entonces la visualiza claramente identificada bajo la modalidad anónima.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -120,7 +120,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo):** Dado que envié el formulario y se genera la sesión en Stripe, cuando se inspecciona la pasarela, entonces el pago incluye un identificador de referencia unívoco que permite a staff y al sistema vincular exactamente la transacción con la donación en Salesforce.
   * **CA3 (Criterio propio / Negativo - Expiración de donación abandonada):** Dado que un donante genera un registro en estado "Pendiente" pero abandona la ventana o la sesión en la pasarela caduca sin autorización bancaria, cuando la pasarela marca el intento como expirado o cancelado, entonces la donación en Salesforce cambia a estado "Cancelada / Expirada", evitando permanecer pendiente indefinidamente y sin sumar al avance de la campaña.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -138,7 +138,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA3 (Criterio mínimo):** Dado que me encuentro en la página de agradecimiento, cuando reviso la pantalla, parámetros URL o consola del navegador, entonces no se expone información personal ni montos de otros donantes.
   * **CA4 (Criterio propio - Contacto de soporte visible en E1):** Dado que estoy en la pantalla de agradecimiento, cuando busco asistencia, entonces visualizo claramente el correo de soporte institucional del programa para resolver dudas sobre el donativo.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -155,7 +155,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo):** Dado que aparezco en el muro público de reconocimientos, cuando cualquier persona inspecciona la vista, entonces únicamente se muestran mi nombre y el monto aportado (no aparece correo electrónico, teléfono, RFC ni ningún otro dato personal).
   * **CA3 (Criterio propio / Negativo - Exclusión de no pagadas):** Dado que una donación con crédito permanece en estado "Pendiente" o "Cancelada / Expirada", cuando un visitante consulta el reconocimiento de la campaña, entonces dicho donante no aparece listado hasta que su pago pase a estado "Pagada".
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -173,7 +173,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA3 (Criterio mínimo - Alcance no fiscal):** Dado que un donante con factura completa su aportación en modo de prueba, cuando se audita el sistema en Salesforce, entonces se corrobora que no se timbra ni genera ningún CFDI oficial ante el SAT.
   * **CA4 (Criterio propio - Visibilidad pública configurable):** Dado que solicité factura, cuando se confirma el pago, entonces mi Nombre/Razón Social y monto aparecen por defecto en el reconocimiento de la campaña para respaldar la transparencia del donativo ante fines fiscales, a menos que haya marcado explícitamente la casilla independiente para no figurar públicamente en el sitio.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -191,7 +191,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA3 (Criterio propio - Regla de meta al 100% y fecha de evento):** Dado que una campaña alcanza el 100% de su meta de recaudación o su fecha límite venció, cuando el sistema evalúa su disponibilidad, entonces el portal público deja de aceptar donaciones a menos que staff haya marcado la casilla de configuración "Permitir donaciones adicionales al superar la meta" en una campaña cuya fecha siga vigente.
   * **CA4 (Criterio propio / Negativo - Validación de meta económica):** Dado que un integrante de staff intenta guardar una campaña con meta menor o igual a cero, cuando intenta guardar el registro, entonces Salesforce arroja una regla de validación impidiendo guardar importes inválidos.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -208,7 +208,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo):** Dado que existen donaciones que solicitaron factura, cuando staff consulta el registro en Salesforce, entonces lo visualiza marcado como "Solicita factura" junto con el Nombre/Razón Social, RFC, Código Postal y Régimen Fiscal capturados.
   * **CA3 (Criterio mínimo):** Dado que existen registros de diversas modalidades, cuando staff selecciona la vista o filtro "Solicitan factura", entonces la lista muestra exclusivamente las aportaciones que requieren factura fiscal.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -225,7 +225,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo):** Dado que staff confirmó el pago, cuando el donante revisa su bandeja de correo, entonces recibe un comprobante/ticket con número de referencia, campaña, fecha, monto, modalidad, datos fiscales (si aplica) y el correo de soporte del programa.
   * **CA3 (Criterio propio / Negativo - Bloqueo de confirmación duplicada):** Dado que una donación ya se encuentra en estado "Pagada", cuando staff intenta accionar nuevamente la confirmación manual, entonces el sistema notifica que el pago ya fue validado y bloquea el reenvío redundante de comprobantes.
 * **Estado:** Cumplida
-* **Evidencia:** [Video demo E1](https://youtu.be/_o0NqD-dlAc) · [Estado técnico E1](e1-implementation-status.md)
+* **Evidencia:** [Video demo E1](https://youtu.be/L9RAdwRigyo) · [Estado técnico E1](e1-implementation-status.md)
 
 ---
 
@@ -242,7 +242,7 @@ Esta sección resume el estado técnico de las historias de Entrega 1 al cierre 
   * **CA2 (Criterio mínimo / Negativo):** Dado que existen registros de donaciones en la base de datos, cuando un usuario sin sesión intenta modificarlos o eliminarlos mediante llamadas externas, entonces la plataforma rechaza de forma estricta la transacción.
   * **CA3 (Criterio mínimo):** Dado el documento de seguridad (`docs/seguridad.md`), cuando un auditor o el profesor replica los pasos descritos, entonces obtiene exactamente los mismos resultados de bloqueo y denegación.
 * **Estado:** Cumplida
-* **Evidencia:** [docs/seguridad.md](seguridad.md) · [Video demo E1](https://youtu.be/_o0NqD-dlAc)
+* **Evidencia:** [docs/seguridad.md](seguridad.md) · [Video demo E1](https://youtu.be/L9RAdwRigyo)
 
 ---
 

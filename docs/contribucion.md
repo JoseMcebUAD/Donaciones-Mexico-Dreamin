@@ -39,7 +39,7 @@
 - Implementó las rutas de retorno desde Stripe sin exponer datos en URL
 - Muro de reconocimiento con donantes con consentimiento y conteo agregado de anónimos
 - Pruebas unitarias de Apex (6 pruebas dirigidas aprobadas con 92 % de cobertura en E1; suite ampliada en E2 a 8 clases `*Test.cls` + `DonationTestDataFactory.cls`)
-- **Evidencia (commits E1):** `169f6dc`, `a59c471`, `e826296`, `9fbf202`, `5c9e9b1`, `e749372`, `b178f0c`, `d3c1e80`, `3d6c5e3`, `111ff55`, `9ed1781`, `c56bc09`, `ac10110` · Video demo E1 (`https://youtu.be/_o0NqD-dlAc`)
+- **Evidencia (commits E1):** `169f6dc`, `a59c471`, `e826296`, `9fbf202`, `5c9e9b1`, `e749372`, `b178f0c`, `d3c1e80`, `3d6c5e3`, `111ff55`, `9ed1781`, `c56bc09`, `ac10110` · Video demo E1 (`https://youtu.be/L9RAdwRigyo`)
 
 ---
 
