@@ -180,7 +180,7 @@ Inventario completo de brechas técnicas y documentales para completar la Entreg
 > *"Actualiza el `README.md`"*
 
 #### 2. Qué se obtuvo
-* En `docs/backlog.md`: actualización del resumen de avance (`10/10` = `100%` en E1 y `10/14` = `71%` acumulado), cambio de estado de `Pendiente` / `En progreso` a `Cumplida` / `Completada (E1)` en el tablero, estado técnico y especificaciones de `US-D1` a `US-V2`, con enlaces reales al video demo (`https://youtu.be/_o0NqD-dlAc`), `docs/e1-implementation-status.md` y `docs/seguridad.md`.
+* En `docs/backlog.md`: actualización del resumen de avance (`10/10` = `100%` en E1 y `10/14` = `71%` acumulado), cambio de estado de `Pendiente` / `En progreso` a `Cumplida` / `Completada (E1)` en el tablero, estado técnico y especificaciones de `US-D1` a `US-V2`, con enlaces reales al video demo (`https://youtu.be/L9RAdwRigyo`), `docs/e1-implementation-status.md` y `docs/seguridad.md`.
 * En `README.md`: incorporación de la URL pública del sitio Experience Cloud, enlace directo a la sección de clasificación de datos personales en `docs/seguridad.md` y corrección de la referencia al archivo `docs/preguntas_y_reportes.md`.
 
 #### 3. Qué se verificó y cómo
