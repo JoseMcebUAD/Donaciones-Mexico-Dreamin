@@ -12,7 +12,7 @@ La Named Credential `Stripe_Test` existe en la sandbox. El webhook usa el sitio 
 
 ### (2) Video demo
 
-> **[Ver video de demostración](https://youtu.be/L9RAdwRigyo)**
+> **[Ver la página del video de demostración](https://josemcebuad.github.io/Donaciones-Mexico-Dreamin/)** · [Abrir en YouTube](https://youtu.be/L9RAdwRigyo)
 
 ### (3) Tablero de backlog
 
